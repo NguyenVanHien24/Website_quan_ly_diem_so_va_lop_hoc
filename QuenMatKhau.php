@@ -16,8 +16,6 @@
         <div class="row g-0 main-container">
             <div class="col-lg-5 welcome-section">
                 <h2>Hello, Welcome!</h2>
-                <p>Bạn chưa có tài khoản?</p>
-                <a href="#" class="btn-register">Đăng Ký</a>
             </div>
             <div class="col-lg-7 form-section">
                 <div class="form-wrapper">
