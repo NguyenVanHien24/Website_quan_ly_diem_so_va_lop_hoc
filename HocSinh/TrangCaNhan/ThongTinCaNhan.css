@@ -1,0 +1,71 @@
+/* === TIÊU ĐỀ === */
+.page-title {
+    font-weight: 800;
+    font-size: 2rem;
+    color: #000;
+}
+
+/* === AVATAR TRÒN === */
+.avatar-container {
+    width: 220px;
+    height: 220px;
+    background-color: #999; /* Màu xám đậm của avatar */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.avatar-container i {
+    font-size: 180px; /* Kích thước icon người */
+    color: #fff;
+    margin-top: 40px; /* Đẩy xuống để tạo hình bán thân */
+}
+
+/* === TEXT STYLING === */
+.text-secondary {
+    color: #9ca3af !important; /* Màu chữ xám nhạt */
+    font-weight: 500;
+}
+
+.fw-bold {
+    font-weight: 700 !important;
+}
+
+/* === CONTACT BOX (SĐT, EMAIL) === */
+.contact-box {
+    display: flex;
+    align-items: center;
+    background-color: #f3f4f6; /* Nền xám xanh rất nhạt */
+    padding: 12px 20px;
+    border-radius: 8px;
+    min-width: 180px;
+}
+
+.icon-wrap {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    color: #6c757d; /* Màu icon */
+    font-size: 1.2rem;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+    .avatar-container {
+        width: 150px;
+        height: 150px;
+    }
+    .avatar-container i {
+        font-size: 120px;
+        margin-top: 25px;
+    }
+    .ps-md-5 {
+        padding-left: 0 !important;
+    }
+}

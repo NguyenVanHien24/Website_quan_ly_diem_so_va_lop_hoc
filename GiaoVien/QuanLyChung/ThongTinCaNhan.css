@@ -1,0 +1,73 @@
+/* Tiêu đề trang */
+.page-title {
+    font-weight: 800;
+    color: #000;
+}
+
+/* Avatar tròn lớn */
+.profile-avatar {
+    width: 220px;
+    height: 220px;
+    background-color: #9ca3af; /* Màu xám giống ảnh */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+/* Icon người bên trong avatar */
+.profile-avatar i {
+    font-size: 180px; /* Kích thước icon lớn */
+    color: #fff;
+    margin-top: 40px; /* Đẩy icon xuống 1 chút để giống hình người bán thân */
+}
+
+/* Text màu xám nhạt cho các đoạn văn */
+.text-secondary {
+    color: #6c757d !important;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+/* Tiêu đề mục nhỏ (Giới thiệu, Bằng cấp...) */
+h6.fw-bold {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* === CONTACT BOX STYLING === */
+.contact-box {
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5; /* Màu nền xám xanh nhạt */
+    padding: 12px 20px;
+    border-radius: 8px;
+    min-width: 200px;
+}
+
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #6c757d;
+    font-size: 1.2rem;
+}
+
+/* Responsive: Trên mobile thì avatar nhỏ lại chút */
+@media (max-width: 768px) {
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+    }
+    .profile-avatar i {
+        font-size: 120px;
+        margin-top: 20px;
+    }
+    .ps-md-5 {
+        padding-left: 0 !important; /* Bỏ padding trái trên mobile */
+        margin-top: 2rem;
+    }
+}

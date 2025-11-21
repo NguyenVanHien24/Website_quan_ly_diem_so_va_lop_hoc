@@ -1,0 +1,84 @@
+/* === GENERAL LAYOUT === */
+.content-wrapper {
+    padding: 1rem;
+    background-color: #fff; /* Nền trắng tổng thể */
+    min-height: 80vh;
+}
+
+.section-title {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #000;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+/* === FORM CONTAINER (BOX XÁM) === */
+.form-container {
+    background-color: #f9fafb; /* Màu nền xám nhạt giống ảnh */
+    padding: 2rem;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+}
+
+/* Giới hạn chiều rộng cho box Phân quyền giống ảnh */
+.permission-box {
+    max-width: 600px; 
+}
+
+/* === INPUT STYLING === */
+.form-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    color: #4a5568;
+}
+.form-control:read-only {
+    background-color: #fff; /* Vẫn giữ nền trắng nhưng không cho sửa */
+    color: #718096;
+}
+
+/* Căn chỉnh Label (Text align right trên màn hình lớn) */
+@media (min-width: 768px) {
+    .text-end-md {
+        text-align: right;
+    }
+}
+
+/* === CHECKBOX STYLING === */
+.custom-checkbox {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid #cbd5e0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.custom-checkbox:checked {
+    background-color: #0b1a48;
+    border-color: #0b1a48;
+}
+
+/* === BUTTONS === */
+.btn-cancel {
+    background-color: #fff;
+    border: 1px solid #0b1a48;
+    color: #0b1a48;
+    font-weight: 600;
+    padding: 0.6rem 2rem;
+    border-radius: 4px;
+}
+.btn-cancel:hover {
+    background-color: #f0f2f5;
+}
+
+.btn-save {
+    background-color: #0b1a48;
+    border: 1px solid #0b1a48;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.6rem 2rem;
+    border-radius: 4px;
+}
+.btn-save:hover {
+    background-color: #1c2b5a;
+}

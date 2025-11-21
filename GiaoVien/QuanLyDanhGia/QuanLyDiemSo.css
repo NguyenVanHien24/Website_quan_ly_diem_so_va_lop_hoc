@@ -1,0 +1,158 @@
+/* ========================= */
+/* === GRADEBOOK PAGE CSS === */
+/* ========================= */
+.page-title {
+    font-weight: 800; 
+    font-size: 2.5rem; 
+    color: #1a202c; 
+    margin-bottom: 1.5rem;
+}
+.filter-section .form-select {
+    border-radius: 8px; 
+    border: 1px solid #cbd5e0; 
+    background-color: #fff;
+}
+.content-container {
+    background-color: #fff; 
+    padding: 2rem; 
+    border-radius: 12px; 
+    border: 1px solid #e2e8f0;
+}
+.table thead th {
+    color: #718096; 
+    font-weight: 600; 
+    text-transform: uppercase;
+    font-size: 0.75rem; 
+    border-bottom-width: 2px; 
+    border-color: #e2e8f0; 
+    padding: 1rem;
+}
+.table tbody td {
+    vertical-align: middle; 
+    padding: 1rem; 
+    color: #4a5568; 
+    border-color: #e2e8f0;
+}
+.action-icons a {
+    color: #718096; 
+    text-decoration: none; 
+    margin: 0 5px; 
+    font-size: 1.1rem;
+}
+.table-footer {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding-top: 1rem;
+    color: #718096; 
+    font-size: 0.9rem;
+}
+.pagination .page-link {
+    color: #718096; 
+    border: 1px solid #e2e8f0; 
+    margin: 0 2px; 
+    border-radius: 8px;
+}
+.btn-import {
+    background-color: #4a5568; 
+    color: #fff; 
+    border: none; 
+    font-weight: 600;
+    padding: 0.6rem 1.2rem; 
+    border-radius: 8px;
+}
+.btn-export {
+    background-color: #38a169; 
+    color: #fff; 
+    border: none; 
+    font-weight: 600;
+    padding: 0.6rem 1.2rem; 
+    border-radius: 8px;
+}
+/* ========================= */
+/* === GRADE ENTRY FORM CSS (MODAL VERSION) === */
+/* ========================= */
+/* Chỉnh lại background cho Modal giống thiết kế của bạn */
+#gradeEntryModal .modal-content {
+    background-color: #f0f2f5; /* Màu nền xám nhạt theo thiết kế */
+    border: none;
+    border-radius: 12px;
+}
+
+#gradeEntryModal .modal-header {
+    border-bottom: none;
+    padding: 2rem 2.5rem 0 2.5rem;
+}
+
+#gradeEntryModal .modal-body {
+    padding: 1rem 2.5rem 2.5rem 2.5rem;
+}
+
+/* Tiêu đề Modal */
+#gradeEntryModal h1.modal-title {
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: #1a202c;
+    margin: 0;
+}
+
+/* Thanh thông tin học sinh */
+.student-info-bar {
+    background-color: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    color: #4a5568;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Các label học kỳ */
+.semester-title {
+    background-color: #0b1a48;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    display: inline-block;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 0.9rem; /* Chữ nhỏ lại 1 xíu cho tinh tế */
+    text-transform: uppercase;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    background-color: #fff;
+    padding: 0.6rem;
+}
+
+/* Nút bấm */
+.btn-custom-cancel {
+    border: 1px solid #cbd5e0;
+    background-color: #fff;
+    color: #4a5568;
+    font-weight: 600;
+    padding: 0.6rem 2rem;
+    border-radius: 8px;
+}
+.btn-custom-cancel:hover { background-color: #e2e8f0; }
+
+.btn-custom-save {
+    background-color: #38a169;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    padding: 0.6rem 2rem;
+    border-radius: 8px;
+}
+.btn-custom-save:hover { background-color: #2f855a; }

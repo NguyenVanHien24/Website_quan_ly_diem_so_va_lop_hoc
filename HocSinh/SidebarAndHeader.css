@@ -1,0 +1,189 @@
+body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background-color: #f4f7fc;
+}
+
+/* ================== */
+/* == SIDEBAR CSS === */
+/* ================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background-color: #0b1a48;
+    color: #fff;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.sidebar-header .bi-mortarboard-fill { 
+    font-size: 3rem; 
+    margin-bottom: 10px; 
+}
+.sidebar-header h5 { margin: 0; 
+    font-weight: 600; 
+}
+
+.sidebar-menu-toggle {
+    display: flex; 
+    align-items: center; 
+    width: 100%; 
+    padding: 12px 15px; 
+    font-size: 1rem;
+    font-weight: 700; 
+    color: #dbe0f5; 
+    background: none; 
+    border: none; 
+    text-align: left; 
+    position: relative; 
+    text-decoration: none;
+}
+
+.sidebar-menu-toggle:hover { 
+    color: #fff; 
+}
+
+.sidebar-menu-toggle::after {
+    content: '\f282'; 
+    font-family: 'bootstrap-icons'; 
+    position: absolute; 
+    right: 15px; 
+    top: 50%;
+    transform: translateY(-50%); 
+    transition: transform 0.3s ease; 
+    font-size: 0.8rem;
+}
+
+.sidebar-menu-toggle[aria-expanded="true"]::after { 
+    transform: translateY(-50%) rotate(180deg); }
+
+.sidebar-submenu .nav-link {
+    color: #a7b1d3; 
+    padding: 10px 15px 10px 50px; 
+    display: flex; 
+    align-items: center;
+    border-radius: 8px; 
+    margin: 2px 0; 
+    font-weight: 500;
+}
+
+.sidebar-submenu .nav-link i { 
+    margin-right: 15px; 
+    font-size: 1.1rem; }
+.sidebar-submenu .nav-link:hover { 
+    background-color: #1c2b5a; 
+    color: #fff; }
+.sidebar-submenu .nav-link.active { 
+    background-color: #f0f2f5; 
+    color: #0b1a48; 
+    font-weight: 600; }
+
+/* ======================== */
+/* == MAIN CONTENT CSS === */
+/* ======================== */
+.main-content {
+    /* Dịch chuyển nội dung sang phải bằng chiều rộng của sidebar */
+    margin-left: 280px; 
+    width: calc(100% - 280px);
+}
+main {
+    padding: 3rem; /* Dòng này tạo khoảng đệm ở cả 4 phía */
+}
+
+/* ================== */
+/* === HEADER CSS === */
+/* ================== */
+.header {
+    background-color: #fff;
+    padding: 12px 30px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1020; /* Số lớn để đảm bảo header luôn ở trên */
+}
+
+.header .menu-toggle {
+    font-size: 1.5rem;
+    border: none;
+    background: none;
+    color: #333;
+}
+
+.search-form {
+    display: flex;
+    width: 350px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f9fafb;
+}
+
+.search-form .form-control {
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.search-form .form-control::placeholder {
+    color: #aaa;
+}
+
+.search-form .btn-search {
+    background-color: #0b1a48;
+    color: white;
+    border: none;
+    padding: 0 20px;
+}
+.search-form .btn-search:hover {
+    background-color: #1c2b5a;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* Khoảng cách giữa các icon */
+}
+
+.header-actions .bi-bell {
+    font-size: 1.4rem;
+    color: #555;
+    cursor: pointer;
+}
+
+.header-actions .dropdown-toggle::after {
+    display: none; /* Ẩn mũi tên mặc định của dropdown */
+}
+
+.header-actions .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+}
+
+.user-profile .bi-person-circle {
+    font-size: 1.8rem;
+    color: #0b1a48;
+}
+
+.user-profile span {
+    font-weight: 600;
+}
+
+.user-profile .bi-chevron-down {
+    font-size: 0.8rem;
+}
+/* Thêm vào cuối file SidebarAndHeader.css */
+

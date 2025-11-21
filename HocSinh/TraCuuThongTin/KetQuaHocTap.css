@@ -1,0 +1,90 @@
+/* === HEADER === */
+.page-title {
+    font-weight: 800;
+    font-size: 2rem;
+    color: #000;
+    text-transform: uppercase;
+}
+
+/* === TABLE STYLING === */
+.content-container {
+    border: 1px solid #e5e7eb;
+}
+
+.table thead th {
+    font-size: 0.75rem;
+    color: #6b7280; /* Màu chữ header xám */
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem 0.5rem;
+    background-color: #fff;
+    vertical-align: middle; /* Căn giữa nội dung header */
+}
+
+.table tbody td {
+    padding: 1rem 0.5rem;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+/* Checkbox vuông bo tròn */
+.form-check-input.custom-checkbox {
+    width: 1.2em;
+    height: 1.2em;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0;
+}
+.form-check-input:checked {
+    background-color: #0b1a48;
+    border-color: #0b1a48;
+}
+
+/* Icons Tác vụ */
+.action-icons i {
+    font-size: 1.2rem;
+    color: #374151; /* Màu xám đậm */
+}
+.action-icons .icon-download i {
+    color: #000; /* Icon download màu đen đậm hơn */
+    font-weight: bold;
+}
+
+/* === FOOTER & PAGINATION === */
+.table-footer {
+    background-color: #f3f4f6 !important; /* Nền xám nhạt */
+}
+
+.custom-page-btn {
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+    border-radius: 4px !important;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.9rem;
+    background-color: #fff;
+}
+.custom-page-number {
+    border: none;
+    background: transparent;
+    color: #374151;
+    font-weight: 700;
+    padding: 0.1rem 0.5rem;
+}
+
+/* === NÚT XUẤT BẢNG ĐIỂM === */
+.btn-success-custom {
+    background-color: #10b981; /* Màu xanh lá sáng */
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 0.7rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+.btn-success-custom:hover {
+    background-color: #059669;
+}

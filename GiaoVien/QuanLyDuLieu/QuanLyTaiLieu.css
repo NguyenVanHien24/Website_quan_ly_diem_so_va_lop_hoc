@@ -1,0 +1,110 @@
+/* === PAGE HEADER === */
+.page-title {
+    font-weight: 800;
+    font-size: 2rem;
+    color: #000;
+    text-transform: uppercase;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.btn-add-doc {
+    background-color: #0b1a48;
+    border: none;
+    font-weight: 700;
+    padding: 0.7rem 1.5rem;
+    text-transform: uppercase;
+    border-radius: 6px;
+}
+.btn-add-doc:hover {
+    background-color: #1c2b5a;
+}
+
+/* === TABLE STYLING === */
+.content-container {
+    background-color: #fff;
+    padding: 0;
+}
+.table thead th {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+.table tbody td {
+    padding: 1rem;
+    font-size: 0.95rem;
+}
+
+/* Checkbox tròn */
+.form-check-input.rounded-circle {
+    width: 1.3em;
+    height: 1.3em;
+    border: 1px solid #ccc;
+    margin-top: 0;
+}
+.form-check-input:checked {
+    background-color: #0b1a48;
+    border-color: #0b1a48;
+}
+
+/* === FORM MODAL STYLING === */
+#docFormModal .form-label {
+    font-size: 0.8rem;
+    color: #000;
+}
+#docFormModal .form-control, 
+#docFormModal .form-select {
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 0.6rem;
+}
+/* Radio button custom */
+#docFormModal .form-check-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Box upload file nền xám nhạt */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+/* === DELETE MODAL (Box xám + Dấu hỏi) === */
+.delete-box {
+    position: relative;
+    margin-top: 30px !important; 
+    border: 1px solid #e0e0e0;
+}
+
+/* Icon dấu hỏi */
+.question-icon {
+    position: absolute;
+    top: -25px; 
+    left: 20px; 
+    width: 50px;
+    height: 50px;
+    background-color: #0b1a48; 
+    color: white;
+    border-radius: 50%;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+/* Mũi nhọn icon */
+.question-icon::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 10px;
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #0b1a48 transparent;
+    transform: skew(20deg);
+}

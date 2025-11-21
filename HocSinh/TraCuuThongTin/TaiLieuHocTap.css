@@ -1,0 +1,86 @@
+/* === PAGE HEADER === */
+.page-title {
+    font-weight: 800;
+    font-size: 2rem;
+    color: #000;
+    text-transform: uppercase;
+}
+
+/* === TABLE STYLING === */
+.content-container {
+    border: 1px solid #e0e0e0;
+}
+
+.table thead th {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+    background-color: #fff;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 1rem;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Checkbox tròn */
+.form-check-input.rounded-circle {
+    width: 1.2em;
+    height: 1.2em;
+    border: 1px solid #cbd5e0;
+    margin-top: 0;
+    border-radius: 50% !important; /* Ép thành hình tròn */
+}
+.form-check-input:checked {
+    background-color: #0b1a48;
+    border-color: #0b1a48;
+}
+
+/* Icon tác vụ */
+.action-icons a {
+    color: #555;
+    font-size: 1.2rem;
+    text-decoration: none;
+}
+.action-icons a:hover {
+    color: #0b1a48;
+}
+
+/* === MODAL STYLING === */
+/* Tiêu đề trong modal */
+#m_title {
+    font-size: 1.8rem;
+    color: #000;
+}
+
+/* Đoạn văn mô tả */
+#m_desc {
+    color: #4b5563 !important; /* Màu xám đậm */
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* Khung preview ảnh */
+.preview-container {
+    background-color: #f9fafb;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Nút bấm trong modal */
+.btn-outline-dark {
+    border-color: #6c757d;
+    color: #0b1a48;
+    font-weight: 600;
+}
+.btn-outline-dark:hover {
+    background-color: #f8f9fa;
+    color: #0b1a48;
+}

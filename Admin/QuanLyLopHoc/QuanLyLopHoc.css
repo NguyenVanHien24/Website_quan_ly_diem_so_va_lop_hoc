@@ -1,0 +1,156 @@
+/* === TABLE CONTENT CSS === */
+/* ========================= */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.page-title {
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: #1a202c;
+}
+.btn-primary {
+    background-color: #0b1a48; border-color: #0b1a48; font-weight: 600;
+    padding: 0.6rem 1.2rem; border-radius: 8px;
+}
+.btn-primary:hover { background-color: #1c2b5a; border-color: #1c2b5a; }
+
+.content-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+.table {
+    border-color: #e2e8f0;
+}
+.table thead th {
+    color: #718096;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    border-bottom-width: 2px;
+    border-color: #e2e8f0;
+    padding: 1rem;
+}
+.table tbody td {
+    vertical-align: middle;
+    padding: 1rem;
+    color: #4a5568;
+    border-color: #e2e8f0;
+}
+.table tbody tr:hover {
+    background-color: #f7fafc;
+}
+.table .form-check-input {
+    border-color: #cbd5e0;
+}
+.badge-active, .badge-inactive {
+    display: inline-block;
+    padding: 0.3em 0.7em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 50rem;
+}
+.badge-active {
+    color: #2f855a;
+    background-color: #c6f6d5;
+}
+.badge-inactive {
+    color: #718096;
+    background-color: #e2e8f0;
+}
+.action-icons a {
+    color: #718096;
+    text-decoration: none;
+    margin: 0 5px;
+    font-size: 1.1rem;
+}
+.action-icons a:hover {
+    color: #0b1a48;
+}
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    color: #718096;
+    font-size: 0.9rem;
+}
+.pagination .page-link {
+    color: #718096;
+    border: 1px solid #e2e8f0;
+    margin: 0 2px;
+    border-radius: 8px;
+}
+.pagination .page-link:hover {
+    background-color: #f7fafc;
+    color: #0b1a48;
+}
+.pagination .page-item.active .page-link {
+    background-color: #0b1a48;
+    border-color: #0b1a48;
+    color: #fff;
+}
+/* ========================= */
+/* === FORM MODAL STYLING === */
+/* ========================= */
+#classFormModal .modal-title {
+    color: #4a5568; /* Màu xám đậm tiêu đề */
+    font-weight: 800;
+}
+#classFormModal .form-label {
+    color: #a0aec0; /* Màu xám nhạt của label */
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+}
+#classFormModal .form-control, 
+#classFormModal .form-select {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.6rem;
+    color: #2d3748;
+}
+#classFormModal .form-check-label {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+/* ========================= */
+/* === DELETE MODAL STYLING === */
+/* ========================= */
+/* Tạo khoảng trống phía trên cho icon nổi lên */
+.delete-box {
+    margin-top: 30px !important; 
+}
+
+/* Icon dấu hỏi hình tròn màu xanh đậm */
+.question-icon {
+    position: absolute;
+    top: -25px; /* Đẩy lên trên box xám */
+    left: -15px; /* Lệch sang trái */
+    width: 50px;
+    height: 50px;
+    background-color: #1c2b5a; /* Màu xanh thương hiệu */
+    color: white;
+    border-radius: 50%;
+    font-size: 30px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-family: sans-serif;
+}
+
+/* Nút Xóa màu đỏ */
+.btn-danger {
+    background-color: #c53030;
+    border: none;
+}
+.btn-danger:hover {
+    background-color: #9b2c2c;
+}

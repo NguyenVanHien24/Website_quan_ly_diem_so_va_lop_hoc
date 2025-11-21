@@ -1,0 +1,83 @@
+/* === PAGE HEADER === */
+.page-title {
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: #000;
+    text-transform: uppercase;
+}
+
+/* === TABLE LIST STYLING === */
+.content-container {
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.table thead th {
+    font-size: 1.1rem;
+    color: #000;
+    font-weight: 700; /* In đậm tiêu đề cột */
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #fff;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Hiệu ứng hover dòng */
+.notify-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.notify-row:hover {
+    background-color: #f8f9fa;
+}
+.notify-row:hover .text-primary-hover {
+    color: #0b1a48; /* Đổi màu tiêu đề khi hover */
+}
+
+/* Thanh cuộn cho bảng nếu dài */
+.table-responsive {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* === MODAL STYLING === */
+#viewDetailModal .modal-content {
+    background-color: #f4f6f8 !important; /* Nền xám nhạt giống ảnh */
+}
+
+#viewDetailModal .form-control,
+#viewDetailModal .input-group-text {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    color: #333;
+    background-color: #fff !important; /* Input nền trắng */
+}
+
+#viewDetailModal label {
+    font-weight: 500;
+    color: #555;
+}
+
+/* Nút Quay lại */
+.btn-outline-dark:hover {
+    background-color: #0b1a48;
+    color: #fff !important;
+}
+/* Class của Bootstrap để hiển thị text thuần thay vì input */
+.form-control-plaintext {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+    color: #212529;
+    background-color: transparent;
+    border: solid transparent;
+    border-width: 1px 0;
+}

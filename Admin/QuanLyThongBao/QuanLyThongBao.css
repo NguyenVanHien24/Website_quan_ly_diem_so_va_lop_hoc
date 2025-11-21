@@ -1,0 +1,145 @@
+/* ========================= */
+/* === NOTIFICATION LIST CSS === */
+/* ========================= */
+.main-header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;
+}
+.page-title {
+    font-weight: 800; font-size: 2.5rem; color: #1a202c;
+}
+.btn-primary {
+    background-color: #0b1a48; border-color: #0b1a48; font-weight: 600;
+    padding: 0.6rem 1.2rem; border-radius: 8px;
+}
+.content-container {
+    background-color: #fff; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0;
+}
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+}
+.nav-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 600;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding-left: 0;
+    padding-right: 0;
+    margin-right: 2rem;
+}
+.nav-tabs .nav-link.active {
+    color: #0b1a48;
+    border-color: #0b1a48;
+}
+.table thead th {
+    color: #718096; font-weight: 600; text-transform: uppercase;
+    font-size: 0.75rem; border-bottom-width: 2px; border-color: #e2e8f0; padding: 1rem;
+}
+.table tbody td {
+    vertical-align: middle; padding: 1rem; color: #4a5568; border-color: #e2e8f0;
+}
+.action-icons a {
+    color: #718096; text-decoration: none; margin: 0 5px; font-size: 1.1rem;
+}
+.table-footer {
+    display: flex; justify-content: space-between; align-items: center; padding-top: 1rem;
+    color: #718096; font-size: 0.9rem;
+}
+.pagination .page-link {
+    color: #718096; border: 1px solid #e2e8f0; margin: 0 2px; border-radius: 8px;
+}
+.floating-delete-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2.5rem;
+    background-color: #e53e3e;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Style cho Tab lọc trạng thái */
+.notify-tabs {
+    display: flex;
+    gap: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+.notify-tabs .tab-item {
+    text-decoration: none;
+    color: #718096;
+    font-weight: 600;
+    font-size: 1.1rem;
+    position: relative;
+}
+.notify-tabs .tab-item.active {
+    color: #0b1a48;
+    font-weight: 800;
+}
+.notify-tabs .tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -11px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #0b1a48;
+}
+
+/* === FORM STYLING === */
+.modal-title {
+    color: #000;
+}
+.form-control, .input-group-text {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 0.6rem;
+}
+.form-control:disabled, .form-control[readonly] {
+    background-color: #e9ecef;
+}
+
+/* Nút Lưu màu xanh lá cây (cho form Edit) */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* === DELETE MODAL STYLING (Tái sử dụng) === */
+.delete-box {
+    position: relative;
+    margin-top: 30px !important; 
+}
+.question-icon {
+    position: absolute;
+    top: -25px; 
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: #0b1a48; 
+    color: white;
+    border-radius: 50%;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+.question-icon::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 10px;
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #0b1a48 transparent;
+    transform: skew(20deg);
+}
+.btn-danger {
+    background-color: #c53030;
+    border-color: #c53030;
+}
