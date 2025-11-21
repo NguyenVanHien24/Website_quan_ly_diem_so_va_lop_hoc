@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="QuenMatKhau.css">
 </head>
+
 <body>
     <div class="container-fluid g-0">
         <div class="row g-0 main-container">
@@ -20,11 +22,11 @@
             <div class="col-lg-7 form-section">
                 <div class="form-wrapper">
                     <h1>Quên mật khẩu</h1>
-                    <p class="subtitle">Nhập địa chỉ email để đặt lại mật khẩu</p>                  
+                    <p class="subtitle">Nhập địa chỉ email để đặt lại mật khẩu</p>
                     <form>
                         <div class="input-group-custom">
                             <input type="email" id="email" class="form-control-custom" placeholder="Email" required>
-                             <i class="fa-regular fa-user input-icon"></i>
+                            <i class="fa-regular fa-user input-icon"></i>
                         </div>
                         <button type="submit" class="btn-submit">Gửi</button>
                     </form>
@@ -35,4 +37,5 @@
     </div>
 
 </body>
+
 </html>

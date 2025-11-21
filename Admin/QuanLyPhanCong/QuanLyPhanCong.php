@@ -1,12 +1,12 @@
-<?php 
-    require_once '../../config.php';
-    // Đặt tên trang để active menu bên sidebar
-    $currentPage = 'phan-cong'; 
-    // Tải CSS riêng cho trang này
-    $pageCSS = ['QuanLyPhanCong.css'];
-    require_once '../SidebarAndHeader.php';
-    // Tải JS xử lý logic
-    $pageJS = ['QuanLyPhanCong.js'];
+<?php
+require_once '../../config.php';
+// Đặt tên trang để active menu bên sidebar
+$currentPage = 'phan-cong';
+// Tải CSS riêng cho trang này
+$pageCSS = ['QuanLyPhanCong.css'];
+require_once '../SidebarAndHeader.php';
+// Tải JS xử lý logic
+$pageJS = ['QuanLyPhanCong.js'];
 ?>
 
 <main>
@@ -40,18 +40,18 @@
                         <td>Toán học</td>
                         <td>Nguyễn Văn A</td>
                         <td class="action-icons">
-                            <a href="#" class="btn-edit" 
-                               data-id="1" 
-                               data-class="10A1" 
-                               data-subject="Toán học" 
-                               data-teacher="Nguyễn Văn A"
-                               data-bs-toggle="modal" data-bs-target="#assignFormModal">
+                            <a href="#" class="btn-edit"
+                                data-id="1"
+                                data-class="10A1"
+                                data-subject="Toán học"
+                                data-teacher="Nguyễn Văn A"
+                                data-bs-toggle="modal" data-bs-target="#assignFormModal">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a href="#" class="btn-delete" 
-                               data-id="1" 
-                               data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                               <i class="bi bi-trash-fill"></i>
+                            <a href="#" class="btn-delete"
+                                data-id="1"
+                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                <i class="bi bi-trash-fill"></i>
                             </a>
                         </td>
                     </tr>
@@ -65,7 +65,7 @@
                         <td></td>
                         <td class="action-icons"></td>
                     </tr>
-                     <tr>
+                    <tr>
                         <td><input class="form-check-input" type="checkbox"></td>
                         <td>3</td>
                         <td></td>
@@ -77,7 +77,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="table-footer d-flex justify-content-between align-items-center mt-3">
             <div class="text-muted">1-4/18 mục</div>
             <nav>
@@ -93,7 +93,7 @@
     <div class="d-flex justify-content-end mt-4">
         <button class="btn btn-danger fw-bold px-4 py-2">Xóa phân công</button>
     </div>
-<!-- THÊM PHÂN CÔNG -->
+    <!-- THÊM PHÂN CÔNG -->
 
     <div class="modal fade" id="assignFormModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -145,12 +145,12 @@
             </div>
         </div>
     </div>
-<!-- XÓA PHÂN CÔNG -->
+    <!-- XÓA PHÂN CÔNG -->
 
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 bg-transparent">
-                 <div class="modal-body p-0">
+                <div class="modal-body p-0">
                     <div class="delete-box position-relative mx-auto p-4 text-center bg-white rounded-3 shadow-sm" style="max-width: 400px;">
                         <div class="question-icon">?</div>
                         <div class="bg-light rounded-3 py-4 px-3 mt-3 mb-4">

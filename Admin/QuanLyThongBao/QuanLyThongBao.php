@@ -1,9 +1,9 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'thong-bao'; 
-    $pageCSS = ['QuanLyThongBao.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['QuanLyThongBao.js'];
+<?php
+require_once '../../config.php';
+$currentPage = 'thong-bao';
+$pageCSS = ['QuanLyThongBao.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['QuanLyThongBao.js'];
 ?>
 
 <main>
@@ -45,22 +45,22 @@
                         <td>Giáo viên</td>
                         <td><span class="text-secondary fw-bold">ĐÃ GỬI</span></td>
                         <td class="action-icons">
-                            <a href="#" class="btn-view" 
-                               data-id="TB00001" data-title="Thông báo nghỉ lễ" data-content="Nội dung chi tiết..." 
-                               data-date="15/10/2025" data-receiver="teacher"
-                               data-bs-toggle="modal" data-bs-target="#viewNotifyModal">
+                            <a href="#" class="btn-view"
+                                data-id="TB00001" data-title="Thông báo nghỉ lễ" data-content="Nội dung chi tiết..."
+                                data-date="15/10/2025" data-receiver="teacher"
+                                data-bs-toggle="modal" data-bs-target="#viewNotifyModal">
                                 <i class="bi bi-box-arrow-up-right"></i>
                             </a>
-                            <a href="#" class="btn-edit" 
-                               data-id="TB00001" data-title="Thông báo nghỉ lễ" data-content="Nội dung chi tiết..." 
-                               data-date="15/10/2025" data-receiver="teacher"
-                               data-bs-toggle="modal" data-bs-target="#editNotifyModal">
+                            <a href="#" class="btn-edit"
+                                data-id="TB00001" data-title="Thông báo nghỉ lễ" data-content="Nội dung chi tiết..."
+                                data-date="15/10/2025" data-receiver="teacher"
+                                data-bs-toggle="modal" data-bs-target="#editNotifyModal">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a href="#" class="btn-delete" 
-                               data-id="TB00001" 
-                               data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                               <i class="bi bi-trash-fill"></i>
+                            <a href="#" class="btn-delete"
+                                data-id="TB00001"
+                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                <i class="bi bi-trash-fill"></i>
                             </a>
                         </td>
                     </tr>
@@ -81,7 +81,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="table-footer d-flex justify-content-between align-items-center mt-3">
             <div class="text-muted">1-4/18 mục</div>
             <nav>
@@ -185,7 +185,7 @@
                     <div class="row mb-4 align-items-center">
                         <label class="col-md-3 text-secondary">Người nhận:</label>
                         <div class="col-md-9">
-                             <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="receiverEdit" id="erx1" value="all">
                                 <label class="form-check-label">Toàn hệ thống</label>
                             </div>
@@ -193,7 +193,7 @@
                                 <input class="form-check-input" type="radio" name="receiverEdit" id="erx2" value="teacher">
                                 <label class="form-check-label">Giáo viên</label>
                             </div>
-                             <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="receiverEdit" id="erx3" value="student">
                                 <label class="form-check-label">Học sinh</label>
                             </div>
@@ -213,7 +213,7 @@
             <div class="modal-content p-4 bg-light">
                 <h2 class="modal-title fw-bold mb-4">CHI TIẾT THÔNG BÁO</h2>
                 <form>
-                     <div class="row mb-3 align-items-center">
+                    <div class="row mb-3 align-items-center">
                         <label class="col-md-3 text-secondary">Mã thông báo:</label>
                         <div class="col-md-9"><input type="text" class="form-control bg-white" id="v_id" readonly></div>
                     </div>
@@ -234,10 +234,10 @@
                             </div>
                         </div>
                     </div>
-                     <div class="row mb-4 align-items-center">
+                    <div class="row mb-4 align-items-center">
                         <label class="col-md-3 text-secondary">Người nhận:</label>
                         <div class="col-md-9">
-                             <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="receiverView" id="vrx1" value="all" disabled>
                                 <label class="form-check-label">Toàn hệ thống</label>
                             </div>
@@ -245,7 +245,7 @@
                                 <input class="form-check-input" type="radio" name="receiverView" id="vrx2" value="teacher" disabled>
                                 <label class="form-check-label">Giáo viên</label>
                             </div>
-                             <div class="form-check form-check-inline">
+                            <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="receiverView" id="vrx3" value="student" disabled>
                                 <label class="form-check-label">Học sinh</label>
                             </div>
@@ -262,7 +262,7 @@
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 bg-transparent">
-                 <div class="modal-body p-0">
+                <div class="modal-body p-0">
                     <div class="delete-box position-relative mx-auto p-4 text-center bg-white rounded-3 shadow-sm" style="max-width: 400px;">
                         <div class="question-icon">?</div>
                         <div class="bg-light rounded-3 py-4 px-3 mt-3 mb-4">

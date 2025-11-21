@@ -1,10 +1,10 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'thong-tin'; 
-    // Gọi file CSS riêng
-    $pageCSS = ['ThongTinCaNhan.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['ThongTinCaNhan.js'];
+<?php
+require_once '../../config.php';
+$currentPage = 'thong-tin';
+// Gọi file CSS riêng
+$pageCSS = ['ThongTinCaNhan.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['ThongTinCaNhan.js'];
 ?>
 
 <main class="p-4">
@@ -23,7 +23,7 @@
             <div class="info-section mb-4">
                 <h6 class="fw-bold text-dark">Giới thiệu chung:</h6>
                 <p class="text-secondary">
-                    Thầy là một giáo viên tận tâm, có nhiều năm kinh nghiệm trong giảng dạy, 
+                    Thầy là một giáo viên tận tâm, có nhiều năm kinh nghiệm trong giảng dạy,
                     luôn quan tâm và khuyến khích học sinh phát triển cả kiến thức lẫn kỹ năng sống.
                 </p>
             </div>
@@ -55,7 +55,7 @@
                     </div>
                     <span class="fw-bold text-dark">0988888888</span>
                 </div>
-                
+
                 <div class="contact-box">
                     <div class="icon-wrapper">
                         <i class="bi bi-envelope"></i>
