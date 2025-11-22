@@ -1,20 +1,24 @@
 <?php
 /*
- * File này định nghĩa đường dẫn gốc cho website.
- * Mọi link và file include sẽ dùng hằng số 'BASE_URL' này.
- * Đặt file này ở thư mục gốc của dự án.
+ * File config.php chuẩn cho cả 2 máy
  */
 
-// Tự động phát hiện giao thức (http hoặc https)
+// 1. Tự động phát hiện giao thức
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
 
-// Tự động phát hiện tên máy chủ (ví dụ: localhost)
+// 2. Tự động phát hiện host
 $host = $_SERVER['HTTP_HOST'];
 
-// Đường dẫn thư mục gốc của dự án (bắt đầu bằng dấu /)
-// Dựa trên đường dẫn của bạn, nó sẽ là:
-$project_folder = '/Website quan ly diem so va lop hoc/';
+// 3. XỬ LÝ THÔNG MINH: Tự động chọn thư mục dựa trên cổng (port)
+// Nếu thấy có cổng :3000 (máy bạn của bạn)
+if (strpos($host, ':3000') !== false) {
+    $project_folder = '/'; 
+} 
+// Nếu không (máy của bạn dùng XAMPP mặc định)
+else {
+    $project_folder = '/Website quan ly diem so va lop hoc/';
+}
 
-// Định nghĩa hằng số BASE_URL
+// 4. Định nghĩa hằng số BASE_URL
 define('BASE_URL', $protocol . '://' . $host . $project_folder);
 ?>
