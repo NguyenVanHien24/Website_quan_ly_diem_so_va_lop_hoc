@@ -187,12 +187,12 @@
                         <i class="bi bi-chevron-down ms-1"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Thông tin cá nhân</a></li>
+                        <!-- <li><a class="dropdown-item" href="#">Thông tin cá nhân</a></li> -->
                         <li><a class="dropdown-item" href="#">Cài đặt</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
+                        <li><a class="dropdown-item" href="../DangNhap.php">Đăng xuất</a></li>
                     </ul>
                 </div>
             </div>

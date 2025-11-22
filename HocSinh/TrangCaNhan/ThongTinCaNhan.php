@@ -1,9 +1,49 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'thong-tin'; 
-    $pageCSS = ['ThongTinCaNhan.css'];
-    require_once '../SidebarAndHeader.php'; 
-    $pageJS = ['ThongTinCaNhan.js'];
+<?php
+require_once '../../config.php';
+session_start();
+
+// ==== Kiểm tra đăng nhập ====
+if (!isset($_SESSION['userID'])) {
+    header('Location: ../dangnhap.php');
+    exit();
+}
+
+// ==== Chỉ cho phép giáo viên ====
+if ($_SESSION['vaiTro'] !== 'HocSinh') {
+    header('Location: ../dangnhap.php');
+    exit();
+}
+
+$currentPage = 'thong-tin';
+$pageCSS = ['ThongTinCaNhan.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['ThongTinCaNhan.js'];
+
+// ====== KẾT NỐI DATABASE ======
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "cdtn";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+mysqli_set_charset($conn, "utf8");
+
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
+}
+
+// ==== Lấy thông tin học sinh ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, h.maLopHienTai, h.maHS
+        FROM user u
+        JOIN hocsinh h ON u.userId = h.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
 ?>
 
 <main>
@@ -21,17 +61,17 @@
                 <div class="info-list">
                     <div class="row mb-3">
                         <div class="col-4 col-sm-3 fw-bold text-dark">Mã học sinh:</div>
-                        <div class="col-8 col-sm-9 text-secondary">K25101207</div>
+                        <div class="col-8 col-sm-9 text-secondary"><?= htmlspecialchars($teacher['maHS']) ?></div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-4 col-sm-3 fw-bold text-dark">Họ và tên:</div>
-                        <div class="col-8 col-sm-9 text-secondary">Hoàng Thảo Nhi</div>
+                        <div class="col-8 col-sm-9 text-secondary"><?= htmlspecialchars($teacher['hoVaTen']) ?></div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-4 col-sm-3 fw-bold text-dark">Lớp:</div>
-                        <div class="col-8 col-sm-9 text-secondary">10A1</div>
+                        <div class="col-8 col-sm-9 text-secondary"><?= htmlspecialchars($teacher['maLopHienTai']) ?></div>
                     </div>
 
                     <div class="row mb-4">
@@ -42,11 +82,11 @@
                     <div class="row mb-5">
                         <div class="col-6 col-sm-3">
                             <span class="fw-bold text-dark me-2">Tuổi:</span>
-                            <span class="text-secondary">34</span>
+                            <span class="text-secondary">16</span>
                         </div>
                         <div class="col-6 col-sm-4">
                             <span class="fw-bold text-dark me-2">Giới tính:</span>
-                            <span class="text-secondary">Nữ</span>
+                            <span class="text-secondary"><?= htmlspecialchars($teacher['gioiTinh']) ?></span>
                         </div>
                     </div>
 
@@ -55,14 +95,14 @@
                             <div class="icon-wrap">
                                 <i class="bi bi-telephone"></i>
                             </div>
-                            <span class="fw-bold text-dark">0988888888</span>
+                            <span class="fw-bold text-dark"><?= htmlspecialchars($teacher['sdt']) ?></span>
                         </div>
 
                         <div class="contact-box">
                             <div class="icon-wrap">
                                 <i class="bi bi-envelope"></i>
                             </div>
-                            <span class="fw-bold text-dark">nva01@gmail.com</span>
+                            <span class="fw-bold text-dark"><?= htmlspecialchars($teacher['email']) ?></span>
                         </div>
                     </div>
 
