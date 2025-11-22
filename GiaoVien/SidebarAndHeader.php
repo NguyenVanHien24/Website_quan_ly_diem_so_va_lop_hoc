@@ -1,5 +1,6 @@
 <?php
 require_once '../../config.php';
+require_once '../csdl/db.php';
 // Khởi tạo session nếu chưa có
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -22,19 +23,6 @@ $currentPage = 'thong-tin';
 $pageCSS = ['ThongTinCaNhan.css'];
 require_once '../SidebarAndHeader.php';
 $pageJS = ['ThongTinCaNhan.js'];
-
-// ====== KẾT NỐI DATABASE ======
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "cdtn";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-mysqli_set_charset($conn, "utf8");
-
-if ($conn->connect_error) {
-    die("Kết nối thất bại: " . $conn->connect_error);
-}
 
 // ==== Lấy thông tin giáo viên từ DB ====
 $userID = $_SESSION['userID'];
@@ -95,7 +83,7 @@ $stmt->close();
                             <!-- SỬA LINK: Bỏ "Admin/" khỏi link Dashboard -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-tin') {
                                                     echo 'active';
-                                                } ?>" href="../QuanLyChung/ThongTinCaNhan.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/ThongTinCaNhan.php">
                                 <i class="bi bi-house-door"></i> Thông tin cá nhân
                             </a>
                         </li>
@@ -103,7 +91,7 @@ $stmt->close();
                             <!-- SỬA LINK: Bỏ "Admin/" (Giả sử file HocSinh.php cũng ở gốc) -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'hoc-sinh') {
                                                     echo 'active';
-                                                } ?>" href="../QuanLyChung/QuanLyHocSinh.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyHocSinh.php">
                                 <i class="bi bi-people"></i> Học sinh
                             </a>
                         </li>
@@ -111,7 +99,7 @@ $stmt->close();
                             <!-- SỬA LINK: Bỏ "Admin/" (Giả sử file LopHoc.php cũng ở gốc) -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'lop-hoc') {
                                                     echo 'active';
-                                                } ?>" href="../QuanLyChung/QuanLyLopHoc.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyLopHoc.php">
                                 <i class="bi bi-easel"></i> Lớp học
                             </a>
                         </li>
@@ -125,14 +113,14 @@ $stmt->close();
                         <li class="nav-item">
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'mon-hoc') {
                                                     echo 'active';
-                                                } ?>" href="../QuanLyDuLieu/QuanLyMonHoc.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDuLieu/QuanLyMonHoc.php">
                                 <i class="bi bi-journal-bookmark"></i> Môn học
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'tai-lieu') {
                                                     echo 'active';
-                                                } ?>" href="../QuanLyDuLieu/QuanLyTaiLieu.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDuLieu/QuanLyTaiLieu.php">
                                 <i class="bi bi-file-earmark-text"></i> Tài liệu
                             </a>
                         </li>
@@ -147,7 +135,7 @@ $stmt->close();
                             <!-- KHÔNG ĐỔI: Link này vẫn trỏ vào Admin/QuanLyChuyenCan/ -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'chuyen-can') {
                                                     echo 'active';
-                                                } ?>" href="../QuanLyDanhGia/QuanLyChuyenCan.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyChuyenCan.php">
                                 <i class="bi bi-pen"></i> Chuyên cần
                             </a>
                         </li>
@@ -155,7 +143,7 @@ $stmt->close();
                             <!-- KHÔNG ĐỔI: Giả sử DiemSo.php cũng nằm trong Admin -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'diem-so') {
                                                     echo 'active';
-                                                } ?>" href="../QuanLyDanhGia/QuanLyDiemSo.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyDiemSo.php">
                                 <i class="bi bi-clipboard-data"></i> Điểm số
                             </a>
                         </li>
@@ -169,7 +157,7 @@ $stmt->close();
                         <li class="nav-item">
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-bao') {
                                                     echo 'active';
-                                                } ?>" href="../ThongBao/ThongBao.php">
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/ThongBao/ThongBao.php">
                                 <i class="bi bi-bell"></i> Xem thông báo
                             </a>
                         </li>
@@ -202,7 +190,7 @@ $stmt->close();
                         <i class="bi bi-chevron-down ms-1"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="../QuanLyChung/ThongTinCaNhan.php">Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/ThongTinCaNhan.php">Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item" href="#">Cài đặt</a></li>
                         <li>
                             <hr class="dropdown-divider">

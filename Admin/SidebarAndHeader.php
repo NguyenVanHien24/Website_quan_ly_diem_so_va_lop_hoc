@@ -130,13 +130,13 @@
                                 <i class="bi bi-bell"></i> Thông báo
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'su-kien') {
                                                     echo 'active';
                                                 } ?>" href="<?php echo BASE_URL; ?>SuKien.php">
                                 <i class="bi bi-calendar-event"></i> Sự kiện
                             </a>
-                        </li>
+                        </li> -->
                     </ul>
                 </div>
             </li>
@@ -192,7 +192,7 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="../DangNhap.php">Đăng xuất</a></li>
+                        <li><a class="dropdown-item" href="../../DangNhap.php">Đăng xuất</a></li>
                     </ul>
                 </div>
             </div>

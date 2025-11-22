@@ -1,5 +1,6 @@
 <?php
 require_once '../../config.php';
+require_once '../csdl/db.php';
 // Khởi tạo session nếu chưa có
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -23,18 +24,6 @@ $pageCSS = ['ThongTinCaNhan.css'];
 require_once '../SidebarAndHeader.php';
 $pageJS = ['ThongTinCaNhan.js'];
 
-// ====== KẾT NỐI DATABASE ======
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "cdtn";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-mysqli_set_charset($conn, "utf8");
-
-if ($conn->connect_error) {
-    die("Kết nối thất bại: " . $conn->connect_error);
-}
 
 // ==== Lấy thông tin học sinh ====
 $userID = $_SESSION['userID'];
@@ -91,13 +80,13 @@ $stmt->close();
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
                             <!-- SỬA LINK: Bỏ "Admin/" khỏi link Dashboard -->
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-tin') { echo 'active'; } ?>" href="../TrangCaNhan/ThongTinCaNhan.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-tin') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>HocSinh/TrangCaNhan/ThongTinCaNhan.php">
                                 <i class="bi bi-house-door"></i> Thông tin cá nhân
                             </a>
                         </li>
                         <li class="nav-item">
                             <!-- SỬA LINK: Bỏ "Admin/" (Giả sử file HocSinh.php cũng ở gốc) -->
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-bao') { echo 'active'; } ?>" href="../TrangCaNhan/ThongBao.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-bao') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>HocSinh/TrangCaNhan/ThongBao.php">
                                 <i class="bi bi-people"></i>Thông báo
                             </a>
                         </li>
@@ -109,12 +98,12 @@ $stmt->close();
                 <div class="collapse show" id="tracuuthongtinCollapse">
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'tai-lieu') { echo 'active'; } ?>" href="../TraCuuThongTin/TaiLieuHocTap.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'tai-lieu') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>HocSinh/TraCuuThongTin/TaiLieuHocTap.php">
                                 <i class="bi bi-journal-bookmark"></i>Tài liệu học tập
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'ket-qua') { echo 'active'; } ?>" href="../TraCuuThongTin/KetQuaHocTap.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'ket-qua') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>HocSinh/TraCuuThongTin/KetQuaHocTap.php">
                                 <i class="bi bi-file-earmark-text"></i>Kết quả học tập
                             </a>
                         </li>
@@ -147,7 +136,7 @@ $stmt->close();
                         <i class="bi bi-chevron-down ms-1"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="../TrangCaNhan/ThongTinCaNhan.php">Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>HocSinh/TrangCaNhan/ThongTinCaNhan.php">Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item" href="#">Cài đặt</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="../../DangNhap.php">Đăng xuất</a></li>
