@@ -379,7 +379,7 @@ CREATE TABLE `giaovien_monhoc` (
 --
 
 CREATE TABLE `hocsinh` (
-  `maHS` int(11) NOT NULL,
+  `maHS` int(11) NOT NULL AUTO_INCREMENT,
   `userId` int(11) NOT NULL,
   `maLopHienTai` int(11) DEFAULT NULL,
   `trangThaiHoatDong` varchar(50) DEFAULT NULL,
@@ -1123,6 +1123,10 @@ ALTER TABLE `thongbaouser`
 --
 ALTER TABLE `user`
   MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+-- AUTO_INCREMENT for table `hocsinh`
+ALTER TABLE `hocsinh`
+  MODIFY `maHS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- Constraints for dumped tables
