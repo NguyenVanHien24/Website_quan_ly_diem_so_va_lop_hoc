@@ -1,9 +1,34 @@
 <?php
+session_start();
 require_once '../../config.php';
+// ==== Kiểm tra đăng nhập ====
+if (!isset($_SESSION['userID'])) {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+
+// ==== Chỉ cho phép giáo viên ====
+if ($_SESSION['vaiTro'] !== 'GiaoVien') {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
 $currentPage = 'diem-so';
 $pageCSS = ['QuanLyDiemSo.css'];
 require_once '../SidebarAndHeader.php';
 $pageJS = ['QuanLyDiemSo.js'];
+// ==== Lấy thông tin giáo viên từ DB ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
+        FROM user u
+        JOIN giaovien g ON u.userId = g.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
+
 ?>
 <main>
     <h1 class="page-title">BẢNG ĐIỂM</h1>

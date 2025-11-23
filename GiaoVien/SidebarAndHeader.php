@@ -1,28 +1,18 @@
 <?php
 require_once '../../config.php';
-require_once '../csdl/db.php';
-// Khởi tạo session nếu chưa có
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
 
-// ==== Kiểm tra đăng nhập ====
-if (!isset($_SESSION['userID'])) {
-    header('Location: ../../dangnhap.php');
-    exit();
-}
+// ====== KẾT NỐI DATABASE ======
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "cdtn";
 
-// ==== Chỉ cho phép giáo viên ====
-if ($_SESSION['vaiTro'] !== 'GiaoVien') {
-    header('Location: ../../dangnhap.php');
-    exit();
-}
+$conn = new mysqli($servername, $username, $password, $dbname);
+mysqli_set_charset($conn, "utf8");
 
-$currentPage = 'thong-tin';
-// Gọi file CSS riêng
-$pageCSS = ['ThongTinCaNhan.css'];
-require_once '../SidebarAndHeader.php';
-$pageJS = ['ThongTinCaNhan.js'];
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
+}
 
 // ==== Lấy thông tin giáo viên từ DB ====
 $userID = $_SESSION['userID'];
