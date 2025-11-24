@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         $conn->begin_transaction();
         if (!$conn->query("INSERT INTO user (hoVaTen,email,sdt,gioiTinh,matKhau,vaiTro)
-    VALUES ('$name','$email','$phone','$gender','123456','HocSinh')")) {
+    VALUES ('$name','$email','$phone','$gender','12345678','HocSinh')")) {
             $response['error'] = $conn->error;
             echo json_encode($response);
             exit();
@@ -314,9 +314,15 @@ $pageJS = ['QuanLyHocSinh.js'];
                             <div class="col-md-4">
                                 <label class="form-label">Lớp:</label>
                                 <select class="form-select" id="s_class">
-                                    <option value="10A1">10A1</option>
-                                    <option value="11A4">11A4</option>
-                                    <option value="12A1">12A1</option>
+                                    <option value="">-- Chọn lớp --</option>
+                                    <?php
+                                    $lopRs = $conn->query("SELECT tenLop FROM lophoc ORDER BY tenLop ASC");
+                                    if ($lopRs && $lopRs->num_rows > 0) {
+                                        while ($lop = $lopRs->fetch_assoc()) {
+                                            echo '<option value="' . htmlspecialchars($lop['tenLop']) . '">' . htmlspecialchars($lop['tenLop']) . '</option>';
+                                        }
+                                    }
+                                    ?>
                                 </select>
                             </div>
                             <div class="col-md-8 d-flex align-items-end">

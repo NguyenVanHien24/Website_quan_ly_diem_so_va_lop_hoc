@@ -25,62 +25,75 @@ if (!$result) {
     die("Lỗi SQL: " . $conn->error);
 }
 
-// XỬ LÝ THÊM GIÁO VIÊN
+// Thêm giáo viên
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["mode"] === "add") {
-
     $hoVaTen = $_POST['t_name'];
     $email = $_POST['t_email'];
     $sdt = $_POST['t_phone'];
     $gioiTinh = $_POST['t_gender'];
     $boMon = $_POST['t_dept'];
-    $trangThai = $_POST['status'] == "Hoạt động" ? 1 : 0;
+    $trinhDo = $_POST['t_degree'] ?? '';
+    $phongBan = $_POST['t_office'] ?? '';
+    $trangThai = $_POST['status'] == "Hoạt động" ? "Hoạt động" : "Tạm dừng";
+    $namHoc = $_POST['t_year'] ?? '';
+    $kyHoc = intval($_POST['t_semester'] ?? 1);
 
-    $stmt = $conn->prepare("
-        INSERT INTO user (hoVaTen, email, sdt, gioiTinh, matKhau, vaiTro, trangThai) 
-        VALUES (?, ?, ?, ?, '12345678', 'GiaoVien', ?)
-    ");
-    $stmt->bind_param("ssssi", $hoVaTen, $email, $sdt, $gioiTinh, $trangThai);
+    // Thêm vào user
+    $stmt = $conn->prepare("INSERT INTO user (hoVaTen,email,sdt,gioiTinh,matKhau,vaiTro) VALUES (?,?,?,?, '12345678','GiaoVien')");
+    if (!$stmt) {
+        die("Lỗi prepare user: " . $conn->error);
+    }
+    $stmt->bind_param("ssss", $hoVaTen, $email, $sdt, $gioiTinh);
     $stmt->execute();
+    $userId = $conn->insert_id;
+
+    // Thêm vào giaovien
+    $stmtGV = $conn->prepare("INSERT INTO giaovien (userId,boMon,trinhDo,phongBan,trangThaiHoatDong,namHoc,kyHoc) VALUES (?,?,?,?,?,?,?)");
+    if (!$stmtGV) {
+        die("Lỗi prepare giaovien: " . $conn->error);
+    }
+    $stmtGV->bind_param("isssisi", $userId, $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc);
+    $stmtGV->execute();
 
     header("Location: QuanLyGiaoVien.php");
     exit();
 }
 
-// XỬ LÝ SỬA GIÁO VIÊN
+// Sửa giáo viên
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["mode"] === "edit") {
-
-    $maGV = intval($_POST["maGV"]);
-
+    $maGV = intval($_POST['maGV']);
     $hoVaTen = $_POST['t_name'];
     $email = $_POST['t_email'];
     $sdt = $_POST['t_phone'];
     $gioiTinh = $_POST['t_gender'];
     $boMon = $_POST['t_dept'];
-    $trinhDo = $_POST['t_degree'];
-    $phongBan = $_POST['t_office'];
+    $trinhDo = $_POST['t_degree'] ?? '';
+    $phongBan = $_POST['t_office'] ?? '';
     $trangThai = ($_POST['status'] === "Hoạt động") ? "Hoạt động" : "Tạm dừng";
+    $namHoc = $_POST['t_year'] ?? '';
+    $kyHoc = intval($_POST['t_semester'] ?? 1);
 
-    // UPDATE user
-    $sqlUser = "
-        UPDATE user 
-        SET hoVaTen=?, email=?, sdt=?, gioiTinh=?
-        WHERE userId = (SELECT userId FROM giaovien WHERE maGV=?)
-    ";
+    // Lấy userId trước
+    $res = $conn->query("SELECT userId FROM giaovien WHERE maGV=$maGV");
+    if ($res && $res->num_rows > 0) {
+        $userId = $res->fetch_assoc()['userId'];
 
-    $stmUser = $conn->prepare($sqlUser);
-    $stmUser->bind_param("ssssi", $hoVaTen, $email, $sdt, $gioiTinh, $maGV);
-    $stmUser->execute();
+        // Update user
+        $stmt = $conn->prepare("UPDATE user SET hoVaTen=?, email=?, sdt=?, gioiTinh=? WHERE userId=?");
+        if (!$stmt) {
+            die("Lỗi prepare update user: " . $conn->error);
+        }
+        $stmt->bind_param("ssssi", $hoVaTen, $email, $sdt, $gioiTinh, $userId);
+        $stmt->execute();
 
-    // UPDATE giaovien
-    $sqlGV = "
-        UPDATE giaovien 
-        SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?
-        WHERE maGV=?
-    ";
-
-    $stmGV = $conn->prepare($sqlGV);
-    $stmGV->bind_param("ssssi", $boMon, $trinhDo, $phongBan, $trangThai, $maGV);
-    $stmGV->execute();
+        // Update giaovien
+        $stmtGV = $conn->prepare("UPDATE giaovien SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?, namHoc=?, kyHoc=? WHERE maGV=?");
+        if (!$stmtGV) {
+            die("Lỗi prepare update giaovien: " . $conn->error);
+        }
+        $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $maGV);
+        $stmtGV->execute();
+    }
 
     header("Location: QuanLyGiaoVien.php");
     exit();
@@ -229,22 +242,34 @@ $pageJS = ['QuanLyGiaoVien.js'];
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label class="form-label">Năm học:</label>
-                                <select class="form-select">
-                                    <option>2024-2025</option>
+                                <select class="form-select" id="t_year" name="t_year">
+                                    <option value="2024-2025">2024-2025</option>
+                                    <option value="2024-2025">2025-2026</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Học kỳ:</label>
-                                <select class="form-select">
-                                    <option>1</option>
+                                <select class="form-select" id="t_semester" name="t_semester">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Bộ môn:</label>
                                 <select class="form-select" id="t_dept" name="t_dept">
-                                    <option value="Toán Học">Toán Học</option>
-                                    <option value="Văn Học">Văn Học</option>
-                                    <option value="Vật Lý">Vật Lý</option>
+                                    <option value="">-- Chọn bộ môn --</option>
+                                    <?php
+                                    // Lấy danh sách bộ môn từ CSDL
+                                    $sqlBM = "SELECT DISTINCT boMon FROM giaovien ORDER BY boMon ASC";
+                                    $resBM = $conn->query($sqlBM);
+                                    if ($resBM && $resBM->num_rows > 0):
+                                        while ($bm = $resBM->fetch_assoc()):
+                                    ?>
+                                            <option value="<?= htmlspecialchars($bm['boMon']) ?>"><?= htmlspecialchars($bm['boMon']) ?></option>
+                                    <?php
+                                        endwhile;
+                                    endif;
+                                    ?>
                                 </select>
                             </div>
                         </div>

@@ -1,5 +1,22 @@
 <?php
 require_once '../../config.php';
+require_once '../../csdl/db.php'; // kết nối DB
+// Lấy danh sách giáo viên
+$sqlTeachers = "SELECT giaovien.maGV, user.hoVaTen
+                FROM giaovien
+                JOIN user ON giaovien.userId = user.userId
+                WHERE user.vaiTro='GiaoVien'
+                ORDER BY user.hoVaTen ASC";
+$resultTeachers = $conn->query($sqlTeachers);
+// Lấy mã môn lớn nhất hiện tại
+$resultMax = $conn->query("SELECT MAX(maMon) AS maxID FROM monhoc");
+$rowMax = $resultMax->fetch_assoc();
+$nextMaMon = $rowMax['maxID'] + 1;
+
+// Truy vấn dữ liệu môn học
+$sqlSubjects = "SELECT * FROM monhoc ORDER BY maMon ASC";
+$resultSubjects = $conn->query($sqlSubjects);
+
 $currentPage = 'mon-hoc';
 $pageCSS = ['QuanLyMonHoc.css'];
 require_once '../SidebarAndHeader.php';
@@ -29,59 +46,57 @@ $pageJS = ['QuanLyMonHoc.js'];
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>1</td>
-                        <td>001</td>
-                        <td>Toán</td>
-                        <td>Phạm Thanh T</td>
-                        <td></td>
-                        <td><span class="badge-active">● Active</span></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-edit"
-                                data-id="001"
-                                data-name="Toán"
-                                data-head="Phạm Thanh T"
-                                data-note=""
-                                data-year="2024-2025"
-                                data-semester="1"
-                                data-status="active"
-                                data-bs-toggle="modal" data-bs-target="#subjectFormModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#" class="delete-btn"
-                                data-id="001"
-                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
+                    <?php
+                    $stt = 1;
+                    if ($resultSubjects && $resultSubjects->num_rows > 0):
+                        while ($row = $resultSubjects->fetch_assoc()):
+                    ?>
+                            <tr>
+                                <td><input class="form-check-input" type="checkbox" data-id="<?= $row['maMon'] ?>"></td>
+                                <td><?= $stt++ ?></td>
+                                <td><?= $row['maMon'] ?></td>
+                                <td><?= $row['tenMon'] ?></td>
+                                <td><?= $row['truongBoMon'] ? $row['truongBoMon'] : 'Chưa có' ?></td>
+                                <td><?= $row['moTa'] ?></td>
+                                <td>
+                                    <?php if (strtolower($row['trangThai']) === 'active'): ?>
+                                        <span class="badge-active">● Active</span>
+                                    <?php else: ?>
+                                        <span class="badge-inactive">● Inactive</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="action-icons">
+                                    <a href="#"
+                                        class="btn-edit"
+                                        data-id="<?= $row['maMon'] ?>"
+                                        data-name="<?= $row['tenMon'] ?>"
+                                        data-head="<?= $row['truongBoMon'] ?>"
+                                        data-note="<?= $row['moTa'] ?>"
+                                        data-year="<?= $row['namHoc'] ?>"
+                                        data-semester="<?= $row['hocKy'] ?>"
+                                        data-status="<?= strtolower($row['trangThai']) ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#subjectFormModal">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
 
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>2</td>
-                        <td>002</td>
-                        <td>Ngữ văn</td>
-                        <td>Lê Thị C</td>
-                        <td></td>
-                        <td><span class="badge-active">● Active</span></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-edit"
-                                data-id="002"
-                                data-name="Ngữ văn"
-                                data-head="Lê Thị C"
-                                data-note=""
-                                data-year="2024-2025"
-                                data-semester="1"
-                                data-status="active"
-                                data-bs-toggle="modal" data-bs-target="#subjectFormModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#" class="delete-btn" data-id="002" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
+                                    <a href="#"
+                                        class="btn-delete"
+                                        data-id="<?= $row['maMon'] ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmModal">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php
+                        endwhile;
+                    else:
+                        ?>
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">Không có môn học nào.</td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -128,7 +143,7 @@ $pageJS = ['QuanLyMonHoc.js'];
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Mã môn:</label>
-                                <input type="text" class="form-control" id="m_id" placeholder="006">
+                                <input type="text" class="form-control" id="m_id" value="<?= $nextMaMon ?>" readonly>
                             </div>
                         </div>
 
@@ -139,7 +154,14 @@ $pageJS = ['QuanLyMonHoc.js'];
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Trưởng bộ môn:</label>
-                                <input type="text" class="form-control" id="m_head">
+                                <select class="form-select" id="m_head">
+                                    <option value="">-- Chọn giáo viên --</option>
+                                    <?php if ($resultTeachers && $resultTeachers->num_rows > 0): ?>
+                                        <?php while ($gv = $resultTeachers->fetch_assoc()): ?>
+                                            <option value="<?= $gv['hoVaTen'] ?>"><?= $gv['hoVaTen'] ?></option>
+                                        <?php endwhile; ?>
+                                    <?php endif; ?>
+                                </select>
                             </div>
                         </div>
 
