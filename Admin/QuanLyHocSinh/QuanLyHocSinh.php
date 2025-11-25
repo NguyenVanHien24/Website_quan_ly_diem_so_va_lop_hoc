@@ -46,61 +46,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $response = ['success' => false, 'error' => ''];
 
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $gender = $_POST['gender'] ?? '';
+    $className = $_POST['class'] ?? '';
+    $role = $_POST['role'] ?? 'Thành viên';
+    $status = $_POST['status'] ?? 'active';
+
+    if (!$name) {
+        $response['error'] = 'Họ tên không được để trống';
+    } elseif (!$email) {
+        $response['error'] = 'Email không được để trống';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $response['error'] = 'Email không hợp lệ';
+    } elseif (!$phone) {
+        $response['error'] = 'Số điện thoại không được để trống';
+    } elseif (!preg_match('/^0[0-9]{9,10}$/', $phone)) {
+        $response['error'] = 'Số điện thoại không hợp lệ';
+    } // Kiểm tra trùng số điện thoại
+    $checkPhoneQuery = $conn->query("SELECT userId FROM user WHERE sdt = '$phone'");
+    if ($action === 'update') {
+        $maHS = $_POST['id'] ?? 0;
+        $rs = $conn->query("SELECT userId FROM hocsinh WHERE maHS=$maHS");
+        if ($rs->num_rows > 0) {
+            $userId = $rs->fetch_assoc()['userId'];
+            $checkPhoneQuery = $conn->query("SELECT userId FROM user WHERE sdt = '$phone' AND userId <> $userId");
+        }
+    }
+
+    if ($checkPhoneQuery && $checkPhoneQuery->num_rows > 0) {
+        $response['error'] = 'Số điện thoại đã tồn tại';
+        echo json_encode($response);
+        exit();
+    } elseif ($gender !== 'Nam' && $gender !== 'Nữ') {
+        $response['error'] = 'Giới tính không hợp lệ';
+    } elseif (!in_array($role, ['Thành viên', 'Lớp trưởng', 'Bí thư'])) {
+        $response['error'] = 'Chức vụ không hợp lệ';
+    } elseif (!in_array($status, ['active', 'inactive'])) {
+        $response['error'] = 'Trạng thái không hợp lệ';
+    }
+
+    if ($response['error']) {
+        echo json_encode($response);
+        exit();
+    }
+
     if ($action === 'add') {
-        $name = $_POST['name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $phone = $_POST['phone'] ?? '';
-        $gender = $_POST['gender'] ?? '';
-        $className = $_POST['class'] ?? '';
-        $role = $_POST['role'] ?? 'Thành viên';
-        $status = $_POST['status'] ?? 'active';
-
-        if (!$name || !$email || !$phone) {
-            $response['error'] = 'Thiếu thông tin bắt buộc';
-            echo json_encode($response);
-            exit();
-        }
-
         $conn->begin_transaction();
-        if (!$conn->query("INSERT INTO user (hoVaTen,email,sdt,gioiTinh,matKhau,vaiTro)
-    VALUES ('$name','$email','$phone','$gender','12345678','HocSinh')")) {
-            $response['error'] = $conn->error;
-            echo json_encode($response);
-            exit();
+        try {
+            // Thêm user
+            if (!$conn->query("INSERT INTO user (hoVaTen,email,sdt,gioiTinh,matKhau,vaiTro)
+                VALUES ('$name','$email','$phone','$gender','12345678','HocSinh')")) {
+                throw new Exception($conn->error);
+            }
+            $userId = $conn->insert_id;
+
+            $maLop = null;
+            if ($className) {
+                $rs = $conn->query("SELECT maLop FROM lophoc WHERE tenLop = '$className' LIMIT 1");
+                if ($rs && $rs->num_rows > 0) $maLop = $rs->fetch_assoc()['maLop'];
+            }
+
+            $yearNow = date('Y');
+            $monthNow = date('n');
+            $currentSemester = ($monthNow >= 1 && $monthNow <= 6) ? 2 : 1;
+            $currentYear = ($monthNow >= 1 && $monthNow <= 6) ? ($yearNow - 1) . '-' . $yearNow : $yearNow . '-' . ($yearNow + 1);
+
+            $statusDb = $status === 'active' ? 'Hoạt động' : 'Inactive';
+
+            // Cập nhật hocsinh
+            if (!$conn->query("UPDATE hocsinh SET maLopHienTai = " . ($maLop ?: "NULL") . ",
+                trangThaiHoatDong = '$statusDb', namHoc = '$currentYear', kyHoc = $currentSemester,
+                chucVu = '$role' WHERE userId = $userId")) {
+                throw new Exception($conn->error);
+            }
+
+            $conn->commit();
+            $response['success'] = true;
+        } catch (Exception $e) {
+            $conn->rollback();
+            $response['error'] = $e->getMessage();
         }
-        $userId = $conn->insert_id;
 
-        $maLop = null;
-        if ($className) {
-            $rs = $conn->query("SELECT maLop FROM lophoc WHERE tenLop = '$className' LIMIT 1");
-            if ($rs && $rs->num_rows > 0) $maLop = $rs->fetch_assoc()['maLop'];
-        }
-
-        $yearNow = date('Y');
-        $monthNow = date('n');
-        $currentSemester = ($monthNow >= 1 && $monthNow <= 6) ? 2 : 1;
-        $currentYear = ($monthNow >= 1 && $monthNow <= 6) ? ($yearNow - 1) . '-' . $yearNow : $yearNow . '-' . ($yearNow + 1);
-
-        $statusDb = $status === 'active' ? 'Hoạt động' : 'Inactive';
-        $conn->query("INSERT INTO hocsinh (userId, maLopHienTai, trangThaiHoatDong, namHoc, kyHoc, chucVu)
-                      VALUES ($userId," . ($maLop ?? 'NULL') . ",'$statusDb','$currentYear',$currentSemester,'$role')");
-        $conn->commit();
-
-        $response['success'] = true;
         echo json_encode($response);
         exit();
     }
 
     if ($action === 'update') {
         $maHS = $_POST['id'] ?? 0;
-        $name = $_POST['name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $phone = $_POST['phone'] ?? '';
-        $gender = $_POST['gender'] ?? '';
-        $className = $_POST['class'] ?? '';
-        $role = $_POST['role'] ?? 'Thành viên';
-        $status = $_POST['status'] ?? 'active';
-
         $rs = $conn->query("SELECT userId FROM hocsinh WHERE maHS=$maHS");
         if ($rs->num_rows === 0) {
             $response['error'] = 'Học sinh không tồn tại';
@@ -109,17 +143,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
         $userId = $rs->fetch_assoc()['userId'];
 
-        $conn->query("UPDATE user SET hoVaTen='$name', email='$email', sdt='$phone', gioiTinh='$gender' WHERE userId=$userId");
+        $conn->begin_transaction();
+        try {
+            $conn->query("UPDATE user SET hoVaTen='$name', email='$email', sdt='$phone', gioiTinh='$gender' WHERE userId=$userId");
 
-        $maLop = null;
-        if ($className) {
-            $rs2 = $conn->query("SELECT maLop FROM lophoc WHERE tenLop='$className' LIMIT 1");
-            if ($rs2 && $rs2->num_rows > 0) $maLop = $rs2->fetch_assoc()['maLop'];
+            $maLop = null;
+            if ($className) {
+                $rs2 = $conn->query("SELECT maLop FROM lophoc WHERE tenLop='$className' LIMIT 1");
+                if ($rs2 && $rs2->num_rows > 0) $maLop = $rs2->fetch_assoc()['maLop'];
+            }
+            $statusDb = $status === 'active' ? 'Hoạt động' : 'Inactive';
+
+            $conn->query("UPDATE hocsinh SET maLopHienTai=" . ($maLop ?? 'NULL') . ", chucVu='$role',
+                trangThaiHoatDong='$statusDb' WHERE maHS=$maHS");
+
+            $conn->commit();
+            $response['success'] = true;
+        } catch (Exception $e) {
+            $conn->rollback();
+            $response['error'] = $e->getMessage();
         }
-        $statusDb = $status === 'active' ? 'Hoạt động' : 'Inactive';
-        $conn->query("UPDATE hocsinh SET maLopHienTai=" . ($maLop ?? 'NULL') . ", chucVu='$role', trangThaiHoatDong='$statusDb' WHERE maHS=$maHS");
 
-        $response['success'] = true;
         echo json_encode($response);
         exit();
     }

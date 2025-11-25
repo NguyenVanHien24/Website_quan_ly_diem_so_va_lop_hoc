@@ -1,19 +1,6 @@
 <?php
 require_once '../../config.php';
 session_start();
-
-// ==== Kiểm tra đăng nhập ====
-if (!isset($_SESSION['userID'])) {
-    header('Location: ../dangnhap.php');
-    exit();
-}
-
-// ==== Chỉ cho phép giáo viên ====
-if ($_SESSION['vaiTro'] !== 'HocSinh') {
-    header('Location: ../dangnhap.php');
-    exit();
-}
-
 $currentPage = 'thong-tin';
 $pageCSS = ['ThongTinCaNhan.css'];
 require_once '../SidebarAndHeader.php';

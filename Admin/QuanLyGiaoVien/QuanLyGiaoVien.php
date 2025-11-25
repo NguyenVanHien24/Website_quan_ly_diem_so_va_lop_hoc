@@ -25,78 +25,82 @@ if (!$result) {
     die("Lỗi SQL: " . $conn->error);
 }
 
-// Thêm giáo viên
-if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["mode"] === "add") {
-    $hoVaTen = $_POST['t_name'];
-    $email = $_POST['t_email'];
-    $sdt = $_POST['t_phone'];
-    $gioiTinh = $_POST['t_gender'];
-    $boMon = $_POST['t_dept'];
+$errors = [];
+
+// Thêm/sửa giáo viên
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
+    $mode = $_POST["mode"];
+    $errors = [];
+
+    $hoVaTen = trim($_POST['t_name'] ?? '');
+    $email = trim($_POST['t_email'] ?? '');
+    $sdt = trim($_POST['t_phone'] ?? '');
+    $gioiTinh = $_POST['t_gender'] ?? '';
+    $boMon = $_POST['t_dept'] ?? '';
     $trinhDo = $_POST['t_degree'] ?? '';
     $phongBan = $_POST['t_office'] ?? '';
-    $trangThai = $_POST['status'] == "Hoạt động" ? "Hoạt động" : "Tạm dừng";
+    $trangThai = ($_POST['status'] ?? '') === "Hoạt động" ? "Hoạt động" : "Tạm dừng";
     $namHoc = $_POST['t_year'] ?? '';
     $kyHoc = intval($_POST['t_semester'] ?? 1);
 
-    // Thêm vào user
-    $stmt = $conn->prepare("INSERT INTO user (hoVaTen,email,sdt,gioiTinh,matKhau,vaiTro) VALUES (?,?,?,?, '12345678','GiaoVien')");
-    if (!$stmt) {
-        die("Lỗi prepare user: " . $conn->error);
-    }
-    $stmt->bind_param("ssss", $hoVaTen, $email, $sdt, $gioiTinh);
-    $stmt->execute();
-    $userId = $conn->insert_id;
+    if (!$hoVaTen) $errors[] = "Họ và Tên không được để trống.";
+    if (!$email) $errors[] = "Email không được để trống.";
+    if (!$sdt) $errors[] = "Số điện thoại không được để trống.";
 
-    // Thêm vào giaovien
-    $stmtGV = $conn->prepare("INSERT INTO giaovien (userId,boMon,trinhDo,phongBan,trangThaiHoatDong,namHoc,kyHoc) VALUES (?,?,?,?,?,?,?)");
-    if (!$stmtGV) {
-        die("Lỗi prepare giaovien: " . $conn->error);
-    }
-    $stmtGV->bind_param("isssisi", $userId, $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc);
-    $stmtGV->execute();
+    if ($mode === "add") {
+        $check = $conn->prepare("SELECT userId FROM user WHERE sdt = ?");
+        $check->bind_param("s", $sdt);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) $errors[] = "Số điện thoại đã tồn tại.";
+        $check->close();
 
-    header("Location: QuanLyGiaoVien.php");
-    exit();
-}
-
-// Sửa giáo viên
-if ($_SERVER["REQUEST_METHOD"] === "POST" && $_POST["mode"] === "edit") {
-    $maGV = intval($_POST['maGV']);
-    $hoVaTen = $_POST['t_name'];
-    $email = $_POST['t_email'];
-    $sdt = $_POST['t_phone'];
-    $gioiTinh = $_POST['t_gender'];
-    $boMon = $_POST['t_dept'];
-    $trinhDo = $_POST['t_degree'] ?? '';
-    $phongBan = $_POST['t_office'] ?? '';
-    $trangThai = ($_POST['status'] === "Hoạt động") ? "Hoạt động" : "Tạm dừng";
-    $namHoc = $_POST['t_year'] ?? '';
-    $kyHoc = intval($_POST['t_semester'] ?? 1);
-
-    // Lấy userId trước
-    $res = $conn->query("SELECT userId FROM giaovien WHERE maGV=$maGV");
-    if ($res && $res->num_rows > 0) {
-        $userId = $res->fetch_assoc()['userId'];
-
-        // Update user
-        $stmt = $conn->prepare("UPDATE user SET hoVaTen=?, email=?, sdt=?, gioiTinh=? WHERE userId=?");
-        if (!$stmt) {
-            die("Lỗi prepare update user: " . $conn->error);
+        if (!empty($errors)) {
+            echo json_encode(['success' => false, 'message' => implode("\n", $errors)]);
+            exit();
         }
+
+        $stmt = $conn->prepare("INSERT INTO user (hoVaTen,email,sdt,gioiTinh,matKhau,vaiTro) VALUES (?,?,?,?, '12345678','GiaoVien')");
+        $stmt->bind_param("ssss", $hoVaTen, $email, $sdt, $gioiTinh);
+        $stmt->execute();
+        $userId = $conn->insert_id;
+
+        $stmtGV = $conn->prepare("INSERT INTO giaovien (userId,boMon,trinhDo,phongBan,trangThaiHoatDong,namHoc,kyHoc) VALUES (?,?,?,?,?,?,?)");
+        $stmtGV->bind_param("isssisi", $userId, $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc);
+        $stmtGV->execute();
+
+        echo json_encode(['success' => true]);
+        exit();
+    }
+
+    if ($mode === "edit") {
+        $maGV = intval($_POST['maGV'] ?? 0);
+        $res = $conn->query("SELECT userId FROM giaovien WHERE maGV=$maGV");
+        $userId = $res->fetch_assoc()['userId'] ?? 0;
+
+        $check = $conn->prepare("SELECT userId FROM user WHERE sdt = ? AND userId != ?");
+        $check->bind_param("si", $sdt, $userId);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) $errors[] = "Số điện thoại đã tồn tại.";
+        $check->close();
+
+        if (!empty($errors)) {
+            echo json_encode(['success' => false, 'message' => implode("\n", $errors)]);
+            exit();
+        }
+
+        $stmt = $conn->prepare("UPDATE user SET hoVaTen=?, email=?, sdt=?, gioiTinh=? WHERE userId=?");
         $stmt->bind_param("ssssi", $hoVaTen, $email, $sdt, $gioiTinh, $userId);
         $stmt->execute();
 
-        // Update giaovien
         $stmtGV = $conn->prepare("UPDATE giaovien SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?, namHoc=?, kyHoc=? WHERE maGV=?");
-        if (!$stmtGV) {
-            die("Lỗi prepare update giaovien: " . $conn->error);
-        }
         $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $maGV);
         $stmtGV->execute();
-    }
 
-    header("Location: QuanLyGiaoVien.php");
-    exit();
+        echo json_encode(['success' => true]);
+        exit();
+    }
 }
 
 // XỬ LÝ XÓA GIÁO VIÊN 
@@ -260,13 +264,11 @@ $pageJS = ['QuanLyGiaoVien.js'];
                                     <option value="">-- Chọn bộ môn --</option>
                                     <?php
                                     // Lấy danh sách bộ môn từ CSDL
-                                    $sqlBM = "SELECT DISTINCT boMon FROM giaovien ORDER BY boMon ASC";
+                                    $sqlBM = "SELECT DISTINCT tenMon FROM monhoc ORDER BY tenMon ASC";
                                     $resBM = $conn->query($sqlBM);
                                     if ($resBM && $resBM->num_rows > 0):
                                         while ($bm = $resBM->fetch_assoc()):
-                                    ?>
-                                            <option value="<?= htmlspecialchars($bm['boMon']) ?>"><?= htmlspecialchars($bm['boMon']) ?></option>
-                                    <?php
+                                            echo "<option value='" . htmlspecialchars($bm['tenMon']) . "'>" . htmlspecialchars($bm['tenMon']) . "</option>";
                                         endwhile;
                                     endif;
                                     ?>
@@ -354,6 +356,26 @@ $pageJS = ['QuanLyGiaoVien.js'];
         </div>
     </div>
 </main>
+<script>
+    document.getElementById('teacherForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let formData = new FormData(this);
+        fetch('<?= basename(__FILE__) ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Cập nhật giáo viên thành công!");
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => alert('Lỗi server'));
+    });
+</script>
 
 <?php
 // Yêu cầu file footer.php để đóng các thẻ và tải JS
