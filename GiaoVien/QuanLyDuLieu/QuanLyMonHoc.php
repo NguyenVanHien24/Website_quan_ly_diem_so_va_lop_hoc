@@ -1,9 +1,34 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'mon-hoc'; 
-    $pageCSS = ['QuanLyMonHoc.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['QuanLyMonHoc.js'];
+<?php
+session_start();
+require_once '../../config.php';
+// ==== Kiểm tra đăng nhập ====
+if (!isset($_SESSION['userID'])) {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+
+// ==== Chỉ cho phép giáo viên ====
+if ($_SESSION['vaiTro'] !== 'GiaoVien') {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+$currentPage = 'mon-hoc';
+$pageCSS = ['QuanLyMonHoc.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['QuanLyMonHoc.js'];
+// ==== Lấy thông tin giáo viên từ DB ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
+        FROM user u
+        JOIN giaovien g ON u.userId = g.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
+
 ?>
 <main>
     <div class="main-header">
@@ -38,25 +63,25 @@
                         <td></td>
                         <td><span class="badge-active">● Active</span></td>
                         <td class="action-icons">
-                            <a href="#" class="btn-edit" 
-                               data-id="001" 
-                               data-name="Toán" 
-                               data-head="Phạm Thanh T" 
-                               data-note="" 
-                               data-year="2024-2025"
-                               data-semester="1"
-                               data-status="active"
-                               data-bs-toggle="modal" data-bs-target="#subjectFormModal">
+                            <a href="#" class="btn-edit"
+                                data-id="001"
+                                data-name="Toán"
+                                data-head="Phạm Thanh T"
+                                data-note=""
+                                data-year="2024-2025"
+                                data-semester="1"
+                                data-status="active"
+                                data-bs-toggle="modal" data-bs-target="#subjectFormModal">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a href="#" class="delete-btn" 
-                               data-id="001" 
-                               data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                               <i class="bi bi-trash-fill"></i>
+                            <a href="#" class="delete-btn"
+                                data-id="001"
+                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                <i class="bi bi-trash-fill"></i>
                             </a>
                         </td>
                     </tr>
-                    
+
                     <tr>
                         <td><input class="form-check-input" type="checkbox"></td>
                         <td>2</td>
@@ -66,15 +91,15 @@
                         <td></td>
                         <td><span class="badge-active">● Active</span></td>
                         <td class="action-icons">
-                            <a href="#" class="btn-edit" 
-                               data-id="002" 
-                               data-name="Ngữ văn" 
-                               data-head="Lê Thị C" 
-                               data-note="" 
-                               data-year="2024-2025"
-                               data-semester="1"
-                               data-status="active"
-                               data-bs-toggle="modal" data-bs-target="#subjectFormModal">
+                            <a href="#" class="btn-edit"
+                                data-id="002"
+                                data-name="Ngữ văn"
+                                data-head="Lê Thị C"
+                                data-note=""
+                                data-year="2024-2025"
+                                data-semester="1"
+                                data-status="active"
+                                data-bs-toggle="modal" data-bs-target="#subjectFormModal">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <a href="#" class="delete-btn" data-id="002" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
@@ -85,7 +110,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="table-footer">
             <span>1-4/18 mục</span>
             <nav>
@@ -105,7 +130,8 @@
     </div>
 
     <div class="modal fade" id="subjectFormModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg"> <div class="modal-content p-4">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content p-4">
                 <div class="modal-header border-0 pb-0">
                     <h2 class="modal-title fw-bold text-uppercase" id="modalTitle">THÊM MÔN HỌC</h2>
                 </div>
@@ -148,7 +174,7 @@
                                 <textarea class="form-control" id="m_note" rows="3"></textarea>
                             </div>
                             <div class="col-md-6 d-flex align-items-center pt-4">
-                                 <div class="d-flex align-items-center gap-4">
+                                <div class="d-flex align-items-center gap-4">
                                     <label class="me-3 text-nowrap">Trạng thái:</label>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="status" id="statusActive" value="active" checked>
@@ -158,7 +184,7 @@
                                         <input class="form-check-input" type="radio" name="status" id="statusInactive" value="inactive">
                                         <label class="form-check-label" for="statusInactive">Tạm dừng</label>
                                     </div>
-                                 </div>
+                                </div>
                             </div>
                         </div>
 
@@ -175,7 +201,7 @@
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 bg-transparent">
-                 <div class="modal-body p-0">
+                <div class="modal-body p-0">
                     <div class="delete-box position-relative mx-auto p-4 text-center bg-white rounded-3 shadow-sm" style="max-width: 400px;">
                         <div class="question-icon">?</div>
                         <div class="bg-light rounded-3 py-4 px-3 mt-3 mb-4">

@@ -1,9 +1,9 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'tai-lieu'; 
-    $pageCSS = ['QuanLyTaiLieu.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['QuanLyTaiLieu.js'];
+<?php
+require_once '../../config.php';
+$currentPage = 'tai-lieu';
+$pageCSS = ['QuanLyTaiLieu.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['QuanLyTaiLieu.js'];
 ?>
 
 <main>
@@ -53,20 +53,20 @@
                         <td class="text-secondary">Quang hợp</td>
                     </tr>
 
-                    <?php for($i=2; $i<=7; $i++): ?>
-                    <tr>
-                        <td class="text-center fw-bold"><?php echo $i; ?></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                    <?php for ($i = 2; $i <= 7; $i++): ?>
+                        <tr>
+                            <td class="text-center fw-bold"><?php echo $i; ?></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     <?php endfor; ?>
                 </tbody>
             </table>
         </div>
-        
+
         <div class="table-footer d-flex justify-content-between align-items-center mt-3 px-2">
             <div class="text-muted fw-bold text-secondary">1-4/18 mục</div>
             <nav>

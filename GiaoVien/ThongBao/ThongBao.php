@@ -1,10 +1,34 @@
-<?php 
-    require_once '../../config.php';
-    // Đặt tên trang để active menu (nếu cần)
-    $currentPage = 'thong-bao'; 
-    $pageCSS = ['ThongBao.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['ThongBao.js'];
+<?php
+session_start();
+require_once '../../config.php';
+// ==== Kiểm tra đăng nhập ====
+if (!isset($_SESSION['userID'])) {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+
+// ==== Chỉ cho phép giáo viên ====
+if ($_SESSION['vaiTro'] !== 'GiaoVien') {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+$currentPage = 'thong-bao';
+$pageCSS = ['ThongBao.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['ThongBao.js'];
+// ==== Lấy thông tin giáo viên từ DB ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
+        FROM user u
+        JOIN giaovien g ON u.userId = g.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
+
 ?>
 
 <main>
@@ -20,7 +44,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="notify-row" 
+                    <tr class="notify-row"
                         data-title="Hướng dẫn Quy trình tổ chức đăng ký tín chỉ và chốt dữ liệu đào tạo"
                         data-content="Nội dung chi tiết về quy trình đăng ký tín chỉ..."
                         data-date="06/08/2025"
@@ -31,7 +55,7 @@
                         <td class="pe-4 py-3 text-end text-secondary">06/08/2025</td>
                     </tr>
 
-                    <tr class="notify-row" 
+                    <tr class="notify-row"
                         data-title="Khảo sát về công tác hỗ trợ cho sinh viên năm học 2024-2025"
                         data-content="Nội dung khảo sát..."
                         data-date="23/05/2025"
@@ -42,7 +66,7 @@
                         <td class="pe-4 py-3 text-end text-secondary">23/05/2025</td>
                     </tr>
 
-                    <tr class="notify-row" 
+                    <tr class="notify-row"
                         data-title="LIKE PAGE Trường Đại học Sư phạm Hà Nội (https://facebook.com/dhsphnhnue)"
                         data-content="Hãy like page để cập nhật tin tức mới nhất..."
                         data-date="15/04/2025"
@@ -53,7 +77,7 @@
                         <td class="pe-4 py-3 text-end text-secondary">15/04/2025</td>
                     </tr>
 
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>

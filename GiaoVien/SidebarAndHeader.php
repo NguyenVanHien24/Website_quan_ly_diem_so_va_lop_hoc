@@ -1,15 +1,45 @@
+<?php
+require_once '../../config.php';
+
+// ====== KẾT NỐI DATABASE ======
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "cdtn";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+mysqli_set_charset($conn, "utf8");
+
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
+}
+
+// ==== Lấy thông tin giáo viên từ DB ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
+        FROM user u
+        JOIN giaovien g ON u.userId = g.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
+?>
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Màn hình chính</title>    
+    <title>Màn hình chính</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Tải CSS chung (từ thư mục gốc) -->
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>GiaoVien/SidebarAndHeader.css">
 
@@ -26,6 +56,7 @@
     }
     ?>
 </head>
+
 <body>
     <!-- ========= PHẦN SIDEBAR ========= -->
     <nav class="sidebar">
@@ -40,19 +71,25 @@
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
                             <!-- SỬA LINK: Bỏ "Admin/" khỏi link Dashboard -->
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-tin') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/ThongTinCaNhan.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-tin') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/ThongTinCaNhan.php">
                                 <i class="bi bi-house-door"></i> Thông tin cá nhân
                             </a>
                         </li>
                         <li class="nav-item">
                             <!-- SỬA LINK: Bỏ "Admin/" (Giả sử file HocSinh.php cũng ở gốc) -->
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'hoc-sinh') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyHocSinh.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'hoc-sinh') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyHocSinh.php">
                                 <i class="bi bi-people"></i> Học sinh
                             </a>
                         </li>
                         <li class="nav-item">
                             <!-- SỬA LINK: Bỏ "Admin/" (Giả sử file LopHoc.php cũng ở gốc) -->
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'lop-hoc') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyLopHoc.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'lop-hoc') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyLopHoc.php">
                                 <i class="bi bi-easel"></i> Lớp học
                             </a>
                         </li>
@@ -64,12 +101,16 @@
                 <div class="collapse show" id="dulieuCollapse">
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'mon-hoc') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDuLieu/QuanLyMonHoc.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'mon-hoc') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDuLieu/QuanLyMonHoc.php">
                                 <i class="bi bi-journal-bookmark"></i> Môn học
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'tai-lieu') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDuLieu/QuanLyTaiLieu.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'tai-lieu') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDuLieu/QuanLyTaiLieu.php">
                                 <i class="bi bi-file-earmark-text"></i> Tài liệu
                             </a>
                         </li>
@@ -82,13 +123,17 @@
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
                             <!-- KHÔNG ĐỔI: Link này vẫn trỏ vào Admin/QuanLyChuyenCan/ -->
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'chuyen-can') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyChuyenCan.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'chuyen-can') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyChuyenCan.php">
                                 <i class="bi bi-pen"></i> Chuyên cần
                             </a>
                         </li>
                         <li class="nav-item">
                             <!-- KHÔNG ĐỔI: Giả sử DiemSo.php cũng nằm trong Admin -->
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'diem-so') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyDiemSo.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'diem-so') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyDiemSo.php">
                                 <i class="bi bi-clipboard-data"></i> Điểm số
                             </a>
                         </li>
@@ -100,7 +145,9 @@
                 <div class="collapse show" id="thongbaoCollapse">
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-bao') { echo 'active'; } ?>" href="<?php echo BASE_URL; ?>GiaoVien/ThongBao/ThongBao.php">
+                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-bao') {
+                                                    echo 'active';
+                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/ThongBao/ThongBao.php">
                                 <i class="bi bi-bell"></i> Xem thông báo
                             </a>
                         </li>
@@ -114,7 +161,7 @@
 
     <!-- Bắt đầu phần nội dung chính (sẽ được đóng trong footer.php) -->
     <div class="main-content">
-        
+
         <!-- ========= PHẦN HEADER ========= -->
         <header class="header">
             <button class="menu-toggle"><i class="bi bi-list"></i></button>
@@ -129,14 +176,16 @@
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle text-decoration-none user-profile" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle"></i>
-                        <span class="d-none d-md-block">GV Nguyễn Văn A</span>
+                        <span class="d-none d-md-block"><?= htmlspecialchars($teacher['hoVaTen']) ?></span>
                         <i class="bi bi-chevron-down ms-1"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/ThongTinCaNhan.php">Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item" href="#">Cài đặt</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="../../DangNhap.php">Đăng xuất</a></li>
                     </ul>
                 </div>
             </div>

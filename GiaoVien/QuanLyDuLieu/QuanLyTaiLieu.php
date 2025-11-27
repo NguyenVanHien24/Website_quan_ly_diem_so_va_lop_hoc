@@ -1,16 +1,41 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'tai-lieu'; 
-    $pageCSS = ['QuanLyTaiLieu.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['QuanLyTaiLieu.js'];
+<?php
+session_start();
+require_once '../../config.php';
+// ==== Kiểm tra đăng nhập ====
+if (!isset($_SESSION['userID'])) {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+
+// ==== Chỉ cho phép giáo viên ====
+if ($_SESSION['vaiTro'] !== 'GiaoVien') {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+$currentPage = 'tai-lieu';
+$pageCSS = ['QuanLyTaiLieu.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['QuanLyTaiLieu.js'];
+// ==== Lấy thông tin giáo viên từ DB ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
+        FROM user u
+        JOIN giaovien g ON u.userId = g.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
+
 ?>
 
 <main>
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <h1 class="page-title mb-3">DANH SÁCH TÀI LIỆU</h1>
-            
+
             <div class="d-flex gap-4 bg-light p-3 rounded-3" style="min-width: 600px;">
                 <div class="flex-grow-1">
                     <label class="fw-bold mb-1">Lớp:</label>
@@ -57,33 +82,37 @@
                         <td class="text-secondary">Nguyễn Văn A</td>
                         <td class="text-secondary">Quang hợp</td>
                         <td class="action-icons">
-                            <a href="#" class="btn-edit" 
-                               data-id="DOC001"
-                               data-title="Giáo án Bài 5: Quang hợp"
-                               data-desc="Mô tả ngắn gọn nội dung bài giảng"
-                               data-subject="Sinh học"
-                               data-status="public"
-                               data-bs-toggle="modal" data-bs-target="#docFormModal">
+                            <a href="#" class="btn-edit"
+                                data-id="DOC001"
+                                data-title="Giáo án Bài 5: Quang hợp"
+                                data-desc="Mô tả ngắn gọn nội dung bài giảng"
+                                data-subject="Sinh học"
+                                data-status="public"
+                                data-bs-toggle="modal" data-bs-target="#docFormModal">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a href="#" class="btn-delete" 
-                               data-id="ABCDEF" 
-                               data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                            <a href="#" class="btn-delete"
+                                data-id="ABCDEF"
+                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
                                 <i class="bi bi-trash-fill"></i>
                             </a>
                         </td>
                     </tr>
-                    <?php for($i=2; $i<=7; $i++): ?>
-                    <tr>
-                        <td><input class="form-check-input rounded-circle" type="checkbox"></td>
-                        <td><?php echo $i; ?></td>
-                        <td></td><td></td><td></td><td></td><td></td>
-                    </tr>
+                    <?php for ($i = 2; $i <= 7; $i++): ?>
+                        <tr>
+                            <td><input class="form-check-input rounded-circle" type="checkbox"></td>
+                            <td><?php echo $i; ?></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     <?php endfor; ?>
                 </tbody>
             </table>
         </div>
-        
+
         <div class="table-footer d-flex justify-content-between align-items-center mt-3 px-2">
             <div class="text-secondary fw-bold bg-light py-1 px-3 rounded">1-4/18 mục</div>
             <nav>
@@ -120,7 +149,7 @@
                                     <input type="text" class="form-control" id="d_desc">
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-5">
                                 <div class="mb-4">
                                     <label class="form-label fw-bold text-uppercase fs-6">MÔN HỌC</label>
@@ -149,9 +178,9 @@
                             <label class="form-label fw-bold text-uppercase fs-6 text-primary">FILE TÀI LIỆU</label>
                             <div class="d-flex gap-3">
                                 <input type="text" class="form-control bg-white" id="fileNameDisplay" placeholder="Upload file" readonly>
-                                
+
                                 <input type="file" id="realFileInput" style="display: none;">
-                                
+
                                 <button type="button" class="btn btn-primary text-nowrap px-4" id="btnUploadTrigger" style="background-color: #0b1a48;">
                                     <i class="bi bi-cloud-arrow-up me-2"></i>Tải lên
                                 </button>
@@ -171,14 +200,14 @@
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-none bg-transparent">
-                 <div class="modal-body p-0">
+                <div class="modal-body p-0">
                     <div class="delete-box position-relative mx-auto p-4 text-center bg-white rounded-3 shadow-sm" style="max-width: 450px;">
                         <div class="question-icon">?</div>
-                        
+
                         <div class="bg-light rounded-3 py-4 px-4 mt-3 mb-4">
                             <h5 class="fw-bold text-dark m-0 lh-base" id="deleteMsg">Bạn chắc chắn muốn xóa<br>tài liệu này không?</h5>
                         </div>
-                        
+
                         <div class="d-flex justify-content-center gap-3">
                             <button type="button" class="btn btn-outline-dark px-5 fw-bold" data-bs-dismiss="modal">Hủy</button>
                             <button type="button" class="btn btn-danger px-5 fw-bold" style="background-color: #c53030;">Xóa</button>

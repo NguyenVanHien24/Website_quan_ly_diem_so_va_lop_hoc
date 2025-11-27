@@ -1,3 +1,43 @@
+<?php
+require_once '../../config.php';
+require_once '../csdl/db.php';
+// Khởi tạo session nếu chưa có
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// ==== Kiểm tra đăng nhập ====
+if (!isset($_SESSION['userID'])) {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+
+// ==== Chỉ cho phép học sinh ====
+if ($_SESSION['vaiTro'] !== 'HocSinh') {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+
+$currentPage = 'thong-tin';
+// Gọi file CSS riêng
+$pageCSS = ['ThongTinCaNhan.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['ThongTinCaNhan.js'];
+
+
+// ==== Lấy thông tin học sinh ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, h.maLopHienTai, h.maHS
+        FROM user u
+        JOIN hocsinh h ON u.userId = h.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -92,14 +132,14 @@
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle text-decoration-none user-profile" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle"></i>
-                        <span class="d-none d-md-block">Nguyễn Văn A</span>
+                        <span class="d-none d-md-block"><?= htmlspecialchars($teacher['hoVaTen']) ?></span>
                         <i class="bi bi-chevron-down ms-1"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>HocSinh/TrangCaNhan/ThongTinCaNhan.php">Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item" href="#">Cài đặt</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
+                        <li><a class="dropdown-item" href="../../DangNhap.php">Đăng xuất</a></li>
                     </ul>
                 </div>
             </div>

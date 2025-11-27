@@ -1,9 +1,9 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'tai-lieu'; 
-    $pageCSS = ['TaiLieuHocTap.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['TaiLieuHocTap.js'];
+<?php
+require_once '../../config.php';
+$currentPage = 'tai-lieu';
+$pageCSS = ['TaiLieuHocTap.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['TaiLieuHocTap.js'];
 ?>
 
 <main>
@@ -41,22 +41,26 @@
                         <td class="text-secondary">Môn học 1</td>
                         <td class="text-secondary">Nguyễn Văn A</td>
                         <td class="text-center action-icons">
-                            <a href="#" class="btn-view-doc" 
-                               data-title="Chương I – Bài 4: Tiêu đề bài 4"
-                               data-desc="Nội dung đi sâu vào chuyên đề tính diện tích bề mặt của các hình khối không gian và ứng dụng trong các bài toán tối ưu hóa thực tế. Tập trung vào việc xác định lượng vật liệu cần thiết để tạo ra các vật thể như bể chứa, hộp đựng, hay các công trình kiến trúc."
-                               data-img="https://img.freepik.com/free-vector/math-worksheet-template_1308-22392.jpg" 
-                               data-bs-toggle="modal" data-bs-target="#viewDocModal">
+                            <a href="#" class="btn-view-doc"
+                                data-title="Chương I – Bài 4: Tiêu đề bài 4"
+                                data-desc="Nội dung đi sâu vào chuyên đề tính diện tích bề mặt của các hình khối không gian và ứng dụng trong các bài toán tối ưu hóa thực tế. Tập trung vào việc xác định lượng vật liệu cần thiết để tạo ra các vật thể như bể chứa, hộp đựng, hay các công trình kiến trúc."
+                                data-img="https://img.freepik.com/free-vector/math-worksheet-template_1308-22392.jpg"
+                                data-bs-toggle="modal" data-bs-target="#viewDocModal">
                                 <i class="bi bi-box-arrow-up-right"></i>
                             </a>
                         </td>
                     </tr>
 
-                    <?php for($i=2; $i<=8; $i++): ?>
-                    <tr>
-                        <td class="text-center"><input class="form-check-input rounded-circle" type="checkbox"></td>
-                        <td><?php echo $i; ?></td>
-                        <td></td><td></td><td></td><td></td><td></td>
-                    </tr>
+                    <?php for ($i = 2; $i <= 8; $i++): ?>
+                        <tr>
+                            <td class="text-center"><input class="form-check-input rounded-circle" type="checkbox"></td>
+                            <td><?php echo $i; ?></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     <?php endfor; ?>
                 </tbody>
             </table>
@@ -69,11 +73,12 @@
 
 
     <div class="modal fade" id="viewDocModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered"> <div class="modal-content p-4 border-0">
-                
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content p-4 border-0">
+
                 <div class="modal-body">
                     <h3 class="fw-bold mb-3" id="m_title">Tiêu đề tài liệu</h3>
-                    
+
                     <p class="text-secondary fw-bold mb-4" id="m_desc" style="text-align: justify;">
                         Nội dung mô tả...
                     </p>

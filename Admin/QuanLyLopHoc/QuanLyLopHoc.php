@@ -1,9 +1,49 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'lop-hoc'; 
-    $pageCSS = ['QuanLyLopHoc.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['QuanLyLopHoc.js'];
+<?php
+require_once '../../config.php';
+$currentPage = 'lop-hoc';
+$pageCSS = ['QuanLyLopHoc.css'];
+require_once '../SidebarAndHeader.php';
+require_once '../../csdl/db.php';
+
+// Lấy danh sách lớp học
+$sql = "
+        SELECT 
+        l.maLop,
+        l.tenLop,
+        l.khoiLop,
+        l.siSo,
+        l.trangThai,
+        l.namHoc,
+        l.kyHoc,
+        u.hoVaTen AS giaoVienChuNhiem,
+        gv.maGV AS maGV
+    FROM lophoc l
+    LEFT JOIN giaovien gv ON l.giaoVienPhuTrach = gv.maGV
+    LEFT JOIN user u ON gv.userId = u.userId
+    ORDER BY l.maLop DESC
+";
+$result = $conn->query($sql);
+
+// Lấy mã lớp tiếp theo tự động
+$nextLop = 1;
+$resNext = $conn->query("SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'lophoc'");
+if ($resNext && $rowNext = $resNext->fetch_assoc()) {
+    $nextLop = $rowNext['AUTO_INCREMENT'];
+}
+// Lấy danh sách giáo viên
+$teachers = [];
+$resTeachers = $conn->query("
+    SELECT gv.maGV, u.hoVaTen 
+    FROM giaovien gv
+    JOIN user u ON gv.userId = u.userId
+    ORDER BY u.hoVaTen ASC
+");
+if ($resTeachers) {
+    while ($t = $resTeachers->fetch_assoc()) {
+        $teachers[] = $t;
+    }
+}
+$pageJS = ['QuanLyLopHoc.js'];
 ?>
 <main>
     <div class="main-header">
@@ -29,44 +69,73 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>1</td>
-                        <td>251104</td>
-                        <td>11A4</td>
-                        <td>Hoàng Văn D</td>
-                        <td>30</td>
-                        <td><span class="badge-active">● Active</span></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-edit" 
-                               data-id="251104" 
-                               data-name="11A4" 
-                               data-teacher="Hoàng Văn D" 
-                               data-count="30" 
-                               data-year="2024-2025"
-                               data-semester="1"
-                               data-grade="11"
-                               data-status="active"
-                               data-bs-toggle="modal" data-bs-target="#classFormModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#" class="btn-delete" data-id="251104" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                               <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
+                    <?php
+                    $stt = 1;
+                    if ($result && $result->num_rows > 0):
+                        while ($row = $result->fetch_assoc()):
+                    ?>
+                            <tr>
+                                <td><input class="form-check-input" type="checkbox"></td>
+                                <td><?= $stt++ ?></td>
+                                <td><?= $row['maLop'] ?></td>
+                                <td><?= $row['tenLop'] ?></td>
+                                <td><?= $row['giaoVienChuNhiem'] ? $row['giaoVienChuNhiem'] : 'Chưa có' ?></td>
+                                <td><?= $row['siSo'] ?></td>
+                                <td>
+                                    <?php if ($row['trangThai'] === 'active'): ?>
+                                        <span class="badge-active">● Active</span>
+                                    <?php else: ?>
+                                        <span class="badge-inactive">● Inactive</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="action-icons">
+                                    <a href="#"
+                                        class="btn-edit"
+                                        data-id="<?= $row['maLop'] ?>"
+                                        data-name="<?= $row['tenLop'] ?>"
+                                        data-teacher="<?= $row['maGV'] ?>"
+                                        data-count="<?= $row['siSo'] ?>"
+                                        data-year="<?= $row['namHoc'] ?>"
+                                        data-semester="<?= $row['kyHoc'] ?>"
+                                        data-grade="<?= $row['khoiLop'] ?>"
+                                        data-status="<?= $row['trangThai'] ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#classFormModal">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <a href="#"
+                                        class="btn-delete"
+                                        data-id="<?= $row['maLop'] ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmModal">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php
+                        endwhile;
+                    else:
+                        ?>
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">Không có lớp học nào.</td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
-        
-    <div class="table-footer">
-            <span>1-1/18 mục</span>
-            <nav><ul class="pagination mb-0"><li class="page-item"><a class="page-link" href="#">1</a></li></ul></nav>
+        <div class="table-footer">
+            <span>1-1/<?= $result ? $result->num_rows : 0 ?> mục</span>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                </ul>
+            </nav>
         </div>
     </div>
 
     <div class="d-flex justify-content-end mt-4">
-        <button class="btn btn-danger fw-bold px-4 py-2">Xóa lớp học</button>
+        <button class="btn btn-danger fw-bold px-4 py-2" id="btnDeleteSelected">Xóa lớp học</button>
     </div>
 
     <div class="modal fade" id="classFormModal" tabindex="-1" aria-hidden="true">
@@ -82,6 +151,7 @@
                                 <label class="form-label">Năm học:</label>
                                 <select class="form-select" id="c_year">
                                     <option value="2024-2025">2024-2025</option>
+                                    <option value="2024-2025">2025-2026</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -101,7 +171,7 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Mã lớp:</label>
-                                <input type="text" class="form-control" id="c_id" placeholder="251104">
+                                <input type="text" class="form-control" id="c_id" value="<?= $nextLop ?>" placeholder="auto" readonly>
                             </div>
                         </div>
 
@@ -112,7 +182,13 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Giáo viên chủ nhiệm:</label>
-                                <input type="text" class="form-control" id="c_teacher"> </div>
+                                <select class="form-select" id="c_teacher">
+                                    <option value="">-- Chọn giáo viên (có thể để trống) --</option>
+                                    <?php foreach ($teachers as $t): ?>
+                                        <option value="<?= $t['maGV'] ?>"><?= htmlspecialchars($t['hoVaTen']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="row mb-4">
@@ -121,7 +197,7 @@
                                 <input type="number" class="form-control" id="c_count">
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
-                                 <div class="d-flex align-items-center gap-4 mb-2">
+                                <div class="d-flex align-items-center gap-4 mb-2">
                                     <label class="me-3">Trạng thái:</label>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="status" id="statusActive" value="active" checked>
@@ -131,7 +207,7 @@
                                         <input class="form-check-input" type="radio" name="status" id="statusInactive" value="inactive">
                                         <label class="form-check-label" for="statusInactive">Tạm dừng</label>
                                     </div>
-                                 </div>
+                                </div>
                             </div>
                         </div>
 
@@ -148,15 +224,15 @@
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 bg-transparent">
-                 <div class="modal-body p-0">
+                <div class="modal-body p-0">
                     <div class="delete-box position-relative mx-auto p-4 text-center bg-white rounded-3 shadow-sm" style="max-width: 400px;">
                         <div class="question-icon">?</div>
                         <div class="bg-light rounded-3 py-4 px-3 mt-3 mb-4">
-                            <h5 class="fw-bold text-dark m-0" id="deleteMsg">Bạn chắc chắn muốn xóa lớp 251104?</h5>
+                            <h5 class="fw-bold text-dark m-0" id="deleteMsg">Bạn chắc chắn muốn xóa lớp có mã lớp là: ?</h5>
                         </div>
                         <div class="d-flex justify-content-center gap-3">
                             <button type="button" class="btn btn-outline-dark px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
-                            <button type="button" class="btn btn-danger px-4 fw-bold">Xóa</button>
+                            <button type="button" id="confirmDeleteBtn" class="btn btn-danger px-4 fw-bold">Xóa</button>
                         </div>
                     </div>
                 </div>

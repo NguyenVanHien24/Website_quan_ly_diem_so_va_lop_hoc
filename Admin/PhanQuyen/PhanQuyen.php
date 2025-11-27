@@ -1,16 +1,16 @@
-<?php 
-    require_once '../../config.php';
-    // Đặt tên trang (giả sử thuộc nhóm quản lý tài khoản)
-    $currentPage = 'phan-quyen'; 
-    $pageCSS = ['PhanQuyen.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['PhanQuyen.js'];
+<?php
+require_once '../../config.php';
+// Đặt tên trang (giả sử thuộc nhóm quản lý tài khoản)
+$currentPage = 'phan-quyen';
+$pageCSS = ['PhanQuyen.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['PhanQuyen.js'];
 ?>
 
 <main>
     <div class="content-wrapper">
         <h2 class="section-title">THÔNG TIN TÀI KHOẢN</h2>
-        
+
         <div class="form-container mb-5">
             <div class="row mb-4 align-items-center">
                 <div class="col-md-6">

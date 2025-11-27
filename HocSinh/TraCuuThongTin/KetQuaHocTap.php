@@ -1,9 +1,9 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'ket-qua'; 
-    $pageCSS = ['KetQuaHocTap.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['KetQuaHocTap.js'];
+<?php
+require_once '../../config.php';
+$currentPage = 'ket-qua';
+$pageCSS = ['KetQuaHocTap.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['KetQuaHocTap.js'];
 ?>
 
 <main>
@@ -45,17 +45,22 @@
                         </td>
                     </tr>
 
-                    <?php for($i=2; $i<=8; $i++): ?>
-                    <tr>
-                        <td class="text-center"><input class="form-check-input custom-checkbox" type="checkbox"></td>
-                        <td class="text-center fw-bold"><?php echo $i; ?></td>
-                        <td></td><td></td><td></td><td></td><td></td><td></td>
-                    </tr>
+                    <?php for ($i = 2; $i <= 8; $i++): ?>
+                        <tr>
+                            <td class="text-center"><input class="form-check-input custom-checkbox" type="checkbox"></td>
+                            <td class="text-center fw-bold"><?php echo $i; ?></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     <?php endfor; ?>
                 </tbody>
             </table>
         </div>
-        
+
         <div class="table-footer d-flex justify-content-between align-items-center bg-light p-2 border-top">
             <div class="text-secondary ps-3 fw-bold fs-6">1-4/18 mục</div>
             <nav>

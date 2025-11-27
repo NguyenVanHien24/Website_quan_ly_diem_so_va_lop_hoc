@@ -1,9 +1,34 @@
-<?php 
-    require_once '../../config.php';
-    $currentPage = 'lop-hoc'; 
-    $pageCSS = ['QuanLyLopHoc.css'];
-    require_once '../SidebarAndHeader.php';
-    $pageJS = ['QuanLyLopHoc.js'];
+<?php
+session_start();
+require_once '../../config.php';
+// ==== Kiểm tra đăng nhập ====
+if (!isset($_SESSION['userID'])) {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+
+// ==== Chỉ cho phép giáo viên ====
+if ($_SESSION['vaiTro'] !== 'GiaoVien') {
+    header('Location: ../../dangnhap.php');
+    exit();
+}
+$currentPage = 'lop-hoc';
+$pageCSS = ['QuanLyLopHoc.css'];
+require_once '../SidebarAndHeader.php';
+$pageJS = ['QuanLyLopHoc.js'];
+// ==== Lấy thông tin giáo viên từ DB ====
+$userID = $_SESSION['userID'];
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
+        FROM user u
+        JOIN giaovien g ON u.userId = g.userId
+        WHERE u.userId = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+$teacher = $result->fetch_assoc();
+$stmt->close();
+
 ?>
 <main>
     <div class="main-header">
@@ -38,30 +63,34 @@
                         <td>30</td>
                         <td><span class="badge-active">● Active</span></td>
                         <td class="action-icons">
-                            <a href="#" class="btn-edit" 
-                               data-id="251104" 
-                               data-name="11A4" 
-                               data-teacher="Hoàng Văn D" 
-                               data-count="30" 
-                               data-year="2024-2025"
-                               data-semester="1"
-                               data-grade="11"
-                               data-status="active"
-                               data-bs-toggle="modal" data-bs-target="#classFormModal">
+                            <a href="#" class="btn-edit"
+                                data-id="251104"
+                                data-name="11A4"
+                                data-teacher="Hoàng Văn D"
+                                data-count="30"
+                                data-year="2024-2025"
+                                data-semester="1"
+                                data-grade="11"
+                                data-status="active"
+                                data-bs-toggle="modal" data-bs-target="#classFormModal">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <a href="#" class="btn-delete" data-id="251104" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                               <i class="bi bi-trash-fill"></i>
+                                <i class="bi bi-trash-fill"></i>
                             </a>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        
-    <div class="table-footer">
+
+        <div class="table-footer">
             <span>1-1/18 mục</span>
-            <nav><ul class="pagination mb-0"><li class="page-item"><a class="page-link" href="#">1</a></li></ul></nav>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                </ul>
+            </nav>
         </div>
     </div>
 
@@ -112,7 +141,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Giáo viên chủ nhiệm:</label>
-                                <input type="text" class="form-control" id="c_teacher"> </div>
+                                <input type="text" class="form-control" id="c_teacher">
+                            </div>
                         </div>
 
                         <div class="row mb-4">
@@ -121,7 +151,7 @@
                                 <input type="number" class="form-control" id="c_count">
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
-                                 <div class="d-flex align-items-center gap-4 mb-2">
+                                <div class="d-flex align-items-center gap-4 mb-2">
                                     <label class="me-3">Trạng thái:</label>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="status" id="statusActive" value="active" checked>
@@ -131,7 +161,7 @@
                                         <input class="form-check-input" type="radio" name="status" id="statusInactive" value="inactive">
                                         <label class="form-check-label" for="statusInactive">Tạm dừng</label>
                                     </div>
-                                 </div>
+                                </div>
                             </div>
                         </div>
 
@@ -148,7 +178,7 @@
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 bg-transparent">
-                 <div class="modal-body p-0">
+                <div class="modal-body p-0">
                     <div class="delete-box position-relative mx-auto p-4 text-center bg-white rounded-3 shadow-sm" style="max-width: 400px;">
                         <div class="question-icon">?</div>
                         <div class="bg-light rounded-3 py-4 px-3 mt-3 mb-4">
