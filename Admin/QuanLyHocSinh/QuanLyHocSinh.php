@@ -193,59 +193,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($action === 'update') {
         $maHS = $_POST['id'] ?? 0;
+        $className = $_POST['class'] ?? '';
+        $role = $_POST['role'] ?? 'Thành viên';
+        $status = $_POST['status'] ?? 'active';
 
-        // LẤY LỚP CŨ TRƯỚC KHI UPDATE
+        // Lấy lớp cũ trước khi update
         $oldClassRs = $conn->query("SELECT maLopHienTai FROM hocsinh WHERE maHS = $maHS");
         $oldClass = $oldClassRs->fetch_assoc()['maLopHienTai'];
 
-        // LẤY userId
+        // Lấy userId
         $rs = $conn->query("SELECT userId FROM hocsinh WHERE maHS=$maHS");
         $userId = $rs->fetch_assoc()['userId'];
 
         $conn->begin_transaction();
         try {
-
-            // update bảng user
-            $conn->query("UPDATE user SET hoVaTen='$name', email='$email', sdt='$phone', gioiTinh='$gender' WHERE userId=$userId");
-
-            // lấy lớp mới
+            // Lấy maLop từ tên lớp
             $maLop = null;
-            if ($className) {
-                $rs2 = $conn->query("SELECT maLop FROM lophoc WHERE tenLop='$className' LIMIT 1");
-                $maLop = $rs2->fetch_assoc()['maLop'];
+            if (!empty($className)) {
+                $rs2 = $conn->query("SELECT maLop FROM lophoc WHERE tenLop = '" . $conn->real_escape_string($className) . "' LIMIT 1");
+                if ($rs2 && $rs2->num_rows > 0) {
+                    $maLop = $rs2->fetch_assoc()['maLop'];
+                } else {
+                    throw new Exception("Lớp '$className' không tồn tại trong CSDL");
+                }
             }
 
             $statusDb = $status === 'active' ? 'Hoạt động' : 'Inactive';
 
-            // UPDATE hocsinh về lớp mới
-            $conn->query("
-            UPDATE hocsinh SET maLopHienTai = " . ($maLop ?? "NULL") . ",
-            chucVu='$role', trangThaiHoatDong='$statusDb'
+            // UPDATE hocsinh
+            $sqlUpdateHS = "
+            UPDATE hocsinh 
+            SET maLopHienTai = " . ($maLop !== null ? $maLop : "NULL") . ",
+                chucVu='$role', trangThaiHoatDong='$statusDb'
             WHERE maHS=$maHS
-        ");
+        ";
+            if (!$conn->query($sqlUpdateHS)) {
+                throw new Exception('Lỗi cập nhật hocsinh: ' . $conn->error);
+            }
 
-            // ----- CẬP NHẬT SĨ SỐ -----
+            // Cập nhật sĩ số lớp
             if ($oldClass != $maLop) {
-
-                // giảm sĩ số lớp cũ
-                if ($oldClass) {
-                    $conn->query("UPDATE lophoc SET siSo = siSo - 1 WHERE maLop = $oldClass");
-                }
-
-                // tăng sĩ số lớp mới
-                if ($maLop) {
-                    $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
-                }
+                if ($oldClass) $conn->query("UPDATE lophoc SET siSo = siSo - 1 WHERE maLop = $oldClass");
+                if ($maLop) $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
             }
 
             $conn->commit();
-            $response['success'] = true;
+            echo json_encode(['success' => true]);
         } catch (Exception $e) {
             $conn->rollback();
-            $response['error'] = $e->getMessage();
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
-
-        echo json_encode($response);
         exit();
     }
 
@@ -471,7 +468,7 @@ $pageJS = ['QuanLyHocSinh.js'];
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 <label class="form-label">Lớp:</label>
-                                <select class="form-select" id="s_class">
+                                <select class="form-select" id="s_class" name="class">
                                     <option value="">-- Chọn lớp --</option>
                                     <?php
                                     $lopRs = $conn->query("SELECT tenLop FROM lophoc ORDER BY tenLop ASC");
