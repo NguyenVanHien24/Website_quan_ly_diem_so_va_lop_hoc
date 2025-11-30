@@ -11,7 +11,7 @@ $resultTeachers = $conn->query($sqlTeachers);
 // Lấy mã môn lớn nhất hiện tại
 $resultMax = $conn->query("SELECT MAX(maMon) AS maxID FROM monhoc");
 $rowMax = $resultMax->fetch_assoc();
-$nextMaMon = $rowMax['maxID'] + 1;
+$nextMaMon = $rowMax ? $rowMax['maxID'] + 1 : 1;
 
 // Truy vấn dữ liệu môn học
 $sqlSubjects = "SELECT * FROM monhoc ORDER BY maMon ASC";
@@ -156,11 +156,7 @@ $pageJS = ['QuanLyMonHoc.js'];
                                 <label class="form-label">Trưởng bộ môn:</label>
                                 <select class="form-select" id="m_head">
                                     <option value="">-- Chọn giáo viên --</option>
-                                    <?php if ($resultTeachers && $resultTeachers->num_rows > 0): ?>
-                                        <?php while ($gv = $resultTeachers->fetch_assoc()): ?>
-                                            <option value="<?= $gv['hoVaTen'] ?>"><?= $gv['hoVaTen'] ?></option>
-                                        <?php endwhile; ?>
-                                    <?php endif; ?>
+                                    
                                 </select>
                             </div>
                         </div>

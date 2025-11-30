@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     body: `action=delete&id=${studentId}`
                 }).then(res => res.json()).then(res => {
                     if(res.success) location.reload();
-                    else alert('Xóa thất bại!');
+                    else alert(res.error || 'Xóa thất bại!');
                 });
             };
         });
