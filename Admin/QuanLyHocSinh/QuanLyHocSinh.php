@@ -43,24 +43,25 @@ $maHSResult = $conn->query("SELECT IFNULL(MAX(maHS),0)+1 AS nextMaHS FROM hocsin
 $nextMaHS = $maHSResult->fetch_assoc()['nextMaHS'];
 
 // Function tạo diemso cho học sinh trong lớp
-function createDiemsoForStudent($conn, $maHS, $maLop, $namHoc, $kyHoc) {
+function createDiemsoForStudent($conn, $maHS, $maLop, $namHoc, $kyHoc)
+{
     if (!$maLop) return; // Không tạo nếu không có lớp
-    
+
     // Lấy danh sách môn học của lớp trong năm học/kỳ hiện tại
     $lopMonRs = $conn->query("SELECT maMon FROM lop_monhoc WHERE maLop = $maLop AND namHoc = '$namHoc' AND hocKy = $kyHoc");
-    
+
     if (!$lopMonRs || $lopMonRs->num_rows === 0) return;
-    
+
     // 3 loại điểm
     $loaiDiem = ['Điểm miệng', 'Điểm 15 phút', 'Điểm 1 tiết'];
-    
+
     while ($lopMon = $lopMonRs->fetch_assoc()) {
         $maMon = $lopMon['maMon'];
-        
+
         // Kiểm tra xem đã tồn tại chưa để tránh trùng lặp
         $checkRs = $conn->query("SELECT COUNT(*) as cnt FROM diemso WHERE maHS = $maHS AND maMonHoc = $maMon AND namHoc = '$namHoc' AND hocKy = $kyHoc");
         $checkRow = $checkRs->fetch_assoc();
-        
+
         // Chỉ tạo nếu chưa có bản ghi nào cho môn học này
         if ($checkRow['cnt'] == 0) {
             foreach ($loaiDiem as $loai) {
@@ -208,16 +209,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (!$conn->query($updateHocsinhSql)) {
                 throw new Exception('Lỗi khi cập nhật hocsinh: ' . $conn->error . ' | SQL: ' . $updateHocsinhSql);
             }
-            
+
             // Lấy maHS vừa tạo
             $hsRs = $conn->query("SELECT maHS FROM hocsinh WHERE userId = $userId");
             $maHS = $hsRs->fetch_assoc()['maHS'];
-            
+
             // Tạo diemso cho học sinh nếu có lớp
             if ($maLop) {
                 createDiemsoForStudent($conn, $maHS, $maLop, $currentYear, $currentSemester);
             }
-            
+
             // Cập nhật sĩ số lớp
             if ($maLop) {
                 $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
@@ -279,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 if ($oldClass) $conn->query("UPDATE lophoc SET siSo = siSo - 1 WHERE maLop = $oldClass");
                 if ($maLop) $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
             }
-            
+
             // Nếu thay đổi lớp, tạo diemso cho lớp mới
             if ($oldClass != $maLop && $maLop) {
                 $yearNow = date('Y');
@@ -575,7 +576,26 @@ $pageJS = ['QuanLyHocSinh.js'];
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const classFilter = document.getElementById('classFilterHeader');
+            const table = document.querySelector('.table tbody');
 
+            classFilter.addEventListener('change', function() {
+                const selectedClass = this.value;
+                const rows = table.querySelectorAll('tr');
+
+                rows.forEach(row => {
+                    const classCell = row.cells[4].textContent.trim(); // cột lớp thứ 5
+                    if (!selectedClass || selectedClass === classCell || (selectedClass === 'Chưa có lớp' && classCell === 'Chưa có lớp')) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </main>
 <?php
 require_once '../../footer.php';
