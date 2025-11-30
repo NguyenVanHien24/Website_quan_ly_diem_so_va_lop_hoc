@@ -41,6 +41,38 @@ if ($monthNow >= 1 && $monthNow <= 6) {
 // Lấy mã học sinh tự động: max(maHS)+1
 $maHSResult = $conn->query("SELECT IFNULL(MAX(maHS),0)+1 AS nextMaHS FROM hocsinh");
 $nextMaHS = $maHSResult->fetch_assoc()['nextMaHS'];
+
+// Function tạo diemso cho học sinh trong lớp
+function createDiemsoForStudent($conn, $maHS, $maLop, $namHoc, $kyHoc) {
+    if (!$maLop) return; // Không tạo nếu không có lớp
+    
+    // Lấy danh sách môn học của lớp trong năm học/kỳ hiện tại
+    $lopMonRs = $conn->query("SELECT maMon FROM lop_monhoc WHERE maLop = $maLop AND namHoc = '$namHoc' AND hocKy = $kyHoc");
+    
+    if (!$lopMonRs || $lopMonRs->num_rows === 0) return;
+    
+    // 3 loại điểm
+    $loaiDiem = ['Điểm miệng', 'Điểm 15 phút', 'Điểm 1 tiết'];
+    
+    while ($lopMon = $lopMonRs->fetch_assoc()) {
+        $maMon = $lopMon['maMon'];
+        
+        // Kiểm tra xem đã tồn tại chưa để tránh trùng lặp
+        $checkRs = $conn->query("SELECT COUNT(*) as cnt FROM diemso WHERE maHS = $maHS AND maMonHoc = $maMon AND namHoc = '$namHoc' AND hocKy = $kyHoc");
+        $checkRow = $checkRs->fetch_assoc();
+        
+        // Chỉ tạo nếu chưa có bản ghi nào cho môn học này
+        if ($checkRow['cnt'] == 0) {
+            foreach ($loaiDiem as $loai) {
+                $insertDiemSql = "INSERT INTO diemso (maHS, maMonHoc, maLop, loaiDiem, namHoc, hocKy) VALUES ($maHS, $maMon, $maLop, '$loai', '$namHoc', $kyHoc)";
+                if (!$conn->query($insertDiemSql)) {
+                    error_log("Error inserting diemso: " . $conn->error);
+                }
+            }
+        }
+    }
+}
+
 // ------------------ XỬ LÝ AJAX THÊM/SỬA/XÓA ------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
@@ -176,6 +208,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (!$conn->query($updateHocsinhSql)) {
                 throw new Exception('Lỗi khi cập nhật hocsinh: ' . $conn->error . ' | SQL: ' . $updateHocsinhSql);
             }
+            
+            // Lấy maHS vừa tạo
+            $hsRs = $conn->query("SELECT maHS FROM hocsinh WHERE userId = $userId");
+            $maHS = $hsRs->fetch_assoc()['maHS'];
+            
+            // Tạo diemso cho học sinh nếu có lớp
+            if ($maLop) {
+                createDiemsoForStudent($conn, $maHS, $maLop, $currentYear, $currentSemester);
+            }
+            
+            // Cập nhật sĩ số lớp
             if ($maLop) {
                 $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
             }
@@ -235,6 +278,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if ($oldClass != $maLop) {
                 if ($oldClass) $conn->query("UPDATE lophoc SET siSo = siSo - 1 WHERE maLop = $oldClass");
                 if ($maLop) $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
+            }
+            
+            // Nếu thay đổi lớp, tạo diemso cho lớp mới
+            if ($oldClass != $maLop && $maLop) {
+                $yearNow = date('Y');
+                $monthNow = date('n');
+                $currentSemester = ($monthNow >= 1 && $monthNow <= 6) ? 2 : 1;
+                $currentYear = ($monthNow >= 1 && $monthNow <= 6) ? ($yearNow - 1) . '-' . $yearNow : $yearNow . '-' . ($yearNow + 1);
+                createDiemsoForStudent($conn, $maHS, $maLop, $currentYear, $currentSemester);
             }
 
             $conn->commit();
