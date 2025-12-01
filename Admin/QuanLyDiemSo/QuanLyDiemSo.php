@@ -1,5 +1,101 @@
 <?php
+session_start();
 require_once '../../config.php';
+require_once '../../csdl/db.php';
+if (!isset($_SESSION["userID"])) {
+    header("Location: ../../dangnhap.php");
+    exit();
+}
+
+// Lấy năm học & học kỳ hiện tại
+$yearNow = date('Y');
+$monthNow = date('n');
+if ($monthNow >= 1 && $monthNow <= 6) {
+    $currentSemester = 2;
+    $currentYear = ($yearNow - 1) . '-' . $yearNow;
+} else {
+    $currentSemester = 1;
+    $currentYear = $yearNow . '-' . ($yearNow + 1);
+}
+
+// Lấy giá trị filter từ request
+$selectedClass = isset($_GET['class']) ? $_GET['class'] : '';
+$selectedSubject = isset($_GET['subject']) ? $_GET['subject'] : '';
+
+// Lấy danh sách lớp từ CSDL
+$classRs = $conn->query("SELECT maLop, tenLop FROM lophoc ORDER BY tenLop");
+$classes = [];
+while ($row = $classRs->fetch_assoc()) {
+    $classes[] = $row;
+}
+
+// Lấy danh sách môn học từ CSDL
+$subjectRs = $conn->query("SELECT maMon, tenMon FROM monhoc ORDER BY tenMon");
+$subjects = [];
+while ($row = $subjectRs->fetch_assoc()) {
+    $subjects[] = $row;
+}
+
+// Query để lấy bảng điểm
+$scoreQuery = "
+        SELECT 
+        hs.maHS,
+        u.hoVaTen,
+        l.tenLop,
+        l.maLop,
+        m.maMon,
+        m.tenMon,
+        d.loaiDiem,
+        d.giaTriDiem
+    FROM hocsinh hs
+    JOIN user u ON hs.userId = u.userId
+    JOIN lophoc l ON hs.maLopHienTai = l.maLop
+    CROSS JOIN monhoc m
+    LEFT JOIN diemso d 
+        ON d.maHS = hs.maHS 
+        AND d.maMonHoc = m.maMon
+        AND d.namHoc = '$currentYear'
+        AND d.hocKy = $currentSemester
+    WHERE 1=1
+";
+
+// Thêm filter nếu có
+if (!empty($selectedClass)) {
+    $scoreQuery .= " AND l.maLop = " . intval($selectedClass);
+}
+if (!empty($selectedSubject)) {
+    $scoreQuery .= " AND m.maMon = " . intval($selectedSubject);
+}
+
+$scoreQuery .= " ORDER BY l.tenLop, u.hoVaTen, m.tenMon";
+
+$scoreRs = $conn->query($scoreQuery);
+$scores = [];
+
+while ($row = $scoreRs->fetch_assoc()) {
+    $key = $row['maHS'] . '_' . $row['maMon'];
+
+    if (!isset($scores[$key])) {
+        $scores[$key] = [
+            'maHS' => $row['maHS'],
+            'hoVaTen' => $row['hoVaTen'],
+            'tenLop' => $row['tenLop'],
+            'maLop' => $row['maLop'],
+            'maMon' => $row['maMon'],
+            'tenMon' => $row['tenMon'],
+            'HK1' => ['mouth' => null, '45m' => null, 'gk' => null, 'ck' => null],
+            'HK2' => ['mouth' => null, '45m' => null, 'gk' => null, 'ck' => null],
+        ];
+    }
+
+    if ($row['loaiDiem']) {
+        $type = strtolower($row['loaiDiem']); // miệng, 45m, gk, ck
+        $semester = ($row['hocKy'] == 1) ? 'HK1' : 'HK2';
+
+        $scores[$key][$semester][$type] = $row['giaTriDiem'];
+    }
+}
+
 $currentPage = 'diem-so';
 $pageCSS = ['QuanLyDiemSo.css'];
 require_once '../SidebarAndHeader.php';
@@ -8,24 +104,32 @@ $pageJS = ['QuanLyDiemSo.js'];
 <main>
     <h1 class="page-title">BẢNG ĐIỂM</h1>
 
-    <div class="row mb-4 filter-section">
-        <div class="col-md-4">
-            <label for="class-filter" class="form-label fw-bold">Lớp:</label>
-            <select class="form-select" id="class-filter">
-                <option value="10A1">Lớp 10A1</option>
-                <option value="11A4" selected>Lớp 11A4</option>
-                <option value="12A1">Lớp 12A1</option>
-            </select>
+    <form method="GET">
+        <div class="row mb-4 filter-section">
+            <div class="col-md-4">
+                <label for="class-filter" class="form-label fw-bold">Lớp:</label>
+                <select class="form-select" id="class-filter" name="class" onchange="this.form.submit()">
+                    <option value="">-- Tất cả lớp --</option>
+                    <?php foreach ($classes as $c): ?>
+                        <option value="<?= $c['maLop'] ?>" <?= ($selectedClass == $c['maLop']) ? 'selected' : '' ?>>
+                            <?= $c['tenLop'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="subject-filter" class="form-label fw-bold">Môn:</label>
+                <select class="form-select" id="subject-filter" name="subject" onchange="this.form.submit()">
+                    <option value="">-- Tất cả môn --</option>
+                    <?php foreach ($subjects as $s): ?>
+                        <option value="<?= $s['maMon'] ?>" <?= ($selectedSubject == $s['maMon']) ? 'selected' : '' ?>>
+                            <?= $s['tenMon'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
         </div>
-        <div class="col-md-4">
-            <label for="subject-filter" class="form-label fw-bold">Môn:</label>
-            <select class="form-select" id="subject-filter">
-                <option value="math">Toán</option>
-                <option value="physics">Vật Lý</option>
-                <option value="biology" selected>Sinh học</option>
-            </select>
-        </div>
-    </div>
+    </form>
 
     <div class="content-container">
         <div class="table-responsive">
@@ -37,8 +141,6 @@ $pageJS = ['QuanLyDiemSo.js'];
                         <th>Mã HS</th>
                         <th>Họ Tên</th>
                         <th>Môn học</th>
-                        <th>Điểm miệng</th>
-                        <th>Điểm 1 Tiết</th>
                         <th>Điểm Thi Học Kì I</th>
                         <th>Điểm Thi Học Kì II</th>
                         <th>Trung Bình Môn</th>
@@ -46,70 +148,41 @@ $pageJS = ['QuanLyDiemSo.js'];
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>1</td>
-                        <td class="student-id">K25110386</td>
-                        <td class="student-name">Trần Hoàng Nhi</td>
-                        <td>Sinh học</td>
-                        <td class="score-mouth">9.0</td>
-                        <td class="score-45m">8.0</td>
-                        <td class="score-hk1">8.5</td>
-                        <td class="score-hk2">9.0</td>
-                        <td class="score-avg">9.0</td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-view"
-                                data-id="K25110386"
-                                data-name="Trần Hoàng Nhi"
-                                data-s1-mouth="9.0" data-s1-45m="8.0" data-s1-gk="8.5" data-s1-ck="9.0"
-                                data-s2-mouth="9.0" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#viewGradeModal">
-                                <i class="bi bi-eye"></i>
-                            </a>
+                    <?php $i = 1;
+                    foreach ($scores as $sc): ?>
+                        <tr>
+                            <td><input class="form-check-input" type="checkbox"></td>
+                            <td><?= $i++ ?></td>
+                            <td><?= $sc['maHS'] ?></td>
+                            <td><?= $sc['hoVaTen'] ?></td>
+                            <td><?= $sc['tenMon'] ?></td>
 
-                            <a href="#" class="btn-edit"
-                                data-id="K25110386"
-                                data-name="Trần Hoàng Nhi"
-                                data-s1-mouth="9.0" data-s1-45m="8.0" data-s1-gk="8.5" data-s1-ck="9.0"
-                                data-s2-mouth="9.0" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#gradeEntryModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#"><i class="bi bi-printer"></i></a>
-                        </td>
-                    </tr>
+                            <td><?= $sc['HK1']['ck'] ?? '' ?></td>
+                            <td><?= $sc['HK2']['ck'] ?? '' ?></td>
 
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>2</td>
-                        <td class="student-id">K25999999</td>
-                        <td class="student-name">Nguyễn Văn A</td>
-                        <td>Sinh học</td>
-                        <td class="score-mouth"></td>
-                        <td class="score-45m"></td>
-                        <td class="score-hk1"></td>
-                        <td class="score-hk2"></td>
-                        <td class="score-avg"></td>
+                            <td>
+                                <?php
+                                $avg = (
+                                    ($sc['HK1']['ck'] ?? 0) +
+                                    ($sc['HK2']['ck'] ?? 0)
+                                ) / 2;
+                                echo $avg ?: '';
+                                ?>
+                            </td>
 
-                        <td class="action-icons">
-                            <a href="#" class="btn-view"
-                                data-id="K25999999" data-name="Nguyễn Văn A"
-                                data-s1-mouth="" data-s1-45m="" data-s1-gk="" data-s1-ck=""
-                                data-s2-mouth="" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#viewGradeModal">
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-                            <a href="#" class="btn-edit"
-                                data-id="K25999999" data-name="Nguyễn Văn A"
-                                data-s1-mouth="" data-s1-45m="" data-s1-gk="" data-s1-ck=""
-                                data-s2-mouth="" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#gradeEntryModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#"><i class="bi bi-printer"></i></a>
-                        </td>
-                    </tr>
+                            <td class="action-icons">
+                                <a href="#" class="btn-view">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="#" class="btn-edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="#">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>

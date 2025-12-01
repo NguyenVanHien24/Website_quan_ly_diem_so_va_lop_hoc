@@ -449,11 +449,16 @@ $pageJS = ['QuanLyHocSinh.js'];
         </div>
 
         <div class="table-footer">
-            <span>1-2/18 mục</span>
+            <span>1-4/18 mục</span>
             <nav>
                 <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">‹</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
                     <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">...</a></li>
+                    <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    <li class="page-item"><a class="page-link" href="#">›</a></li>
                 </ul>
             </nav>
         </div>
