@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 30, 2025 at 05:10 PM
+-- Generation Time: Dec 06, 2025 at 05:11 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -197,7 +197,7 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_chuyencan_delete` AFTER DELETE ON `chuyencan` FOR EACH ROW BEGIN
-    INSERT INTO GhiLog(hoatDong, thoiGian)
+    INSERT INTO GhiLog(hanhDong, thoiGian)
     VALUES (CONCAT('Xóa chuyên cần ID ', OLD.userID), NOW());
 END
 $$
@@ -233,7 +233,7 @@ CREATE TABLE `diemso` (
 --
 
 INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTriDiem`, `ngayGhiNhan`, `namHoc`, `hocKy`) VALUES
-(46, 17, 1, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
+(46, 17, 1, 8, 'Điểm miệng', 8, '2025-11-30 23:08:03', '2024-2025', 1),
 (47, 17, 2, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
 (48, 17, 3, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
 (49, 17, 4, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
@@ -247,7 +247,26 @@ INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTri
 (61, 17, 2, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
 (62, 17, 3, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
 (63, 17, 4, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(64, 17, 5, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1);
+(64, 17, 5, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
+(109, 11, 1, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(110, 11, 2, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(111, 11, 3, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(112, 11, 4, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(113, 11, 5, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(116, 11, 1, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(117, 11, 2, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(118, 11, 3, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(119, 11, 4, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(120, 11, 5, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(123, 11, 1, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(124, 11, 2, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(125, 11, 3, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(126, 11, 4, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(127, 11, 5, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
+(173, 1, 3, 12, 'Điểm miệng', 7, '2025-12-06 21:50:51', '2025-2026', 1),
+(174, 1, 3, 12, 'Điểm 1 tiết', 7, '2025-12-06 21:50:51', '2025-2026', 1),
+(175, 1, 3, 12, 'Điểm giữa kỳ', 8, '2025-12-06 21:50:51', '2025-2026', 1),
+(176, 1, 3, 12, 'Điểm cuối kỳ', 8, '2025-12-06 21:50:51', '2025-2026', 1);
 
 --
 -- Triggers `diemso`
@@ -268,7 +287,7 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_diemso_delete` AFTER DELETE ON `diemso` FOR EACH ROW BEGIN
-    INSERT INTO GhiLog(hoatDong, thoiGian)
+    INSERT INTO GhiLog(hanhDong, thoiGian)
     VALUES (CONCAT('Xóa điểm ID ', OLD.maHS), NOW());
 END
 $$
@@ -774,7 +793,115 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (538, NULL, 'Cập nhật lớp học', 'LopHoc', 14, NULL, '2025-11-30 23:08:03'),
 (539, NULL, 'Cập nhật lớp học', 'LopHoc', 8, NULL, '2025-11-30 23:08:03'),
 (540, NULL, 'Cập nhật lớp học', 'LopHoc', 14, NULL, '2025-11-30 23:08:51'),
-(541, NULL, 'Cập nhật lớp học', 'LopHoc', 8, NULL, '2025-11-30 23:09:36');
+(541, NULL, 'Cập nhật lớp học', 'LopHoc', 8, NULL, '2025-11-30 23:09:36'),
+(600, 31, 'Cập nhật tài khoản', 'User', 31, 'SYSTEM', '2025-11-30 23:18:31'),
+(601, 31, 'Cập nhật giáo viên', 'GiaoVien', 11, 'SYSTEM', '2025-11-30 23:18:31'),
+(604, NULL, 'Tạo tài khoản', 'User', 58, 'SYSTEM', '2025-11-30 23:23:42'),
+(605, NULL, 'Thêm học sinh', 'HocSinh', 24, NULL, '2025-11-30 23:23:42'),
+(606, NULL, 'Cập nhật học sinh', 'HocSinh', 24, NULL, '2025-11-30 23:23:42'),
+(607, NULL, 'Cập nhật lớp học', 'LopHoc', 8, NULL, '2025-11-30 23:23:42'),
+(608, 26, 'Cập nhật học sinh', 'HocSinh', 11, NULL, '2025-11-30 23:24:30'),
+(609, NULL, 'Cập nhật lớp học', 'LopHoc', 12, NULL, '2025-11-30 23:24:30'),
+(610, NULL, 'Cập nhật lớp học', 'LopHoc', 15, NULL, '2025-11-30 23:24:30'),
+(611, NULL, 'Ghi điểm', 'DiemSo', 109, 'SYSTEM', '2025-11-30 23:24:30'),
+(612, NULL, 'Ghi điểm', 'DiemSo', 110, 'SYSTEM', '2025-11-30 23:24:30'),
+(613, NULL, 'Ghi điểm', 'DiemSo', 111, 'SYSTEM', '2025-11-30 23:24:30'),
+(614, NULL, 'Ghi điểm', 'DiemSo', 112, 'SYSTEM', '2025-11-30 23:24:30'),
+(615, NULL, 'Ghi điểm', 'DiemSo', 113, 'SYSTEM', '2025-11-30 23:24:30'),
+(616, NULL, 'Ghi điểm', 'DiemSo', 116, 'SYSTEM', '2025-11-30 23:24:30'),
+(617, NULL, 'Ghi điểm', 'DiemSo', 117, 'SYSTEM', '2025-11-30 23:24:30'),
+(618, NULL, 'Ghi điểm', 'DiemSo', 118, 'SYSTEM', '2025-11-30 23:24:30'),
+(619, NULL, 'Ghi điểm', 'DiemSo', 119, 'SYSTEM', '2025-11-30 23:24:30'),
+(620, NULL, 'Ghi điểm', 'DiemSo', 120, 'SYSTEM', '2025-11-30 23:24:30'),
+(621, NULL, 'Ghi điểm', 'DiemSo', 123, 'SYSTEM', '2025-11-30 23:24:30'),
+(622, NULL, 'Ghi điểm', 'DiemSo', 124, 'SYSTEM', '2025-11-30 23:24:30'),
+(623, NULL, 'Ghi điểm', 'DiemSo', 125, 'SYSTEM', '2025-11-30 23:24:30'),
+(624, NULL, 'Ghi điểm', 'DiemSo', 126, 'SYSTEM', '2025-11-30 23:24:30'),
+(625, NULL, 'Ghi điểm', 'DiemSo', 127, 'SYSTEM', '2025-11-30 23:24:30'),
+(626, NULL, 'Học sinh 11 chuyển lớp 12 → 15', NULL, NULL, NULL, '2025-11-30 23:24:30'),
+(627, NULL, 'Cập nhật lớp học', 'LopHoc', 12, NULL, '2025-11-30 23:24:30'),
+(628, NULL, 'Cập nhật lớp học', 'LopHoc', 15, NULL, '2025-11-30 23:24:30'),
+(629, NULL, 'Cập nhật lớp học', 'LopHoc', 8, NULL, '2025-11-30 23:27:15'),
+(630, NULL, 'Xóa học sinh', 'HocSinh', 24, NULL, '2025-11-30 23:27:15'),
+(631, NULL, 'Xóa tài khoản', 'User', 58, 'SYSTEM', '2025-11-30 23:27:15'),
+(632, NULL, 'Tạo tài khoản', 'User', 59, 'SYSTEM', '2025-11-30 23:27:37'),
+(633, NULL, 'Thêm học sinh', 'HocSinh', 25, NULL, '2025-11-30 23:27:37'),
+(634, NULL, 'Cập nhật học sinh', 'HocSinh', 25, NULL, '2025-11-30 23:27:37'),
+(635, NULL, 'Xóa học sinh', 'HocSinh', 25, NULL, '2025-11-30 23:30:45'),
+(636, NULL, 'Xóa tài khoản', 'User', 59, 'SYSTEM', '2025-11-30 23:30:45'),
+(637, NULL, 'Tạo tài khoản', 'User', 60, 'SYSTEM', '2025-11-30 23:30:52'),
+(638, NULL, 'Thêm học sinh', 'HocSinh', 26, NULL, '2025-11-30 23:30:52'),
+(639, NULL, 'Cập nhật học sinh', 'HocSinh', 26, NULL, '2025-11-30 23:30:52'),
+(640, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:30:52'),
+(641, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:39:49'),
+(642, NULL, 'Xóa học sinh', 'HocSinh', 26, NULL, '2025-11-30 23:39:49'),
+(643, NULL, 'Xóa tài khoản', 'User', 60, 'SYSTEM', '2025-11-30 23:39:49'),
+(644, NULL, 'Tạo tài khoản', 'User', 61, 'SYSTEM', '2025-11-30 23:39:58'),
+(645, NULL, 'Thêm học sinh', 'HocSinh', 27, NULL, '2025-11-30 23:39:58'),
+(646, NULL, 'Cập nhật học sinh', 'HocSinh', 27, NULL, '2025-11-30 23:39:58'),
+(647, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:39:58'),
+(648, 26, 'Cập nhật học sinh', 'HocSinh', 11, NULL, '2025-11-30 23:42:02'),
+(649, NULL, 'Cập nhật lớp học', 'LopHoc', 15, NULL, '2025-11-30 23:42:02'),
+(650, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:42:02'),
+(651, NULL, 'Học sinh 11 chuyển lớp 15 → 11', NULL, NULL, NULL, '2025-11-30 23:42:02'),
+(652, NULL, 'Cập nhật lớp học', 'LopHoc', 15, NULL, '2025-11-30 23:42:02'),
+(653, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:42:02'),
+(654, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:43:35'),
+(655, NULL, 'Xóa học sinh', 'HocSinh', 27, NULL, '2025-11-30 23:43:35'),
+(656, NULL, 'Xóa tài khoản', 'User', 61, 'SYSTEM', '2025-11-30 23:43:35'),
+(657, NULL, 'Tạo tài khoản', 'User', 62, 'SYSTEM', '2025-11-30 23:43:43'),
+(658, NULL, 'Thêm học sinh', 'HocSinh', 28, NULL, '2025-11-30 23:43:43'),
+(659, NULL, 'Cập nhật học sinh', 'HocSinh', 28, NULL, '2025-11-30 23:43:43'),
+(660, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:43:43'),
+(661, NULL, 'Cập nhật học sinh', 'HocSinh', 28, NULL, '2025-11-30 23:44:18'),
+(662, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:44:18'),
+(663, NULL, 'Cập nhật lớp học', 'LopHoc', 12, NULL, '2025-11-30 23:44:18'),
+(664, NULL, 'Ghi điểm', 'DiemSo', 130, 'SYSTEM', '2025-11-30 23:44:18'),
+(665, NULL, 'Ghi điểm', 'DiemSo', 131, 'SYSTEM', '2025-11-30 23:44:18'),
+(666, NULL, 'Ghi điểm', 'DiemSo', 132, 'SYSTEM', '2025-11-30 23:44:18'),
+(667, NULL, 'Ghi điểm', 'DiemSo', 133, 'SYSTEM', '2025-11-30 23:44:18'),
+(668, NULL, 'Ghi điểm', 'DiemSo', 134, 'SYSTEM', '2025-11-30 23:44:18'),
+(669, NULL, 'Ghi điểm', 'DiemSo', 137, 'SYSTEM', '2025-11-30 23:44:18'),
+(670, NULL, 'Ghi điểm', 'DiemSo', 138, 'SYSTEM', '2025-11-30 23:44:18'),
+(671, NULL, 'Ghi điểm', 'DiemSo', 139, 'SYSTEM', '2025-11-30 23:44:18'),
+(672, NULL, 'Ghi điểm', 'DiemSo', 140, 'SYSTEM', '2025-11-30 23:44:18'),
+(673, NULL, 'Ghi điểm', 'DiemSo', 141, 'SYSTEM', '2025-11-30 23:44:18'),
+(674, NULL, 'Ghi điểm', 'DiemSo', 144, 'SYSTEM', '2025-11-30 23:44:18'),
+(675, NULL, 'Ghi điểm', 'DiemSo', 145, 'SYSTEM', '2025-11-30 23:44:18'),
+(676, NULL, 'Ghi điểm', 'DiemSo', 146, 'SYSTEM', '2025-11-30 23:44:18'),
+(677, NULL, 'Ghi điểm', 'DiemSo', 147, 'SYSTEM', '2025-11-30 23:44:18'),
+(678, NULL, 'Ghi điểm', 'DiemSo', 148, 'SYSTEM', '2025-11-30 23:44:18'),
+(679, NULL, 'Học sinh 28 chuyển lớp 11 → 12', NULL, NULL, NULL, '2025-11-30 23:44:18'),
+(680, NULL, 'Cập nhật lớp học', 'LopHoc', 11, NULL, '2025-11-30 23:44:18'),
+(681, NULL, 'Cập nhật lớp học', 'LopHoc', 12, NULL, '2025-11-30 23:44:18'),
+(682, NULL, 'Cập nhật lớp học', 'LopHoc', 12, NULL, '2025-11-30 23:44:35'),
+(683, NULL, 'Xóa học sinh', 'HocSinh', 28, NULL, '2025-11-30 23:44:35'),
+(684, NULL, 'Xóa tài khoản', 'User', 62, 'SYSTEM', '2025-11-30 23:44:35'),
+(685, NULL, 'Cập nhật điểm', 'DiemSo', 46, 'SYSTEM', '2025-12-01 23:50:50'),
+(686, NULL, 'Ghi điểm', 'DiemSo', 149, 'SYSTEM', '2025-12-02 23:56:36'),
+(687, NULL, 'Ghi điểm', 'DiemSo', 150, 'SYSTEM', '2025-12-02 23:56:36'),
+(688, NULL, 'Ghi điểm', 'DiemSo', 151, 'SYSTEM', '2025-12-02 23:56:36'),
+(689, NULL, 'Ghi điểm', 'DiemSo', 152, 'SYSTEM', '2025-12-02 23:56:36'),
+(690, NULL, 'Ghi điểm', 'DiemSo', 169, 'SYSTEM', '2025-12-06 21:19:39'),
+(691, NULL, 'Ghi điểm', 'DiemSo', 170, 'SYSTEM', '2025-12-06 21:19:39'),
+(692, NULL, 'Ghi điểm', 'DiemSo', 171, 'SYSTEM', '2025-12-06 21:19:39'),
+(693, NULL, 'Ghi điểm', 'DiemSo', 172, 'SYSTEM', '2025-12-06 21:19:39'),
+(694, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:38'),
+(695, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:40'),
+(696, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:42'),
+(697, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:44'),
+(698, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:45'),
+(699, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:47'),
+(700, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:49'),
+(701, NULL, 'Xóa điểm ID 1', NULL, NULL, NULL, '2025-12-06 21:45:51'),
+(702, NULL, 'Ghi điểm', 'DiemSo', 173, 'SYSTEM', '2025-12-06 21:50:51'),
+(703, NULL, 'Ghi điểm', 'DiemSo', 174, 'SYSTEM', '2025-12-06 21:50:51'),
+(704, NULL, 'Ghi điểm', 'DiemSo', 175, 'SYSTEM', '2025-12-06 21:50:51'),
+(705, NULL, 'Ghi điểm', 'DiemSo', 176, 'SYSTEM', '2025-12-06 21:50:51'),
+(706, NULL, 'Cập nhật điểm', 'DiemSo', 173, 'SYSTEM', '2025-12-06 22:17:06'),
+(707, NULL, 'Cập nhật điểm', 'DiemSo', 174, 'SYSTEM', '2025-12-06 22:17:06'),
+(708, NULL, 'Cập nhật điểm', 'DiemSo', 175, 'SYSTEM', '2025-12-06 22:17:06'),
+(709, NULL, 'Cập nhật điểm', 'DiemSo', 176, 'SYSTEM', '2025-12-06 22:17:06');
 
 -- --------------------------------------------------------
 
@@ -803,7 +930,7 @@ INSERT INTO `giaovien` (`maGV`, `userId`, `boMon`, `trinhDo`, `phongBan`, `trang
 (5, 28, 'Ngữ Văn', '', '', 'Hoạt động', '2024-2025', 1),
 (7, 29, 'Sinh học', '', '', 'Hoạt động', '2024-2025', 1),
 (9, 30, 'Ngữ Văn', '', '', 'Hoạt động', '2024-2025', 1),
-(11, 31, 'Hóa học', '', '', 'Hoạt động', '2024-2025', 1),
+(11, 31, 'Tiếng Anh', '', '', 'Hoạt động', '2024-2025', 1),
 (19, 35, 'Sinh học', '', '', 'Hoạt động', '2024-2025', 1),
 (21, 36, 'Toán học', '', '', 'Hoạt động', '2024-2025', 1),
 (23, 37, 'Vật lý', '', '', 'Hoạt động', '2024-2025', 1),
@@ -946,7 +1073,7 @@ INSERT INTO `hocsinh` (`maHS`, `userId`, `maLopHienTai`, `trangThaiHoatDong`, `n
 (8, 22, 15, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
 (9, 23, 11, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
 (10, 24, 12, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
-(11, 26, 12, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
+(11, 26, 11, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
 (12, 27, 14, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
 (17, 51, 8, 'Hoạt động', '2025-2026', 1, 'Thành viên');
 
@@ -965,10 +1092,69 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_hs_after_insert` AFTER INSERT ON `hocsinh` FOR EACH ROW BEGIN
+    -- Increment class count for new class and create diemso records
     IF NEW.maLopHienTai IS NOT NULL THEN
-        UPDATE LopHoc
-        SET siSo = siSo + 1
-        WHERE maLop = NEW.maLopHienTai;
+        UPDATE LopHoc SET siSo = siSo + 1 WHERE maLop = NEW.maLopHienTai;
+
+        -- Insert "Điểm miệng" records for new class
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS,
+                lm.maMon,
+                lm.maLop,
+                'Điểm miệng',
+                NULL,
+                lm.namHoc,
+                lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+            AND NOT EXISTS (
+                SELECT 1 FROM diemso d
+                WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm miệng'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+            );
+
+        -- Insert "Điểm 15 phút" records for new class
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS,
+                lm.maMon,
+                lm.maLop,
+                'Điểm 15 phút',
+                NULL,
+                lm.namHoc,
+                lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+            AND NOT EXISTS (
+                SELECT 1 FROM diemso d
+                WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm 15 phút'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+            );
+
+        -- Insert "Điểm 1 tiết" records for new class
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS,
+                lm.maMon,
+                lm.maLop,
+                'Điểm 1 tiết',
+                NULL,
+                lm.namHoc,
+                lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+            AND NOT EXISTS (
+                SELECT 1 FROM diemso d
+                WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm 1 tiết'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+            );
     END IF;
 END
 $$
@@ -1214,8 +1400,8 @@ CREATE TABLE `lophoc` (
 
 INSERT INTO `lophoc` (`maLop`, `tenLop`, `khoiLop`, `giaoVienPhuTrach`, `siSo`, `trangThai`, `namHoc`, `kyHoc`) VALUES
 (8, '10A5', '10', 9, 1, 'active', '2024-2025', 1),
-(11, '10A6', '10', 19, 1, 'active', '2024-2025', 1),
-(12, '10A1', '10', 1, 4, 'active', '2024-2025', 1),
+(11, '10A6', '10', 19, 2, 'active', '2024-2025', 1),
+(12, '10A1', '10', 1, 3, 'active', '2024-2025', 1),
 (13, '10A2', '10', 3, 1, 'active', '2024-2025', 1),
 (14, '10A3', '10', 5, 1, 'active', '2024-2025', 1),
 (15, '10A4', '10', 7, 1, 'active', '2024-2025', 1);
@@ -1720,6 +1906,7 @@ ALTER TABLE `chuyencan`
 --
 ALTER TABLE `diemso`
   ADD PRIMARY KEY (`maDiem`),
+  ADD UNIQUE KEY `unique_diem` (`maHS`,`maMonHoc`,`namHoc`,`hocKy`,`loaiDiem`),
   ADD KEY `maLop` (`maLop`),
   ADD KEY `fk_diem_hs` (`maHS`),
   ADD KEY `fk_diem_mon` (`maMonHoc`);
@@ -1831,13 +2018,13 @@ ALTER TABLE `chuyencan`
 -- AUTO_INCREMENT for table `diemso`
 --
 ALTER TABLE `diemso`
-  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
 
 --
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=542;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=710;
 
 --
 -- AUTO_INCREMENT for table `giaovien`
@@ -1849,13 +2036,13 @@ ALTER TABLE `giaovien`
 -- AUTO_INCREMENT for table `giaovien_monhoc`
 --
 ALTER TABLE `giaovien_monhoc`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `hocsinh`
 --
 ALTER TABLE `hocsinh`
-  MODIFY `maHS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `maHS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `lophoc`
@@ -1897,7 +2084,7 @@ ALTER TABLE `thongbaouser`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- Constraints for dumped tables

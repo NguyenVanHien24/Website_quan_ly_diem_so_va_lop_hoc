@@ -36,9 +36,9 @@ while ($row = $subjectRs->fetch_assoc()) {
     $subjects[] = $row;
 }
 
-// Query để lấy bảng điểm
+// Query để lấy bảng điểm: students × subjects, left-join điểm CK (cuối kỳ) của HK1 và HK2
 $scoreQuery = "
-        SELECT 
+    SELECT
         hs.maHS,
         u.hoVaTen,
         l.tenLop,
@@ -46,53 +46,86 @@ $scoreQuery = "
         m.maMon,
         m.tenMon,
         d.loaiDiem,
-        d.giaTriDiem
+        d.giaTriDiem,
+        d.hocKy
     FROM hocsinh hs
     JOIN user u ON hs.userId = u.userId
-    JOIN lophoc l ON hs.maLopHienTai = l.maLop
+    LEFT JOIN lophoc l ON hs.maLopHienTai = l.maLop
     CROSS JOIN monhoc m
-    LEFT JOIN diemso d 
-        ON d.maHS = hs.maHS 
+    LEFT JOIN diemso d
+        ON d.maHS = hs.maHS
         AND d.maMonHoc = m.maMon
         AND d.namHoc = '$currentYear'
-        AND d.hocKy = $currentSemester
     WHERE 1=1
 ";
 
 // Thêm filter nếu có
 if (!empty($selectedClass)) {
-    $scoreQuery .= " AND l.maLop = " . intval($selectedClass);
+    $scoreQuery .= " AND l.maLop = '" . $conn->real_escape_string($selectedClass) . "'";
 }
 if (!empty($selectedSubject)) {
-    $scoreQuery .= " AND m.maMon = " . intval($selectedSubject);
+    $scoreQuery .= " AND m.maMon = '" . $conn->real_escape_string($selectedSubject) . "'";
 }
 
 $scoreQuery .= " ORDER BY l.tenLop, u.hoVaTen, m.tenMon";
 
 $scoreRs = $conn->query($scoreQuery);
 $scores = [];
-
-while ($row = $scoreRs->fetch_assoc()) {
-    $key = $row['maHS'] . '_' . $row['maMon'];
-
-    if (!isset($scores[$key])) {
-        $scores[$key] = [
-            'maHS' => $row['maHS'],
-            'hoVaTen' => $row['hoVaTen'],
-            'tenLop' => $row['tenLop'],
-            'maLop' => $row['maLop'],
-            'maMon' => $row['maMon'],
-            'tenMon' => $row['tenMon'],
-            'HK1' => ['mouth' => null, '45m' => null, 'gk' => null, 'ck' => null],
-            'HK2' => ['mouth' => null, '45m' => null, 'gk' => null, 'ck' => null],
-        ];
+function mapLoaiDiem($loai)
+{
+    if ($loai === null || $loai === '') return '';
+    
+    $s = mb_strtolower(trim((string)$loai), 'UTF-8');
+    if ($s === '') return '';
+    
+    // Check for "Điểm miệng", "miệng", etc.
+    if (mb_strpos($s, 'miệng') !== false || mb_strpos($s, 'mieng') !== false) {
+        return 'mouth';
     }
+    // Check for "Điểm 1 tiết"
+    if (mb_strpos($s, '1 tiết') !== false || mb_strpos($s, '1 tiet') !== false || 
+        mb_strpos($s, '1tiết') !== false || mb_strpos($s, '1tiet') !== false) {
+        return '45m';
+    }
+    // Check for "Điểm giữa kỳ", "giữa kỳ", "gk", etc.
+    if (mb_strpos($s, 'giữa') !== false || mb_strpos($s, 'giua') !== false || 
+        mb_strpos($s, 'gk') !== false) {
+        return 'gk';
+    }
+    // Check for "Điểm cuối kỳ", "cuối kỳ", "ck", etc.
+    if (mb_strpos($s, 'cuối') !== false || mb_strpos($s, 'cuoi') !== false || 
+        mb_strpos($s, 'ck') !== false) {
+        return 'ck';
+    }
+    // Return empty string for unmapped types
+    return '';
+}
 
-    if ($row['loaiDiem']) {
-        $type = strtolower($row['loaiDiem']); // miệng, 45m, gk, ck
-        $semester = ($row['hocKy'] == 1) ? 'HK1' : 'HK2';
+if ($scoreRs) {
+    while ($row = $scoreRs->fetch_assoc()) {
+        $key = $row['maHS'] . '_' . $row['maMon'];
+        if (!isset($scores[$key])) {
+            $scores[$key] = [
+                'maHS' => $row['maHS'],
+                'hoVaTen' => $row['hoVaTen'],
+                'tenMon' => $row['tenMon'],
+                'maMon' => $row['maMon'],
+                'tenLop' => $row['tenLop'],
+                'maLop' => $row['maLop'],
+                'HK1' => ['mouth' => '', '45m' => '', 'gk' => '', 'ck' => ''],
+                'HK2' => ['mouth' => '', '45m' => '', 'gk' => '', 'ck' => '']
+            ];
+        }
 
-        $scores[$key][$semester][$type] = $row['giaTriDiem'];
+        // nếu không có bản ghi diemso (d.loaiDiem là null) thì chỉ giữ cấu trúc rỗng
+        if ($row['loaiDiem'] === null) {
+            continue;
+        }
+
+        $sem = intval($row['hocKy']) === 2 ? 2 : 1;
+        $short = mapLoaiDiem($row['loaiDiem']);
+        if ($short === '') continue;
+        $scores[$key]['HK' . $sem][$short] = $row['giaTriDiem'] !== null ? $row['giaTriDiem'] : '';
     }
 }
 
@@ -108,23 +141,19 @@ $pageJS = ['QuanLyDiemSo.js'];
         <div class="row mb-4 filter-section">
             <div class="col-md-4">
                 <label for="class-filter" class="form-label fw-bold">Lớp:</label>
-                <select class="form-select" id="class-filter" name="class" onchange="this.form.submit()">
+                <select class="form-select" id="class-filter" name="class" onchange="location = '?class='+this.value + '&subject=' + (document.getElementById('subject-filter')?document.getElementById('subject-filter').value:'')">
                     <option value="">-- Tất cả lớp --</option>
                     <?php foreach ($classes as $c): ?>
-                        <option value="<?= $c['maLop'] ?>" <?= ($selectedClass == $c['maLop']) ? 'selected' : '' ?>>
-                            <?= $c['tenLop'] ?>
-                        </option>
+                        <option value="<?php echo htmlspecialchars($c['maLop']); ?>" <?php if ($selectedClass == $c['maLop']) echo 'selected'; ?>><?php echo htmlspecialchars($c['tenLop']); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-md-4">
                 <label for="subject-filter" class="form-label fw-bold">Môn:</label>
-                <select class="form-select" id="subject-filter" name="subject" onchange="this.form.submit()">
+                <select class="form-select" id="subject-filter" name="subject" onchange="location = '?class='+ (document.getElementById('class-filter')?document.getElementById('class-filter').value:'') + '&subject=' + this.value">
                     <option value="">-- Tất cả môn --</option>
                     <?php foreach ($subjects as $s): ?>
-                        <option value="<?= $s['maMon'] ?>" <?= ($selectedSubject == $s['maMon']) ? 'selected' : '' ?>>
-                            <?= $s['tenMon'] ?>
-                        </option>
+                        <option value="<?php echo htmlspecialchars($s['maMon']); ?>" <?php if ($selectedSubject == $s['maMon']) echo 'selected'; ?>><?php echo htmlspecialchars($s['tenMon']); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -141,15 +170,45 @@ $pageJS = ['QuanLyDiemSo.js'];
                         <th>Mã HS</th>
                         <th>Họ Tên</th>
                         <th>Môn học</th>
-                        <th>Điểm Thi Học Kì I</th>
-                        <th>Điểm Thi Học Kì II</th>
+                        <th>TB Học Kì I</th>
+                        <th>TB Học Kì II</th>
                         <th>Trung Bình Môn</th>
                         <th>Tác Vụ</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php $i = 1;
-                    foreach ($scores as $sc): ?>
+                    foreach ($scores as $sc):
+                        // BẮT ĐẦU KHỐI TÍNH TOÁN ĐIỂM (ĐƯỢC ĐƯA LÊN TRƯỚC để các cột có thể sử dụng)
+
+                        // Tính TB HK1 (Hệ số: Miệng x1, 45m x2, GK x2, CK x3. Tổng hệ số: 1+2+2+3 = 8)
+                        $hk1_total =
+                            floatval($sc['HK1']['mouth'] ?? 0) * 1 +
+                            floatval($sc['HK1']['45m'] ?? 0)   * 2 +
+                            floatval($sc['HK1']['gk'] ?? 0)    * 2 +
+                            floatval($sc['HK1']['ck'] ?? 0)    * 3;
+                        $hk1_avg = $hk1_total > 0 ? round($hk1_total / 8, 2) : null;
+
+                        // Tính TB HK2
+                        $hk2_total =
+                            floatval($sc['HK2']['mouth'] ?? 0) * 1 +
+                            floatval($sc['HK2']['45m'] ?? 0)   * 2 +
+                            floatval($sc['HK2']['gk'] ?? 0)    * 2 +
+                            floatval($sc['HK2']['ck'] ?? 0)    * 3;
+                        $hk2_avg = $hk2_total > 0 ? round($hk2_total / 8, 2) : null;
+
+                        // Tính trung bình môn cả năm
+                        $avg = null;
+                        if ($hk1_avg && $hk2_avg) {
+                            $avg = round(($hk1_avg + $hk2_avg) / 2, 2);
+                        } elseif ($hk1_avg) {
+                            $avg = $hk1_avg;
+                        } elseif ($hk2_avg) {
+                            $avg = $hk2_avg;
+                        }
+
+                        // KẾT THÚC KHỐI TÍNH TOÁN ĐIỂM
+                    ?>
                         <tr>
                             <td><input class="form-check-input" type="checkbox"></td>
                             <td><?= $i++ ?></td>
@@ -157,26 +216,59 @@ $pageJS = ['QuanLyDiemSo.js'];
                             <td><?= $sc['hoVaTen'] ?></td>
                             <td><?= $sc['tenMon'] ?></td>
 
-                            <td><?= $sc['HK1']['ck'] ?? '' ?></td>
-                            <td><?= $sc['HK2']['ck'] ?? '' ?></td>
+                            <td><?= $hk1_avg ?: '' ?></td>
+                            <td><?= $hk2_avg ?: '' ?></td>
 
                             <td>
-                                <?php
-                                $avg = (
-                                    ($sc['HK1']['ck'] ?? 0) +
-                                    ($sc['HK2']['ck'] ?? 0)
-                                ) / 2;
-                                echo $avg ?: '';
-                                ?>
+                                <?= $avg ?: '' ?>
                             </td>
 
                             <td class="action-icons">
-                                <a href="#" class="btn-view">
+
+                                <a href="#"
+                                    class="btn-view"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#viewGradeModal"
+
+                                    data-hs="<?= $sc['maHS'] ?>"
+                                    data-ten="<?= $sc['hoVaTen'] ?>"
+                                    data-mon="<?= $sc['tenMon'] ?>"
+
+                                    data-s1-mouth="<?php echo htmlspecialchars($sc['HK1']['mouth'] ?? ''); ?>"
+                                    data-s1-1t="<?php echo htmlspecialchars($sc['HK1']['45m'] ?? ''); ?>"
+                                    data-s1-gk="<?php echo htmlspecialchars($sc['HK1']['gk'] ?? ''); ?>"
+                                    data-s1-ck="<?php echo htmlspecialchars($sc['HK1']['ck'] ?? ''); ?>"
+
+                                    data-s2-mouth="<?php echo htmlspecialchars($sc['HK2']['mouth'] ?? ''); ?>"
+                                    data-s2-1t="<?php echo htmlspecialchars($sc['HK2']['45m'] ?? ''); ?>"
+                                    data-s2-gk="<?php echo htmlspecialchars($sc['HK2']['gk'] ?? ''); ?>"
+                                    data-s2-ck="<?php echo htmlspecialchars($sc['HK2']['ck'] ?? ''); ?>">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="#" class="btn-edit">
+
+                                <a href="#"
+                                    class="btn-edit"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#gradeEntryModal"
+
+                                    data-hs="<?= $sc['maHS'] ?>"
+                                    data-ten="<?= $sc['hoVaTen'] ?>"
+                                    data-mon="<?= $sc['tenMon'] ?>"
+                                    data-mamon="<?= $sc['maMon'] ?>"
+                                    data-malop="<?= $sc['maLop'] ?>"
+
+                                    data-s1-mouth="<?php echo htmlspecialchars($sc['HK1']['mouth'] ?? ''); ?>"
+                                    data-s1-1t="<?php echo htmlspecialchars($sc['HK1']['45m'] ?? ''); ?>"
+                                    data-s1-gk="<?php echo htmlspecialchars($sc['HK1']['gk'] ?? ''); ?>"
+                                    data-s1-ck="<?php echo htmlspecialchars($sc['HK1']['ck'] ?? ''); ?>"
+
+                                    data-s2-mouth="<?php echo htmlspecialchars($sc['HK2']['mouth'] ?? ''); ?>"
+                                    data-s2-1t="<?php echo htmlspecialchars($sc['HK2']['45m'] ?? ''); ?>"
+                                    data-s2-gk="<?php echo htmlspecialchars($sc['HK2']['gk'] ?? ''); ?>"
+                                    data-s2-ck="<?php echo htmlspecialchars($sc['HK2']['ck'] ?? ''); ?>">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
+
                                 <a href="#">
                                     <i class="bi bi-printer"></i>
                                 </a>
@@ -204,7 +296,6 @@ $pageJS = ['QuanLyDiemSo.js'];
         <button class="btn btn-export">Xuất bảng điểm</button>
     </div>
 
-    <!-- NHẬP ĐIỂM -->
     <div class="modal fade" id="gradeEntryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -217,23 +308,26 @@ $pageJS = ['QuanLyDiemSo.js'];
                         <span id="edit_student_name">HỌ TÊN HỌC SINH: TRẦN HOÀNG NHI</span>
                         <span id="edit_student_id">MÃ HỌC SINH: K25110386</span>
                     </div>
-                    <form>
+                    <form method="POST" action="update_score.php">
+                        <input type="hidden" name="maHS" id="edit_maHS">
+                        <input type="hidden" name="maMon" id="edit_maMon">
+                        <input type="hidden" name="maLop" id="edit_maLop">
                         <div>
                             <div class="semester-title">HỌC KỲ I</div>
                             <div class="row g-4">
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM MIỆNG:</label><input type="text" class="form-control" id="edit_s1_mouth" value="9.0"></div>
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI GK:</label><input type="text" class="form-control" id="edit_s1_gk" value="8.5"></div>
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM 1 TIẾT:</label><input type="text" class="form-control" id="edit_s1_45m" value="8.0"></div>
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI CK:</label><input type="text" class="form-control" id="edit_s1_ck" value="9.0"></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM MIỆNG:</label><input type="text" class="form-control" name="s1_mouth" id="edit_s1_mouth" value=""></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI GK:</label><input type="text" class="form-control" name="s1_gk" id="edit_s1_gk" value=""></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM 1 TIẾT:</label><input type="text" class="form-control" name="s1_45m" id="edit_s1_45m" value=""></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI CK:</label><input type="text" class="form-control" name="s1_ck" id="edit_s1_ck" value=""></div>
                             </div>
                         </div>
                         <div class="mt-4">
                             <div class="semester-title">HỌC KỲ II</div>
                             <div class="row g-4">
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM MIỆNG:</label><input type="text" class="form-control" id="edit_s2_mouth"></div>
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI GK:</label><input type="text" class="form-control" id="edit_s2_gk"></div>
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM 1 TIẾT:</label><input type="text" class="form-control" id="edit_s2_45m"></div>
-                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI CK:</label><input type="text" class="form-control" id="edit_s2_ck"></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM MIỆNG:</label><input type="text" class="form-control" name="s2_mouth" id="edit_s2_mouth" value=""></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI GK:</label><input type="text" class="form-control" name="s2_gk" id="edit_s2_gk" value=""></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM 1 TIẾT:</label><input type="text" class="form-control" name="s2_45m" id="edit_s2_45m" value=""></div>
+                                <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI CK:</label><input type="text" class="form-control" name="s2_ck" id="edit_s2_ck" value=""></div>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end gap-3 mt-5">
