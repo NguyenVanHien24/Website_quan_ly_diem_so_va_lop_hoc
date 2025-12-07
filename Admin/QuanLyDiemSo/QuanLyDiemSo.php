@@ -235,12 +235,12 @@ $pageJS = ['QuanLyDiemSo.js'];
                                     data-mon="<?= $sc['tenMon'] ?>"
 
                                     data-s1-mouth="<?php echo htmlspecialchars($sc['HK1']['mouth'] ?? ''); ?>"
-                                    data-s1-1t="<?php echo htmlspecialchars($sc['HK1']['45m'] ?? ''); ?>"
+                                    data-s1-score-45m="<?php echo htmlspecialchars($sc['HK1']['45m'] ?? ''); ?>"
                                     data-s1-gk="<?php echo htmlspecialchars($sc['HK1']['gk'] ?? ''); ?>"
                                     data-s1-ck="<?php echo htmlspecialchars($sc['HK1']['ck'] ?? ''); ?>"
 
                                     data-s2-mouth="<?php echo htmlspecialchars($sc['HK2']['mouth'] ?? ''); ?>"
-                                    data-s2-1t="<?php echo htmlspecialchars($sc['HK2']['45m'] ?? ''); ?>"
+                                    data-s2-score-45m="<?php echo htmlspecialchars($sc['HK2']['45m'] ?? ''); ?>"
                                     data-s2-gk="<?php echo htmlspecialchars($sc['HK2']['gk'] ?? ''); ?>"
                                     data-s2-ck="<?php echo htmlspecialchars($sc['HK2']['ck'] ?? ''); ?>">
                                     <i class="bi bi-eye"></i>
@@ -258,12 +258,12 @@ $pageJS = ['QuanLyDiemSo.js'];
                                     data-malop="<?= $sc['maLop'] ?>"
 
                                     data-s1-mouth="<?php echo htmlspecialchars($sc['HK1']['mouth'] ?? ''); ?>"
-                                    data-s1-1t="<?php echo htmlspecialchars($sc['HK1']['45m'] ?? ''); ?>"
+                                    data-s1-score-45m="<?php echo htmlspecialchars($sc['HK1']['45m'] ?? ''); ?>"
                                     data-s1-gk="<?php echo htmlspecialchars($sc['HK1']['gk'] ?? ''); ?>"
                                     data-s1-ck="<?php echo htmlspecialchars($sc['HK1']['ck'] ?? ''); ?>"
 
                                     data-s2-mouth="<?php echo htmlspecialchars($sc['HK2']['mouth'] ?? ''); ?>"
-                                    data-s2-1t="<?php echo htmlspecialchars($sc['HK2']['45m'] ?? ''); ?>"
+                                    data-s2-score-45m="<?php echo htmlspecialchars($sc['HK2']['45m'] ?? ''); ?>"
                                     data-s2-gk="<?php echo htmlspecialchars($sc['HK2']['gk'] ?? ''); ?>"
                                     data-s2-ck="<?php echo htmlspecialchars($sc['HK2']['ck'] ?? ''); ?>">
                                     <i class="bi bi-pencil-square"></i>
@@ -357,8 +357,8 @@ $pageJS = ['QuanLyDiemSo.js'];
                         <div class="row g-4">
                             <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM MIỆNG:</label><input type="text" class="form-control bg-light" id="view_s1_mouth" value="9.0" readonly></div>
                             <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI GK:</label><input type="text" class="form-control bg-light" id="view_s1_gk" value="8.5" readonly></div>
-                            <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM 1 TIẾT:</label><input type="text" class="form-control bg-light" id="view_s1_45m" value="8.0" readonly></div>
-                            <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI CK:</label><input type="text" class="form-control bg-light" id="view_s1_ck" value="9.0" readonly></div>
+                            <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM 1 TIẾT:</label><input type="text" class="form-control bg-light" id="view_s1_45m" value="" readonly></div>
+                            <div class="col-md-6 d-flex align-items-center"><label class="col-4 form-label mb-0">ĐIỂM THI CK:</label><input type="text" class="form-control bg-light" id="view_s1_ck" value="" readonly></div>
                         </div>
                     </div>
 

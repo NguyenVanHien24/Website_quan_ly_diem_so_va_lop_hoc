@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 06, 2025 at 05:11 PM
+-- Generation Time: Dec 07, 2025 at 04:09 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -233,38 +233,8 @@ CREATE TABLE `diemso` (
 --
 
 INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTriDiem`, `ngayGhiNhan`, `namHoc`, `hocKy`) VALUES
-(46, 17, 1, 8, 'Điểm miệng', 8, '2025-11-30 23:08:03', '2024-2025', 1),
-(47, 17, 2, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(48, 17, 3, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(49, 17, 4, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(50, 17, 5, 8, 'Điểm miệng', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(53, 17, 1, 8, 'Điểm 15 phút', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(54, 17, 2, 8, 'Điểm 15 phút', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(55, 17, 3, 8, 'Điểm 15 phút', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(56, 17, 4, 8, 'Điểm 15 phút', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(57, 17, 5, 8, 'Điểm 15 phút', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(60, 17, 1, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(61, 17, 2, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(62, 17, 3, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(63, 17, 4, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(64, 17, 5, 8, 'Điểm 1 tiết', NULL, '2025-11-30 23:08:03', '2024-2025', 1),
-(109, 11, 1, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(110, 11, 2, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(111, 11, 3, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(112, 11, 4, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(113, 11, 5, 15, 'Điểm miệng', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(116, 11, 1, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(117, 11, 2, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(118, 11, 3, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(119, 11, 4, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(120, 11, 5, 15, 'Điểm 15 phút', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(123, 11, 1, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(124, 11, 2, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(125, 11, 3, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(126, 11, 4, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
-(127, 11, 5, 15, 'Điểm 1 tiết', NULL, '2025-11-30 23:24:30', '2024-2025', 1),
 (173, 1, 3, 12, 'Điểm miệng', 7, '2025-12-06 21:50:51', '2025-2026', 1),
-(174, 1, 3, 12, 'Điểm 1 tiết', 7, '2025-12-06 21:50:51', '2025-2026', 1),
+(174, 1, 3, 12, 'Điểm 1 tiết', 8, '2025-12-06 21:50:51', '2025-2026', 1),
 (175, 1, 3, 12, 'Điểm giữa kỳ', 8, '2025-12-06 21:50:51', '2025-2026', 1),
 (176, 1, 3, 12, 'Điểm cuối kỳ', 8, '2025-12-06 21:50:51', '2025-2026', 1);
 
@@ -901,7 +871,39 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (706, NULL, 'Cập nhật điểm', 'DiemSo', 173, 'SYSTEM', '2025-12-06 22:17:06'),
 (707, NULL, 'Cập nhật điểm', 'DiemSo', 174, 'SYSTEM', '2025-12-06 22:17:06'),
 (708, NULL, 'Cập nhật điểm', 'DiemSo', 175, 'SYSTEM', '2025-12-06 22:17:06'),
-(709, NULL, 'Cập nhật điểm', 'DiemSo', 176, 'SYSTEM', '2025-12-06 22:17:06');
+(709, NULL, 'Cập nhật điểm', 'DiemSo', 176, 'SYSTEM', '2025-12-06 22:17:06'),
+(710, NULL, 'Cập nhật điểm', 'DiemSo', 174, 'SYSTEM', '2025-12-06 23:56:45'),
+(711, NULL, 'Cập nhật điểm', 'DiemSo', 174, 'SYSTEM', '2025-12-06 23:57:33'),
+(712, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:16'),
+(713, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:19'),
+(714, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:22'),
+(715, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:24'),
+(716, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:26'),
+(717, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:08:30'),
+(718, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:08:32'),
+(719, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:08:34'),
+(720, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:08:36'),
+(721, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:08:38'),
+(722, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:54'),
+(723, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:56'),
+(724, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:08:58'),
+(725, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:09:00'),
+(726, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:09:02'),
+(727, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:09:04'),
+(728, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:09:06'),
+(729, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:09:08'),
+(730, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:09:10'),
+(731, NULL, 'Xóa điểm ID 17', NULL, NULL, NULL, '2025-12-07 10:09:11'),
+(732, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:13'),
+(733, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:15'),
+(734, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:17'),
+(735, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:19'),
+(736, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:21'),
+(737, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:22'),
+(738, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:24'),
+(739, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:30'),
+(740, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:34'),
+(741, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:35');
 
 -- --------------------------------------------------------
 
@@ -1116,26 +1118,6 @@ CREATE TRIGGER `trg_hs_after_insert` AFTER INSERT ON `hocsinh` FOR EACH ROW BEGI
                 AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
             );
 
-        -- Insert "Điểm 15 phút" records for new class
-        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
-        SELECT NEW.maHS,
-                lm.maMon,
-                lm.maLop,
-                'Điểm 15 phút',
-                NULL,
-                lm.namHoc,
-                lm.hocKy
-        FROM lop_monhoc lm
-        WHERE lm.maLop = NEW.maLopHienTai
-            AND NOT EXISTS (
-                SELECT 1 FROM diemso d
-                WHERE d.maHS = NEW.maHS
-                AND d.maMonHoc = lm.maMon
-                AND d.loaiDiem = 'Điểm 15 phút'
-                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
-                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
-            );
-
         -- Insert "Điểm 1 tiết" records for new class
         INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
         SELECT NEW.maHS,
@@ -1152,6 +1134,46 @@ CREATE TRIGGER `trg_hs_after_insert` AFTER INSERT ON `hocsinh` FOR EACH ROW BEGI
                 WHERE d.maHS = NEW.maHS
                 AND d.maMonHoc = lm.maMon
                 AND d.loaiDiem = 'Điểm 1 tiết'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+            );
+            
+            -- Insert "Điểm gk" records for new class
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS,
+                lm.maMon,
+                lm.maLop,
+                'Điểm giữa kỳ',
+                NULL,
+                lm.namHoc,
+                lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+            AND NOT EXISTS (
+                SELECT 1 FROM diemso d
+                WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm giữa kỳ'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+            );
+            
+            -- Insert "Điểm cuối kỳ" records for new class
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS,
+                lm.maMon,
+                lm.maLop,
+                'Điểm cuối kỳ',
+                NULL,
+                lm.namHoc,
+                lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+            AND NOT EXISTS (
+                SELECT 1 FROM diemso d
+                WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm cuối kỳ'
                 AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
                 AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
             );
@@ -1176,20 +1198,6 @@ CREATE TRIGGER `trg_hs_after_insert_diemso` AFTER INSERT ON `hocsinh` FOR EACH R
                 AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
           );
 
-        -- Insert "Điểm 15 phút" (15-minute test scores)
-        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
-        SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm 15 phút', NULL, lm.namHoc, lm.hocKy
-        FROM lop_monhoc lm
-        WHERE lm.maLop = NEW.maLopHienTai
-          AND NOT EXISTS (
-              SELECT 1 FROM diemso d
-              WHERE d.maHS = NEW.maHS
-                AND d.maMonHoc = lm.maMon
-                AND d.loaiDiem = 'Điểm 15 phút'
-                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
-                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
-          );
-
         -- Insert "Điểm 1 tiết" (1-period test scores)
         INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
         SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm 1 tiết', NULL, lm.namHoc, lm.hocKy
@@ -1200,6 +1208,34 @@ CREATE TRIGGER `trg_hs_after_insert_diemso` AFTER INSERT ON `hocsinh` FOR EACH R
               WHERE d.maHS = NEW.maHS
                 AND d.maMonHoc = lm.maMon
                 AND d.loaiDiem = 'Điểm 1 tiết'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+          );
+          
+          -- Insert "Điểm gk" 
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm giữa kỳ', NULL, lm.namHoc, lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+          AND NOT EXISTS (
+              SELECT 1 FROM diemso d
+              WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm giữa kỳ'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+          );
+          
+          -- Insert "Điểm ck" 
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm cuối kỳ', NULL, lm.namHoc, lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+          AND NOT EXISTS (
+              SELECT 1 FROM diemso d
+              WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm cuối kỳ'
                 AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
                 AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
           );
@@ -1239,26 +1275,6 @@ CREATE TRIGGER `trg_hs_after_update` AFTER UPDATE ON `hocsinh` FOR EACH ROW BEGI
                     AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
               );
 
-            -- Insert "Điểm 15 phút" records for new class
-            INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
-            SELECT NEW.maHS,
-                 lm.maMon,
-                 lm.maLop,
-                 'Điểm 15 phút',
-                 NULL,
-                 lm.namHoc,
-                 lm.hocKy
-            FROM lop_monhoc lm
-            WHERE lm.maLop = NEW.maLopHienTai
-              AND NOT EXISTS (
-                  SELECT 1 FROM diemso d
-                  WHERE d.maHS = NEW.maHS
-                    AND d.maMonHoc = lm.maMon
-                    AND d.loaiDiem = 'Điểm 15 phút'
-                    AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
-                    AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
-              );
-
             -- Insert "Điểm 1 tiết" records for new class
             INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
             SELECT NEW.maHS,
@@ -1275,6 +1291,48 @@ CREATE TRIGGER `trg_hs_after_update` AFTER UPDATE ON `hocsinh` FOR EACH ROW BEGI
                   WHERE d.maHS = NEW.maHS
                     AND d.maMonHoc = lm.maMon
                     AND d.loaiDiem = 'Điểm 1 tiết'
+                    AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                    AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+              );
+              
+              
+            -- Insert "Điểm giữa kỳ" records for new class
+            INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+            SELECT NEW.maHS,
+                 lm.maMon,
+                 lm.maLop,
+                 'Điểm giữa kỳ',
+                 NULL,
+                 lm.namHoc,
+                 lm.hocKy
+            FROM lop_monhoc lm
+            WHERE lm.maLop = NEW.maLopHienTai
+              AND NOT EXISTS (
+                  SELECT 1 FROM diemso d
+                  WHERE d.maHS = NEW.maHS
+                    AND d.maMonHoc = lm.maMon
+                    AND d.loaiDiem = 'Điểm giữa kỳ'
+                    AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                    AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+              );
+              
+              
+            -- Insert "Điểm cuối kỳ" records for new class
+            INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+            SELECT NEW.maHS,
+                 lm.maMon,
+                 lm.maLop,
+                 'Điểm cuối kỳ',
+                 NULL,
+                 lm.namHoc,
+                 lm.hocKy
+            FROM lop_monhoc lm
+            WHERE lm.maLop = NEW.maLopHienTai
+              AND NOT EXISTS (
+                  SELECT 1 FROM diemso d
+                  WHERE d.maHS = NEW.maHS
+                    AND d.maMonHoc = lm.maMon
+                    AND d.loaiDiem = 'Điểm cuối kỳ'
                     AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
                     AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
               );
@@ -1301,20 +1359,6 @@ CREATE TRIGGER `trg_hs_after_update_diemso` AFTER UPDATE ON `hocsinh` FOR EACH R
                 AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
           );
 
-        -- Điểm 15 phút
-        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
-        SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm 15 phút', NULL, lm.namHoc, lm.hocKy
-        FROM lop_monhoc lm
-        WHERE lm.maLop = NEW.maLopHienTai
-          AND NOT EXISTS (
-              SELECT 1 FROM diemso d
-              WHERE d.maHS = NEW.maHS
-                AND d.maMonHoc = lm.maMon
-                AND d.loaiDiem = 'Điểm 15 phút'
-                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
-                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
-          );
-
         -- Điểm 1 tiết
         INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
         SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm 1 tiết', NULL, lm.namHoc, lm.hocKy
@@ -1325,6 +1369,34 @@ CREATE TRIGGER `trg_hs_after_update_diemso` AFTER UPDATE ON `hocsinh` FOR EACH R
               WHERE d.maHS = NEW.maHS
                 AND d.maMonHoc = lm.maMon
                 AND d.loaiDiem = 'Điểm 1 tiết'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+          );
+          
+          -- Điểm giữa kỳ
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm giữa kỳ', NULL, lm.namHoc, lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+          AND NOT EXISTS (
+              SELECT 1 FROM diemso d
+              WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm giữa kỳ'
+                AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
+                AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
+          );
+          
+          -- Điểm cuối kỳ
+        INSERT INTO diemso(maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy)
+        SELECT NEW.maHS, lm.maMon, lm.maLop, 'Điểm cuối kỳ', NULL, lm.namHoc, lm.hocKy
+        FROM lop_monhoc lm
+        WHERE lm.maLop = NEW.maLopHienTai
+          AND NOT EXISTS (
+              SELECT 1 FROM diemso d
+              WHERE d.maHS = NEW.maHS
+                AND d.maMonHoc = lm.maMon
+                AND d.loaiDiem = 'Điểm cuối kỳ'
                 AND ((d.namHoc = lm.namHoc) OR (d.namHoc IS NULL AND lm.namHoc IS NULL))
                 AND ((d.hocKy = lm.hocKy) OR (d.hocKy IS NULL AND lm.hocKy IS NULL))
           );
@@ -2018,13 +2090,13 @@ ALTER TABLE `chuyencan`
 -- AUTO_INCREMENT for table `diemso`
 --
 ALTER TABLE `diemso`
-  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
+  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
 
 --
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=710;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=742;
 
 --
 -- AUTO_INCREMENT for table `giaovien`

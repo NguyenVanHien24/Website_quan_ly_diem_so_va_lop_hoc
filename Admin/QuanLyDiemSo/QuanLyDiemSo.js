@@ -26,16 +26,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 "MÃ HỌC SINH: " + d.hs;
 
             // HK1
-            document.getElementById("view_s1_mouth").value = d.s1Mouth || "";
-            document.getElementById("view_s1_gk").value = d.s1Gk || "";
-            document.getElementById("view_s1_45m").value = d.s11t || "";
-            document.getElementById("view_s1_ck").value = d.s1Ck || "";
+            document.getElementById("view_s1_mouth").value = this.getAttribute("data-s1-mouth") || "";
+            document.getElementById("view_s1_gk").value = this.getAttribute("data-s1-gk") || "";
+            document.getElementById("view_s1_45m").value = this.getAttribute("data-s1-score-45m") || "";
+            document.getElementById("view_s1_ck").value = this.getAttribute("data-s1-ck") || "";
 
             // HK2
-            document.getElementById("view_s2_mouth").value = d.s2Mouth || "";
-            document.getElementById("view_s2_gk").value = d.s2Gk || "";
-            document.getElementById("view_s2_45m").value = d.s21t || "";
-            document.getElementById("view_s2_ck").value = d.s2Ck || "";
+            document.getElementById("view_s2_mouth").value = this.getAttribute("data-s2-mouth") || "";
+            document.getElementById("view_s2_gk").value = this.getAttribute("data-s2-gk") || "";
+            document.getElementById("view_s2_45m").value = this.getAttribute("data-s2-score-45m") || "";
+            document.getElementById("view_s2_ck").value = this.getAttribute("data-s2-ck") || "";
         });
     });
 
@@ -49,32 +49,32 @@ document.addEventListener("DOMContentLoaded", function () {
             const d = this.dataset;
 
             document.getElementById("modalActionTitle").innerText =
-                (!d.s1Mouth && !d.s1Gk && !d.s1Ck) ? "NHẬP ĐIỂM" : "CẬP NHẬT ĐIỂM";
+                (!this.getAttribute("data-s1-mouth") && !this.getAttribute("data-s1-score-45m") && !this.getAttribute("data-s1-gk") && !this.getAttribute("data-s1-ck")) ? "NHẬP ĐIỂM" : "CẬP NHẬT ĐIỂM";
 
             document.getElementById("edit_student_name").innerText =
-                "HỌ TÊN HỌC SINH: " + upperName(d.ten);
+                "HỌ TÊN HỌC SINH: " + upperName(this.getAttribute("data-ten"));
 
             document.getElementById("edit_student_id").innerText =
-                "MÃ HỌC SINH: " + d.hs;
+                "MÃ HỌC SINH: " + this.getAttribute("data-hs");
 
             // **********************************
             // BƯỚC 1: GÁN GIÁ TRỊ VÀO TRƯỜNG ẨN
             // **********************************
-            document.getElementById("edit_maHS").value = d.hs;
-            document.getElementById("edit_maMon").value = d.mamon;
-            document.getElementById("edit_maLop").value = d.malop;
+            document.getElementById("edit_maHS").value = this.getAttribute("data-hs");
+            document.getElementById("edit_maMon").value = this.getAttribute("data-mamon");
+            document.getElementById("edit_maLop").value = this.getAttribute("data-malop");
 
             // HK1
-            document.getElementById("edit_s1_mouth").value = d.s1Mouth || "";
-            document.getElementById("edit_s1_gk").value = d.s1Gk || "";
-            document.getElementById("edit_s1_45m").value = d.s11t || "";
-            document.getElementById("edit_s1_ck").value = d.s1Ck || "";
+            document.getElementById("edit_s1_mouth").value = this.getAttribute("data-s1-mouth") || "";
+            document.getElementById("edit_s1_gk").value = this.getAttribute("data-s1-gk") || "";
+            document.getElementById("edit_s1_45m").value = this.getAttribute("data-s1-score-45m") || "";
+            document.getElementById("edit_s1_ck").value = this.getAttribute("data-s1-ck") || "";
 
             // HK2
-            document.getElementById("edit_s2_mouth").value = d.s2Mouth || "";
-            document.getElementById("edit_s2_gk").value = d.s2Gk || "";
-            document.getElementById("edit_s2_45m").value = d.s21t || "";
-            document.getElementById("edit_s2_ck").value = d.s2Ck || "";
+            document.getElementById("edit_s2_mouth").value = this.getAttribute("data-s2-mouth") || "";
+            document.getElementById("edit_s2_gk").value = this.getAttribute("data-s2-gk") || "";
+            document.getElementById("edit_s2_45m").value = this.getAttribute("data-s2-score-45m") || "";
+            document.getElementById("edit_s2_ck").value = this.getAttribute("data-s2-ck") || "";
         });
     });
 
