@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config.php';
+require_once '../../csdl/db.php';
 // ==== Kiểm tra đăng nhập ====
 if (!isset($_SESSION['userID'])) {
     header('Location: ../../dangnhap.php');
@@ -18,10 +19,10 @@ require_once '../SidebarAndHeader.php';
 $pageJS = ['QuanLyLopHoc.js'];
 // ==== Lấy thông tin giáo viên từ DB ====
 $userID = $_SESSION['userID'];
-$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
-        FROM user u
-        JOIN giaovien g ON u.userId = g.userId
-        WHERE u.userId = ?";
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon, g.maGV
+    FROM user u
+    JOIN giaovien g ON u.userId = g.userId
+    WHERE u.userId = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $userID);
 $stmt->execute();
@@ -29,11 +30,31 @@ $result = $stmt->get_result();
 $teacher = $result->fetch_assoc();
 $stmt->close();
 
+// Lấy danh sách lớp mà giáo viên này được phân công
+$assignedClasses = [];
+if (!empty($teacher['maGV'])) {
+    $maGV = (int)$teacher['maGV'];
+    $sqlc = "SELECT DISTINCT l.maLop, l.tenLop, l.khoiLop, l.giaoVienPhuTrach, l.siSo, l.trangThai, l.namHoc, l.kyHoc,
+                     gv.maGV AS gv_maGV, u2.hoVaTen AS gvName
+             FROM phan_cong pc
+             JOIN lophoc l ON l.maLop = pc.maLop
+             LEFT JOIN giaovien gv ON gv.maGV = l.giaoVienPhuTrach
+             LEFT JOIN `user` u2 ON u2.userId = gv.userId
+             WHERE pc.maGV = $maGV
+             ORDER BY l.tenLop";
+    $rs = $conn->query($sqlc);
+    if ($rs) {
+        while ($r = $rs->fetch_assoc()) {
+            $assignedClasses[] = $r;
+        }
+    }
+}
+
 ?>
 <main>
     <div class="main-header">
         <h1 class="page-title">QUẢN LÝ LỚP HỌC</h1>
-        <button class="btn btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#classFormModal">
+        <button class="btn btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#classFormModal" style="display: none;">
             <i class="bi bi-plus-lg me-2"></i>Thêm Lớp
         </button>
     </div>
@@ -54,32 +75,26 @@ $stmt->close();
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>1</td>
-                        <td>251104</td>
-                        <td>11A4</td>
-                        <td>Hoàng Văn D</td>
-                        <td>30</td>
-                        <td><span class="badge-active">● Active</span></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-edit"
-                                data-id="251104"
-                                data-name="11A4"
-                                data-teacher="Hoàng Văn D"
-                                data-count="30"
-                                data-year="2024-2025"
-                                data-semester="1"
-                                data-grade="11"
-                                data-status="active"
-                                data-bs-toggle="modal" data-bs-target="#classFormModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#" class="btn-delete" data-id="251104" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
+                    <?php if (count($assignedClasses) > 0): $i = 1; ?>
+                        <?php foreach ($assignedClasses as $c): ?>
+                            <tr>
+                                <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($c['maLop']) ?>"></td>
+                                <td><?= $i++ ?></td>
+                                <td><?= htmlspecialchars($c['maLop']) ?></td>
+                                <td><?= htmlspecialchars($c['tenLop']) ?></td>
+                                <td><?= htmlspecialchars($c['gvName'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($c['siSo'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($c['trangThai'] ?? '') ? '<span class="badge-active">● Active</span>' : '<span class="badge-inactive">● Inactive</span>' ?></td>
+                                <td class="action-icons">
+                                    <a href="#" class="btn-view" data-id="<?= htmlspecialchars($c['maLop']) ?>" data-name="<?= htmlspecialchars($c['tenLop']) ?>" data-teacher="<?= htmlspecialchars($c['gvName'] ?? '') ?>" data-count="<?= htmlspecialchars($c['siSo'] ?? '') ?>" data-year="<?= htmlspecialchars($c['namHoc'] ?? '') ?>" data-semester="<?= htmlspecialchars($c['kyHoc'] ?? '') ?>" data-grade="<?= htmlspecialchars($c['khoiLop'] ?? '') ?>" data-status="<?= htmlspecialchars($c['trangThai'] ?? '') ?>" data-bs-toggle="modal" data-bs-target="#classFormModal">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="8" class="text-center text-muted">Bạn chưa được phân công lớp nào</td></tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -94,7 +109,7 @@ $stmt->close();
         </div>
     </div>
 
-    <div class="d-flex justify-content-end mt-4">
+    <div class="d-flex justify-content-end mt-4" style="display: none;">
         <button class="btn btn-danger fw-bold px-4 py-2">Xóa lớp học</button>
     </div>
 

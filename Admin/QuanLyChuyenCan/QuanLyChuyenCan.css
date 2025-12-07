@@ -39,16 +39,46 @@
     font-weight: 600; 
     font-size: 0.8rem; 
     padding: 0.4rem 0.8rem;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 .btn-present { 
     background-color: #2f855a; 
     color: #fff; }
+.btn-present:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+.btn-present.active {
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.3);
+    transform: scale(1.1);
+}
 .btn-late { 
     background-color: #dd6b20; 
     color: #fff; }
+.btn-late:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+.btn-late.active {
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(221, 107, 32, 0.3);
+    transform: scale(1.1);
+}
 .btn-absent { 
     background-color: #e53e3e; 
     color: #fff; }
+.btn-absent:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+.btn-absent.active {
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.3);
+    transform: scale(1.1);
+}
 .table-footer {
     display: flex; 
     justify-content: space-between; 

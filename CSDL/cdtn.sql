@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 07, 2025 at 04:09 AM
+-- Generation Time: Dec 07, 2025 at 03:20 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -181,9 +181,26 @@ CREATE TABLE `chuyencan` (
   `userId` int(11) DEFAULT NULL,
   `trangThai` varchar(255) DEFAULT NULL,
   `ghiChu` varchar(255) DEFAULT NULL,
-  `ngay` datetime DEFAULT NULL,
+  `ngayDIemDanh` datetime DEFAULT NULL,
+  `gioCapNhat` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `hocKy` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `chuyencan`
+--
+
+INSERT INTO `chuyencan` (`maDiemDanh`, `maHS`, `maLop`, `maMon`, `userId`, `trangThai`, `ghiChu`, `ngayDIemDanh`, `gioCapNhat`, `hocKy`) VALUES
+(1, 1, NULL, NULL, NULL, '1', NULL, '2025-11-20 00:00:00', '2025-12-07 13:53:40', NULL),
+(2, 1, NULL, NULL, NULL, '1', NULL, '2025-12-01 00:00:00', '2025-12-07 14:06:05', NULL),
+(3, 6, NULL, NULL, NULL, '2', NULL, '2025-12-01 00:00:00', '2025-12-07 14:06:09', NULL),
+(4, 10, NULL, NULL, NULL, '0', NULL, '2025-12-01 00:00:00', '2025-12-07 14:09:01', NULL),
+(5, 1, NULL, NULL, NULL, '1', NULL, '2025-12-02 00:00:00', '2025-12-07 14:09:15', NULL),
+(6, 6, NULL, NULL, NULL, '1', NULL, '2025-12-02 00:00:00', '2025-12-07 14:09:15', NULL),
+(7, 10, NULL, NULL, NULL, '0', NULL, '2025-12-02 00:00:00', '2025-12-07 14:09:13', NULL),
+(8, 1, NULL, NULL, NULL, '0', NULL, '2025-12-04 00:00:00', '2025-12-07 14:09:37', NULL),
+(9, 6, NULL, NULL, NULL, '0', NULL, '2025-12-04 00:00:00', '2025-12-07 14:09:38', NULL),
+(10, 10, NULL, NULL, NULL, '0', NULL, '2025-12-04 00:00:00', '2025-12-07 14:09:39', NULL);
 
 --
 -- Triggers `chuyencan`
@@ -204,7 +221,7 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_chuyencan_update` AFTER UPDATE ON `chuyencan` FOR EACH ROW BEGIN
-    INSERT INTO GhiLog(hoatDong, thoiGian)
+    INSERT INTO GhiLog(hanhDong, thoiGian)
     VALUES (CONCAT('Cập nhật chuyên cần ID ', OLD.userID), NOW());
 END
 $$
@@ -236,7 +253,11 @@ INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTri
 (173, 1, 3, 12, 'Điểm miệng', 7, '2025-12-06 21:50:51', '2025-2026', 1),
 (174, 1, 3, 12, 'Điểm 1 tiết', 8, '2025-12-06 21:50:51', '2025-2026', 1),
 (175, 1, 3, 12, 'Điểm giữa kỳ', 8, '2025-12-06 21:50:51', '2025-2026', 1),
-(176, 1, 3, 12, 'Điểm cuối kỳ', 8, '2025-12-06 21:50:51', '2025-2026', 1);
+(176, 1, 3, 12, 'Điểm cuối kỳ', 8, '2025-12-06 21:50:51', '2025-2026', 1),
+(197, 1, 5, 12, 'Điểm miệng', 8, '2025-12-07 13:43:04', '2025-2026', 1),
+(198, 1, 5, 12, 'Điểm 1 tiết', 8, '2025-12-07 13:43:04', '2025-2026', 1),
+(199, 1, 5, 12, 'Điểm giữa kỳ', 8, '2025-12-07 13:43:04', '2025-2026', 1),
+(200, 1, 5, 12, 'Điểm cuối kỳ', 8, '2025-12-07 13:43:04', '2025-2026', 1);
 
 --
 -- Triggers `diemso`
@@ -903,7 +924,40 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (738, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:24'),
 (739, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:30'),
 (740, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:34'),
-(741, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:35');
+(741, NULL, 'Xóa điểm ID 11', NULL, NULL, NULL, '2025-12-07 10:09:35'),
+(742, NULL, 'Ghi điểm', 'DiemSo', 197, 'SYSTEM', '2025-12-07 13:43:04'),
+(743, NULL, 'Ghi điểm', 'DiemSo', 198, 'SYSTEM', '2025-12-07 13:43:04'),
+(744, NULL, 'Ghi điểm', 'DiemSo', 199, 'SYSTEM', '2025-12-07 13:43:04'),
+(745, NULL, 'Ghi điểm', 'DiemSo', 200, 'SYSTEM', '2025-12-07 13:43:04'),
+(746, NULL, 'Điểm danh', 'ChuyenCan', 1, 'SYSTEM', '2025-12-07 20:53:40'),
+(747, NULL, 'Điểm danh', 'ChuyenCan', 2, 'SYSTEM', '2025-12-07 20:57:47'),
+(748, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:58:30'),
+(749, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:58:35'),
+(750, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:58:36'),
+(751, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:58:39'),
+(752, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:58:39'),
+(753, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:58:39'),
+(754, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:58:43'),
+(755, NULL, 'Điểm danh', 'ChuyenCan', 3, 'SYSTEM', '2025-12-07 20:58:44'),
+(756, NULL, 'Điểm danh', 'ChuyenCan', 4, 'SYSTEM', '2025-12-07 20:58:46'),
+(757, NULL, NULL, NULL, NULL, NULL, '2025-12-07 20:59:02'),
+(758, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:06:05'),
+(759, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:06:09'),
+(760, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:06:12'),
+(761, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:06:14'),
+(762, NULL, 'Điểm danh', 'ChuyenCan', 5, 'SYSTEM', '2025-12-07 21:08:25'),
+(763, NULL, 'Điểm danh', 'ChuyenCan', 6, 'SYSTEM', '2025-12-07 21:08:30'),
+(764, NULL, 'Điểm danh', 'ChuyenCan', 7, 'SYSTEM', '2025-12-07 21:08:31'),
+(765, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:08:37'),
+(766, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:08:42'),
+(767, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:08:43'),
+(768, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:09:01'),
+(769, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:09:13'),
+(770, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:09:15'),
+(771, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:09:15'),
+(772, NULL, 'Điểm danh', 'ChuyenCan', 8, 'SYSTEM', '2025-12-07 21:09:37'),
+(773, NULL, 'Điểm danh', 'ChuyenCan', 9, 'SYSTEM', '2025-12-07 21:09:38'),
+(774, NULL, 'Điểm danh', 'ChuyenCan', 10, 'SYSTEM', '2025-12-07 21:09:39');
 
 -- --------------------------------------------------------
 
@@ -2084,19 +2138,19 @@ ALTER TABLE `baocao`
 -- AUTO_INCREMENT for table `chuyencan`
 --
 ALTER TABLE `chuyencan`
-  MODIFY `maDiemDanh` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `maDiemDanh` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `diemso`
 --
 ALTER TABLE `diemso`
-  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
+  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=201;
 
 --
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=742;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=775;
 
 --
 -- AUTO_INCREMENT for table `giaovien`

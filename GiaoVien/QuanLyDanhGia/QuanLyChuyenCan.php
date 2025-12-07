@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config.php';
+require_once '../../CSDL/db.php';
 // ==== Kiểm tra đăng nhập ====
 if (!isset($_SESSION['userID'])) {
     header('Location: ../../dangnhap.php');
@@ -15,19 +16,39 @@ if ($_SESSION['vaiTro'] !== 'GiaoVien') {
 $currentPage = 'chuyen-can';
 $pageCSS = ['QuanLyChuyenCan.css'];
 require_once '../SidebarAndHeader.php';
-// ==== Lấy thông tin giáo viên từ DB ====
-$userID = $_SESSION['userID'];
-$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
-        FROM user u
-        JOIN giaovien g ON u.userId = g.userId
-        WHERE u.userId = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $userID);
-$stmt->execute();
-$result = $stmt->get_result();
-$teacher = $result->fetch_assoc();
-$stmt->close();
 
+$userID = $_SESSION['userID'];
+// Lấy mã giáo viên
+$stmt = $conn->prepare("SELECT maGV FROM giaovien WHERE userId = ?");
+$stmt->bind_param('i', $userID);
+$stmt->execute();
+$res = $stmt->get_result();
+$gv = $res->fetch_assoc();
+$stmt->close();
+$maGV = $gv ? (int)$gv['maGV'] : 0;
+
+// Lấy danh sách phân công (lớp + môn) của giáo viên
+$assignedClasses = [];
+$assignedSubjects = [];
+if ($maGV > 0) {
+    $sql = "SELECT DISTINCT p.maLop, l.tenLop, p.maMon, m.tenMon
+            FROM phan_cong p
+            LEFT JOIN lophoc l ON l.maLop = p.maLop
+            LEFT JOIN monhoc m ON m.maMon = p.maMon
+            WHERE p.maGV = '" . $conn->real_escape_string($maGV) . "'";
+    $res = $conn->query($sql);
+    while ($row = $res->fetch_assoc()) {
+        if (!isset($assignedClasses[$row['maLop']])) {
+            $assignedClasses[$row['maLop']] = $row['tenLop'];
+        }
+        if (!isset($assignedSubjects[$row['maMon']])) {
+            $assignedSubjects[$row['maMon']] = $row['tenMon'];
+        }
+    }
+}
+
+// Default date = today
+$today = date('Y-m-d');
 ?>
 <main>
     <h1 class="page-title">ĐIỂM DANH HỌC SINH</h1>
@@ -35,22 +56,31 @@ $stmt->close();
     <div class="row mb-4 filter-section">
         <div class="col-md-3">
             <label for="attendance-date" class="form-label fw-bold">Ngày:</label>
-            <input type="date" class="form-control" id="attendance-date" value="2025-09-29">
+            <input type="date" class="form-control" id="attendance-date" value="<?php echo $today; ?>" max="<?php echo $today; ?>">
+            <div class="form-text">Không cho phép chọn Chủ nhật hoặc ngày tương lai.</div>
         </div>
         <div class="col-md-3">
             <label for="class-filter" class="form-label fw-bold">Lớp:</label>
             <select class="form-select" id="class-filter">
-                <option selected>Tất cả các lớp</option>
-                <option value="10A1">10A1</option>
-                <option value="10A2">10A2</option>
+                <?php if (empty($assignedClasses)) : ?>
+                    <option>Không có lớp được phân công</option>
+                <?php else: ?>
+                    <?php foreach ($assignedClasses as $id => $name) : ?>
+                        <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </select>
         </div>
         <div class="col-md-3">
             <label for="subject-filter" class="form-label fw-bold">Môn:</label>
             <select class="form-select" id="subject-filter">
-                <option selected>Tất cả các môn</option>
-                <option value="math">Toán</option>
-                <option value="physics">Lý</option>
+                <?php if (empty($assignedSubjects)) : ?>
+                    <option>Không có môn được phân công</option>
+                <?php else: ?>
+                    <?php foreach ($assignedSubjects as $id => $name) : ?>
+                        <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </select>
         </div>
     </div>
@@ -59,10 +89,9 @@ $stmt->close();
         <div class="col-lg-8">
             <div class="content-container">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table" id="attendance-table">
                         <thead>
                             <tr>
-                                <th><input class="form-check-input" type="checkbox"></th>
                                 <th>STT</th>
                                 <th>Lớp</th>
                                 <th>Họ và tên</th>
@@ -70,49 +99,17 @@ $stmt->close();
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>1</td>
-                                <td>10A1</td>
-                                <td>Phạm Thu A</td>
-                                <td class="text-center">
-                                    <button class="btn-attendance btn-present">Có mặt</button>
-                                    <button class="btn-attendance btn-late">Đến muộn</button>
-                                    <button class="btn-attendance btn-absent">Vắng mặt</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>2</td>
-                                <td>10A1</td>
-                                <td>Bùi Trần B</td>
-                                <td class="text-center">
-                                    <button class="btn-attendance btn-present">Có mặt</button>
-                                    <button class="btn-attendance btn-late">Đến muộn</button>
-                                    <button class="btn-attendance btn-absent">Vắng mặt</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>3</td>
-                                <td>10A1</td>
-                                <td>Nguyễn Vỹ C</td>
-                                <td class="text-center">
-                                    <button class="btn-attendance btn-present">Có mặt</button>
-                                    <button class="btn-attendance btn-late">Đến muộn</button>
-                                    <button class="btn-attendance btn-absent">Vắng mặt</button>
-                                </td>
-                            </tr>
+                            <!-- Dữ liệu sẽ được nạp bằng JS -->
                         </tbody>
                     </table>
                 </div>
-                <div class="table-footer">
-                    <span>1-4/18 mục</span>
+                <div class="table-footer d-flex justify-content-between align-items-center">
+                    <div id="table-range">0 mục</div>
                     <nav>
                         <ul class="pagination mb-0">
                             <li class="page-item"><a class="page-link" href="#">‹</a></li>
                             <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">/5</a></li>
+                            <li class="page-item"><a class="page-link" href="#">/1</a></li>
                             <li class="page-item"><a class="page-link" href="#">›</a></li>
                         </ul>
                     </nav>
@@ -125,26 +122,27 @@ $stmt->close();
                 <h5 class="panel-title">Tổng quan điểm danh</h5>
                 <div class="summary-item summary-present">
                     <div><i class="bi bi-check-circle-fill icon me-2"></i> Có mặt</div>
-                    <div class="count">1403</div>
+                    <div class="count" id="count-present">0</div>
                 </div>
                 <div class="summary-item summary-late">
                     <div><i class="bi bi-exclamation-triangle-fill icon me-2"></i> Đến muộn</div>
-                    <div class="count">24</div>
+                    <div class="count" id="count-late">0</div>
                 </div>
                 <div class="summary-item summary-absent">
                     <div><i class="bi bi-x-circle-fill icon me-2"></i> Vắng mặt</div>
-                    <div class="count">38</div>
+                    <div class="count" id="count-absent">0</div>
                 </div>
                 <div class="summary-item summary-rate">
                     <div>Tỉ lệ đi học:</div>
-                    <div class="count">95,7%</div>
+                    <div class="count" id="count-rate">0%</div>
                 </div>
             </div>
         </div>
     </div>
 </main>
 <!-- ========= KẾT THÚC NỘI DUNG CHÍNH CỦA TRANG ========= -->
+
 <?php
-// Yêu cầu file footer.php để đóng các thẻ và tải JS
 require_once dirname(dirname(__DIR__)) . '/footer.php';
 ?>
+<script src="QuanLyChuyenCan.js"></script>
