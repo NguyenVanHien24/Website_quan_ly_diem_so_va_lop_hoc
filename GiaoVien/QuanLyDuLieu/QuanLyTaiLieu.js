@@ -5,13 +5,14 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Load documents when subject changes
     function loadDocuments() {
+        const maLop = classFilter.value;
         const maMon = subjectFilter.value;
-        if (!maMon) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chọn môn học để xem tài liệu</td></tr>';
+        if (!maMon || !maLop) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chọn lớp và môn học để xem tài liệu</td></tr>';
             return;
         }
         
-        fetch(`get_documents.php?maMon=${encodeURIComponent(maMon)}`)
+        fetch(`get_documents.php?maLop=${encodeURIComponent(maLop)}&maMon=${encodeURIComponent(maMon)}`)
             .then(r => r.json())
             .then(resp => {
                 if (!resp.success) {
@@ -162,6 +163,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Event listeners
     if (subjectFilter) subjectFilter.addEventListener('change', loadDocuments);
+    if (classFilter) classFilter.addEventListener('change', loadDocuments);
     
     // Initial load
     loadDocuments();

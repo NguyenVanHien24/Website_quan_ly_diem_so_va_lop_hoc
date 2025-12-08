@@ -46,22 +46,22 @@ if (!$ok) {
 
 if ($maTaiLieu > 0) {
     // Update
-    $sql = "UPDATE tailieu SET tieuDe = ?, moTa = ?, fileTL = ? WHERE maTaiLieu = ? AND maMon = ?";
+    $sql = "UPDATE tailieu SET tieuDe = ?, moTa = ?, fileTL = ? WHERE maTaiLieu = ? AND maMon = ? AND maLop = ?";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         echo json_encode(['success' => false, 'message' => 'Prepare error: ' . $conn->error]);
         exit();
     }
-    $stmt->bind_param('ssiii', $tieuDe, $moTa, $fileTL, $maTaiLieu, $maMon);
+    $stmt->bind_param('ssiiii', $tieuDe, $moTa, $fileTL, $maTaiLieu, $maMon, $maLop);
 } else {
     // Insert
-    $sql = "INSERT INTO tailieu (maMon, tieuDe, moTa, fileTL) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO tailieu (maLop, maMon, tieuDe, moTa, fileTL) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         echo json_encode(['success' => false, 'message' => 'Prepare error: ' . $conn->error]);
         exit();
     }
-    $stmt->bind_param('isss', $maMon, $tieuDe, $moTa, $fileTL);
+    $stmt->bind_param('iisss', $maLop, $maMon, $tieuDe, $moTa, $fileTL);
 }
 
 if (!$stmt->execute()) {
