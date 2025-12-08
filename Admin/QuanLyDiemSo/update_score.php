@@ -1,0 +1,95 @@
+<?php
+session_start();
+require_once '../../config.php'; // Chắc chắn đã require các file cần thiết
+require_once '../../csdl/db.php';
+
+// 1. Kiểm tra session và phương thức POST
+if (!isset($_SESSION["userID"]) || $_SERVER['REQUEST_METHOD'] != 'POST') {
+    header("Location: ../../dangnhap.php");
+    exit();
+}
+
+// 2. Lấy năm học và học kỳ hiện tại (Copy từ file gốc)
+$yearNow = date('Y');
+$monthNow = date('n');
+if ($monthNow >= 1 && $monthNow <= 6) {
+    $currentSemester = 2;
+    $currentYear = ($yearNow - 1) . '-' . $yearNow;
+} else {
+    $currentSemester = 1;
+    $currentYear = $yearNow . '-' . ($yearNow + 1);
+}
+
+// 3. Lấy dữ liệu cần thiết từ POST
+$maHS = filter_input(INPUT_POST, 'maHS', FILTER_VALIDATE_INT);
+$maMon = filter_input(INPUT_POST, 'maMon', FILTER_VALIDATE_INT);
+$maLop = filter_input(INPUT_POST, 'maLop', FILTER_VALIDATE_INT);
+
+if (!$maHS || !$maMon || !$maLop) {
+    // Xử lý lỗi nếu thiếu mã học sinh hoặc mã môn, mã lớp
+    die("Lỗi: Thông tin học sinh, môn học hoặc mã lớp bị thiếu.");
+}
+
+// 4. Định nghĩa Ánh xạ loại điểm (Đảm bảo lưu đúng tên Việt Nam)
+$score_type_map = [
+    1 => [
+        'mouth' => ['loaiDiem' => 'Điểm miệng', 'hocKy' => 1],
+        '45m'   => ['loaiDiem' => 'Điểm 1 tiết', 'hocKy' => 1],
+        'gk'    => ['loaiDiem' => 'Điểm giữa kỳ', 'hocKy' => 1],
+        'ck'    => ['loaiDiem' => 'Điểm cuối kỳ', 'hocKy' => 1],
+    ],
+    2 => [
+        'mouth' => ['loaiDiem' => 'Điểm miệng', 'hocKy' => 2],
+        '45m'   => ['loaiDiem' => 'Điểm 1 tiết', 'hocKy' => 2],
+        'gk'    => ['loaiDiem' => 'Điểm giữa kỳ', 'hocKy' => 2],
+        'ck'    => ['loaiDiem' => 'Điểm cuối kỳ', 'hocKy' => 2],
+    ],
+];
+
+// 5. Chuẩn bị truy vấn UPSERT (INSERT OR UPDATE)
+// Sử dụng cú pháp ON DUPLICATE KEY UPDATE của MySQL
+// Bạn cần đảm bảo đã tạo UNIQUE KEY (maHS, maMonHoc, namHoc, hocKy, loaiDiem)
+$query = "INSERT INTO diemso (maHS, maMonHoc, namHoc, hocKy, loaiDiem, giaTriDiem, maLop) 
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          ON DUPLICATE KEY UPDATE
+          giaTriDiem = VALUES(giaTriDiem),
+          maLop = VALUES(maLop)";
+
+// 6. Thực hiện lặp qua các điểm đã gửi và lưu vào CSDL
+$success = true;
+$types_to_process = ['mouth', '45m', 'gk', 'ck']; // Các loại điểm cần xử lý
+
+foreach ([1, 2] as $hk) { // Lặp qua Học kỳ 1 và Học kỳ 2
+    foreach ($types_to_process as $type_key) {
+        $input_name = "s{$hk}_{$type_key}";
+        $score = filter_input(INPUT_POST, $input_name, FILTER_VALIDATE_FLOAT);
+        
+        // Chỉ lưu điểm nếu nó không rỗng và là số hợp lệ
+        if ($score !== false && $score !== null) {
+            $loaiDiem = $score_type_map[$hk][$type_key]['loaiDiem'];
+
+            // Chuẩn bị và thực thi Prepared Statement
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("iisisdi", $maHS, $maMon, $currentYear, $hk, $loaiDiem, $score, $maLop);
+            
+            if (!$stmt->execute()) {
+                $success = false;
+                // Ghi log lỗi hoặc thông báo
+                error_log("Lỗi khi cập nhật điểm: " . $stmt->error);
+            }
+            $stmt->close();
+        }
+    }
+}
+
+// 7. Kết thúc và chuyển hướng
+if ($success) {
+    $_SESSION['message'] = "Cập nhật điểm thành công!";
+} else {
+    $_SESSION['error'] = "Đã xảy ra lỗi khi cập nhật điểm.";
+}
+
+// Chuyển hướng về trang bảng điểm để thấy kết quả
+header("Location: " . $_SERVER['HTTP_REFERER']); 
+exit();
+?>

@@ -41,11 +41,92 @@ if ($monthNow >= 1 && $monthNow <= 6) {
 // Lấy mã học sinh tự động: max(maHS)+1
 $maHSResult = $conn->query("SELECT IFNULL(MAX(maHS),0)+1 AS nextMaHS FROM hocsinh");
 $nextMaHS = $maHSResult->fetch_assoc()['nextMaHS'];
+
+// Function tạo diemso cho học sinh trong lớp
+function createDiemsoForStudent($conn, $maHS, $maLop, $namHoc, $kyHoc)
+{
+    if (!$maLop) return; // Không tạo nếu không có lớp
+
+    // Lấy danh sách môn học của lớp trong năm học/kỳ hiện tại
+    $lopMonRs = $conn->query("SELECT maMon FROM lop_monhoc WHERE maLop = $maLop AND namHoc = '$namHoc' AND hocKy = $kyHoc");
+
+    if (!$lopMonRs || $lopMonRs->num_rows === 0) return;
+
+    // 3 loại điểm
+    $loaiDiem = ['Điểm miệng', 'Điểm 15 phút', 'Điểm 1 tiết'];
+
+    while ($lopMon = $lopMonRs->fetch_assoc()) {
+        $maMon = $lopMon['maMon'];
+
+        // Kiểm tra xem đã tồn tại chưa để tránh trùng lặp
+        $checkRs = $conn->query("SELECT COUNT(*) as cnt FROM diemso WHERE maHS = $maHS AND maMonHoc = $maMon AND namHoc = '$namHoc' AND hocKy = $kyHoc");
+        $checkRow = $checkRs->fetch_assoc();
+
+        // Chỉ tạo nếu chưa có bản ghi nào cho môn học này
+        if ($checkRow['cnt'] == 0) {
+            foreach ($loaiDiem as $loai) {
+                $insertDiemSql = "INSERT INTO diemso (maHS, maMonHoc, maLop, loaiDiem, namHoc, hocKy) VALUES ($maHS, $maMon, $maLop, '$loai', '$namHoc', $kyHoc)";
+                if (!$conn->query($insertDiemSql)) {
+                    error_log("Error inserting diemso: " . $conn->error);
+                }
+            }
+        }
+    }
+}
+
 // ------------------ XỬ LÝ AJAX THÊM/SỬA/XÓA ------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $response = ['success' => false, 'error' => ''];
 
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $gender = $_POST['gender'] ?? '';
+    $className = $_POST['class'] ?? '';
+    $role = $_POST['role'] ?? 'Thành viên';
+    $status = $_POST['status'] ?? 'active';
+
+    if (!$name) {
+        // Xử lý xóa trước (không cần validation)
+        if ($action === 'delete') {
+            $maHS = $_POST['id'] ?? 0;
+            $conn->begin_transaction();
+            try {
+                // Lấy userId trước khi xóa hocsinh
+                $rs = $conn->query("SELECT userId FROM hocsinh WHERE maHS=$maHS");
+                if (!$rs || $rs->num_rows === 0) {
+                    throw new Exception('Học sinh không tồn tại');
+                }
+                $userId = $rs->fetch_assoc()['userId'];
+
+                // Xóa chuyên cần liên quan (nếu FK chưa có CASCADE)
+                if (!$conn->query("DELETE FROM chuyencan WHERE maHS=$maHS")) {
+                    throw new Exception('Lỗi xóa chuyên cần: ' . $conn->error);
+                }
+
+                // Xóa hocsinh (cascade sẽ xóa các bản ghi liên quan: diemso, bainop)
+                if (!$conn->query("DELETE FROM hocsinh WHERE maHS=$maHS")) {
+                    throw new Exception('Lỗi xóa hocsinh: ' . $conn->error);
+                }
+
+                // Xóa user liên quan
+                if (!$conn->query("DELETE FROM user WHERE userId=$userId")) {
+                    throw new Exception('Lỗi xóa user: ' . $conn->error);
+                }
+
+                $conn->commit();
+                $response['success'] = true;
+            } catch (Exception $e) {
+                $conn->rollback();
+                $response['error'] = $e->getMessage();
+            }
+            echo json_encode($response);
+            exit();
+        }
+    }
+
+    // Validation cho add/update (không cần cho delete)
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -64,27 +145,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $response['error'] = 'Số điện thoại không được để trống';
     } elseif (!preg_match('/^0[0-9]{9,10}$/', $phone)) {
         $response['error'] = 'Số điện thoại không hợp lệ';
-    } // Kiểm tra trùng số điện thoại
-    $checkPhoneQuery = $conn->query("SELECT userId FROM user WHERE sdt = '$phone'");
-    if ($action === 'update') {
-        $maHS = $_POST['id'] ?? 0;
-        $rs = $conn->query("SELECT userId FROM hocsinh WHERE maHS=$maHS");
-        if ($rs->num_rows > 0) {
-            $userId = $rs->fetch_assoc()['userId'];
-            $checkPhoneQuery = $conn->query("SELECT userId FROM user WHERE sdt = '$phone' AND userId <> $userId");
-        }
-    }
-
-    if ($checkPhoneQuery && $checkPhoneQuery->num_rows > 0) {
-        $response['error'] = 'Số điện thoại đã tồn tại';
-        echo json_encode($response);
-        exit();
     } elseif ($gender !== 'Nam' && $gender !== 'Nữ') {
         $response['error'] = 'Giới tính không hợp lệ';
     } elseif (!in_array($role, ['Thành viên', 'Lớp trưởng', 'Bí thư'])) {
         $response['error'] = 'Chức vụ không hợp lệ';
     } elseif (!in_array($status, ['active', 'inactive'])) {
         $response['error'] = 'Trạng thái không hợp lệ';
+    }
+
+    // Kiểm tra trùng số điện thoại
+    if (!$response['error']) {
+        $checkPhoneQuery = $conn->query("SELECT userId FROM user WHERE sdt = '$phone'");
+        if ($action === 'update') {
+            $maHS = $_POST['id'] ?? 0;
+            $rs = $conn->query("SELECT userId FROM hocsinh WHERE maHS=$maHS");
+            if ($rs->num_rows > 0) {
+                $userId = $rs->fetch_assoc()['userId'];
+                $checkPhoneQuery = $conn->query("SELECT userId FROM user WHERE sdt = '$phone' AND userId <> $userId");
+            }
+        }
+
+        if ($checkPhoneQuery && $checkPhoneQuery->num_rows > 0) {
+            $response['error'] = 'Số điện thoại đã tồn tại';
+        }
     }
 
     if ($response['error']) {
@@ -105,7 +188,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $maLop = null;
             if ($className) {
                 $rs = $conn->query("SELECT maLop FROM lophoc WHERE tenLop = '$className' LIMIT 1");
-                if ($rs && $rs->num_rows > 0) $maLop = $rs->fetch_assoc()['maLop'];
+                if ($rs && $rs->num_rows > 0) {
+                    $maLop = $rs->fetch_assoc()['maLop'];
+                } else {
+                    throw new Exception("Lớp '$className' không tồn tại trong CSDL");
+                }
             }
 
             $yearNow = date('Y');
@@ -116,10 +203,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $statusDb = $status === 'active' ? 'Hoạt động' : 'Inactive';
 
             // Cập nhật hocsinh
-            if (!$conn->query("UPDATE hocsinh SET maLopHienTai = " . ($maLop ?: "NULL") . ",
+            $updateHocsinhSql = "UPDATE hocsinh SET maLopHienTai = " . ($maLop ?: "NULL") . ",
                 trangThaiHoatDong = '$statusDb', namHoc = '$currentYear', kyHoc = $currentSemester,
-                chucVu = '$role' WHERE userId = $userId")) {
-                throw new Exception($conn->error);
+                chucVu = '$role' WHERE userId = $userId";
+            if (!$conn->query($updateHocsinhSql)) {
+                throw new Exception('Lỗi khi cập nhật hocsinh: ' . $conn->error . ' | SQL: ' . $updateHocsinhSql);
+            }
+
+            // Lấy maHS vừa tạo
+            $hsRs = $conn->query("SELECT maHS FROM hocsinh WHERE userId = $userId");
+            $maHS = $hsRs->fetch_assoc()['maHS'];
+
+            // Tạo diemso cho học sinh nếu có lớp
+            if ($maLop) {
+                createDiemsoForStudent($conn, $maHS, $maLop, $currentYear, $currentSemester);
+            }
+
+            // Cập nhật sĩ số lớp
+            if ($maLop) {
+                $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
             }
 
             $conn->commit();
@@ -135,27 +237,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($action === 'update') {
         $maHS = $_POST['id'] ?? 0;
+        $className = $_POST['class'] ?? '';
+        $role = $_POST['role'] ?? 'Thành viên';
+        $status = $_POST['status'] ?? 'active';
+
+        // Lấy lớp cũ trước khi update
+        $oldClassRs = $conn->query("SELECT maLopHienTai FROM hocsinh WHERE maHS = $maHS");
+        $oldClass = $oldClassRs->fetch_assoc()['maLopHienTai'];
+
+        // Lấy userId
         $rs = $conn->query("SELECT userId FROM hocsinh WHERE maHS=$maHS");
-        if ($rs->num_rows === 0) {
-            $response['error'] = 'Học sinh không tồn tại';
-            echo json_encode($response);
-            exit();
-        }
         $userId = $rs->fetch_assoc()['userId'];
 
         $conn->begin_transaction();
         try {
-            $conn->query("UPDATE user SET hoVaTen='$name', email='$email', sdt='$phone', gioiTinh='$gender' WHERE userId=$userId");
-
+            // Lấy maLop từ tên lớp
             $maLop = null;
-            if ($className) {
-                $rs2 = $conn->query("SELECT maLop FROM lophoc WHERE tenLop='$className' LIMIT 1");
-                if ($rs2 && $rs2->num_rows > 0) $maLop = $rs2->fetch_assoc()['maLop'];
+            if (!empty($className)) {
+                $rs2 = $conn->query("SELECT maLop FROM lophoc WHERE tenLop = '" . $conn->real_escape_string($className) . "' LIMIT 1");
+                if ($rs2 && $rs2->num_rows > 0) {
+                    $maLop = $rs2->fetch_assoc()['maLop'];
+                } else {
+                    throw new Exception("Lớp '$className' không tồn tại trong CSDL");
+                }
             }
+
             $statusDb = $status === 'active' ? 'Hoạt động' : 'Inactive';
 
-            $conn->query("UPDATE hocsinh SET maLopHienTai=" . ($maLop ?? 'NULL') . ", chucVu='$role',
-                trangThaiHoatDong='$statusDb' WHERE maHS=$maHS");
+            // UPDATE hocsinh
+            $sqlUpdateHS = "
+            UPDATE hocsinh 
+            SET maLopHienTai = " . ($maLop !== null ? $maLop : "NULL") . ",
+                chucVu='$role', trangThaiHoatDong='$statusDb'
+            WHERE maHS=$maHS
+        ";
+            if (!$conn->query($sqlUpdateHS)) {
+                throw new Exception('Lỗi cập nhật hocsinh: ' . $conn->error);
+            }
+
+            // Cập nhật sĩ số lớp
+            if ($oldClass != $maLop) {
+                if ($oldClass) $conn->query("UPDATE lophoc SET siSo = siSo - 1 WHERE maLop = $oldClass");
+                if ($maLop) $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
+            }
+
+            // Nếu thay đổi lớp, tạo diemso cho lớp mới
+            if ($oldClass != $maLop && $maLop) {
+                $yearNow = date('Y');
+                $monthNow = date('n');
+                $currentSemester = ($monthNow >= 1 && $monthNow <= 6) ? 2 : 1;
+                $currentYear = ($monthNow >= 1 && $monthNow <= 6) ? ($yearNow - 1) . '-' . $yearNow : $yearNow . '-' . ($yearNow + 1);
+                createDiemsoForStudent($conn, $maHS, $maLop, $currentYear, $currentSemester);
+            }
+
+            $conn->commit();
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit();
+    }
+
+    if ($action === 'delete') {
+        $maHS = $_POST['id'] ?? 0;
+        $conn->begin_transaction();
+        try {
+            // Lấy userId trước khi xóa hocsinh
+            $rs = $conn->query("SELECT userId, maLopHienTai FROM hocsinh WHERE maHS=$maHS");
+            $userId = $rs->fetch_assoc()['userId'];
+            $oldClass = $rs->fetch_assoc()['maLopHienTai'];
+            if (!$rs || $rs->num_rows === 0) {
+                throw new Exception('Học sinh không tồn tại');
+            }
+            $userId = $rs->fetch_assoc()['userId'];
+
+            // Xóa chuyên cần liên quan (nếu FK chưa có CASCADE)
+            if (!$conn->query("DELETE FROM chuyencan WHERE maHS=$maHS")) {
+                throw new Exception('Lỗi xóa chuyên cần: ' . $conn->error);
+            }
+
+            // Xóa hocsinh (cascade sẽ xóa các bản ghi liên quan: diemso, bainop)
+            if (!$conn->query("DELETE FROM hocsinh WHERE maHS=$maHS")) {
+                throw new Exception('Lỗi xóa hocsinh: ' . $conn->error);
+            }
+
+            // Xóa user liên quan
+            if (!$conn->query("DELETE FROM user WHERE userId=$userId")) {
+                throw new Exception('Lỗi xóa user: ' . $conn->error);
+            }
+            if ($oldClass) {
+                $conn->query("UPDATE lophoc SET siSo = siSo - 1 WHERE maLop = $oldClass");
+            }
 
             $conn->commit();
             $response['success'] = true;
@@ -163,15 +336,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $conn->rollback();
             $response['error'] = $e->getMessage();
         }
-
-        echo json_encode($response);
-        exit();
-    }
-
-    if ($action === 'delete') {
-        $maHS = $_POST['id'] ?? 0;
-        $conn->query("DELETE FROM hocsinh WHERE maHS=$maHS");
-        $response['success'] = true;
         echo json_encode($response);
         exit();
     }
@@ -285,11 +449,16 @@ $pageJS = ['QuanLyHocSinh.js'];
         </div>
 
         <div class="table-footer">
-            <span>1-2/18 mục</span>
+            <span>1-4/18 mục</span>
             <nav>
                 <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">‹</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
                     <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">...</a></li>
+                    <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    <li class="page-item"><a class="page-link" href="#">›</a></li>
                 </ul>
             </nav>
         </div>
@@ -357,7 +526,7 @@ $pageJS = ['QuanLyHocSinh.js'];
                         <div class="row mb-4">
                             <div class="col-md-4">
                                 <label class="form-label">Lớp:</label>
-                                <select class="form-select" id="s_class">
+                                <select class="form-select" id="s_class" name="class">
                                     <option value="">-- Chọn lớp --</option>
                                     <?php
                                     $lopRs = $conn->query("SELECT tenLop FROM lophoc ORDER BY tenLop ASC");
@@ -412,7 +581,26 @@ $pageJS = ['QuanLyHocSinh.js'];
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const classFilter = document.getElementById('classFilterHeader');
+            const table = document.querySelector('.table tbody');
 
+            classFilter.addEventListener('change', function() {
+                const selectedClass = this.value;
+                const rows = table.querySelectorAll('tr');
+
+                rows.forEach(row => {
+                    const classCell = row.cells[4].textContent.trim(); // cột lớp thứ 5
+                    if (!selectedClass || selectedClass === classCell || (selectedClass === 'Chưa có lớp' && classCell === 'Chưa có lớp')) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </main>
 <?php
 require_once '../../footer.php';

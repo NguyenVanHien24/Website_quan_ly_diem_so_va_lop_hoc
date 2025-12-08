@@ -48,6 +48,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
     if (!$sdt) $errors[] = "Số điện thoại không được để trống.";
 
     if ($mode === "add") {
+        // Validate email format
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Email không hợp lệ.";
+        }
+
+        // Validate phone format: Vietnamese numbers like 0xxxxxxxxx or +84xxxxxxxxx
+        if (!preg_match('/^(\+84|0)\d{9}$/', $sdt)) {
+            $errors[] = "Số điện thoại không hợp lệ. (Ví dụ: 0987654321 hoặc +84987654321)";
+        }
+
+        // Kiểm tra trùng số điện thoại
         $check = $conn->prepare("SELECT userId FROM user WHERE sdt = ?");
         $check->bind_param("s", $sdt);
         $check->execute();
@@ -55,19 +66,101 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
         if ($check->num_rows > 0) $errors[] = "Số điện thoại đã tồn tại.";
         $check->close();
 
+        // Kiểm tra trùng email
+        $check2 = $conn->prepare("SELECT userId FROM user WHERE email = ?");
+        $check2->bind_param("s", $email);
+        $check2->execute();
+        $check2->store_result();
+        if ($check2->num_rows > 0) $errors[] = "Email đã tồn tại.";
+        $check2->close();
+
         if (!empty($errors)) {
             echo json_encode(['success' => false, 'message' => implode("\n", $errors)]);
             exit();
         }
 
+        // Tạo user (trigger có thể tự sinh row trong `giaovien`)
         $stmt = $conn->prepare("INSERT INTO user (hoVaTen,email,sdt,gioiTinh,matKhau,vaiTro) VALUES (?,?,?,?, '12345678','GiaoVien')");
         $stmt->bind_param("ssss", $hoVaTen, $email, $sdt, $gioiTinh);
         $stmt->execute();
         $userId = $conn->insert_id;
 
-        $stmtGV = $conn->prepare("INSERT INTO giaovien (userId,boMon,trinhDo,phongBan,trangThaiHoatDong,namHoc,kyHoc) VALUES (?,?,?,?,?,?,?)");
-        $stmtGV->bind_param("isssisi", $userId, $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc);
-        $stmtGV->execute();
+        // Cập nhật thông tin giaovien đã sinh bởi trigger (nếu trigger tồn tại),
+        // nếu không có bản ghi (trigger bị tắt) sẽ chèn mới.
+        $stmtGV = $conn->prepare("UPDATE giaovien SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?, namHoc=?, kyHoc=? WHERE userId=?");
+        if ($stmtGV) {
+            $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $userId);
+            $stmtGV->execute();
+        }
+
+        // Nếu update không ảnh hưởng (không có bản ghi), chèn mới
+        if ($stmtGV && $stmtGV->affected_rows === 0) {
+            $insGV = $conn->prepare("INSERT INTO giaovien (userId,boMon,trinhDo,phongBan,trangThaiHoatDong,namHoc,kyHoc) VALUES (?,?,?,?,?,?,?)");
+            if ($insGV) {
+                $insGV->bind_param("isssssi", $userId, $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc);
+                $insGV->execute();
+                $insGV->close();
+            }
+        }
+
+        // Lấy mã giáo viên (có thể do trigger hoặc insert trả về)
+        $qmgv = $conn->prepare("SELECT maGV FROM giaovien WHERE userId = ? LIMIT 1");
+        $maGV = 0;
+        if ($qmgv) {
+            $qmgv->bind_param("i", $userId);
+            $qmgv->execute();
+            $qmgv->bind_result($maGV);
+            $qmgv->fetch();
+            $qmgv->close();
+        }
+
+        // Đồng bộ phân công môn: xóa cũ (nếu có) -> thêm mới
+        if ($maGV) {
+            $del = $conn->prepare("DELETE FROM giaovien_monhoc WHERE idGV = ?");
+            if ($del) {
+                $del->bind_param("i", $maGV);
+                $del->execute();
+                $del->close();
+            }
+
+            if (!empty($boMon)) {
+                $p = $conn->prepare("SELECT maMon FROM monhoc WHERE tenMon = ? AND namHoc = ? AND hocKy = ?");
+                if ($p) {
+                    $p->bind_param("ssi", $boMon, $namHoc, $kyHoc);
+                    $p->execute();
+                    $p->bind_result($maMon);
+                    $found = false;
+                    while ($p->fetch()) {
+                        $found = true;
+                        $ins = $conn->prepare("INSERT INTO giaovien_monhoc (idGV, idMon) VALUES (?, ?)");
+                        if ($ins) {
+                            $ins->bind_param("ii", $maGV, $maMon);
+                            $ins->execute();
+                            $ins->close();
+                        }
+                    }
+                    $p->close();
+
+                    if (!$found) {
+                        $p2 = $conn->prepare("SELECT maMon FROM monhoc WHERE tenMon = ? LIMIT 1");
+                        if ($p2) {
+                            $p2->bind_param("s", $boMon);
+                            $p2->execute();
+                            $p2->bind_result($maMon);
+                            if ($p2->fetch()) {
+                                $ins2 = $conn->prepare("INSERT INTO giaovien_monhoc (idGV, idMon) VALUES (?, ?)");
+                                if ($ins2) {
+                                    $ins2->bind_param("ii", $maGV, $maMon);
+                                    $ins2->execute();
+                                    $ins2->close();
+                                }
+                            }
+                            $p2->close();
+                        }
+                    }
+                }
+            }
+        }
 
         echo json_encode(['success' => true]);
         exit();
@@ -78,12 +171,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
         $res = $conn->query("SELECT userId FROM giaovien WHERE maGV=$maGV");
         $userId = $res->fetch_assoc()['userId'] ?? 0;
 
+        // Validate email format
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Email không hợp lệ.";
+        }
+
+        // Validate phone format
+        if (!preg_match('/^(\+84|0)\d{9}$/', $sdt)) {
+            $errors[] = "Số điện thoại không hợp lệ. (Ví dụ: 0987654321 hoặc +84987654321)";
+        }
+
+        // Kiểm tra trùng số điện thoại (ngoại trừ user hiện tại)
         $check = $conn->prepare("SELECT userId FROM user WHERE sdt = ? AND userId != ?");
         $check->bind_param("si", $sdt, $userId);
         $check->execute();
         $check->store_result();
         if ($check->num_rows > 0) $errors[] = "Số điện thoại đã tồn tại.";
         $check->close();
+
+        // Kiểm tra trùng email (ngoại trừ user hiện tại)
+        $check2 = $conn->prepare("SELECT userId FROM user WHERE email = ? AND userId != ?");
+        $check2->bind_param("si", $email, $userId);
+        $check2->execute();
+        $check2->store_result();
+        if ($check2->num_rows > 0) $errors[] = "Email đã tồn tại.";
+        $check2->close();
 
         if (!empty($errors)) {
             echo json_encode(['success' => false, 'message' => implode("\n", $errors)]);
@@ -97,6 +209,52 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
         $stmtGV = $conn->prepare("UPDATE giaovien SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?, namHoc=?, kyHoc=? WHERE maGV=?");
         $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $maGV);
         $stmtGV->execute();
+
+        // Đồng bộ lại phân công môn trong giaovien_monhoc: xóa cũ -> thêm mới
+        $del = $conn->prepare("DELETE FROM giaovien_monhoc WHERE idGV = ?");
+        if ($del) {
+            $del->bind_param("i", $maGV);
+            $del->execute();
+            $del->close();
+        }
+
+        if (!empty($boMon)) {
+            $p = $conn->prepare("SELECT maMon FROM monhoc WHERE tenMon = ? AND namHoc = ? AND hocKy = ?");
+            if ($p) {
+                $p->bind_param("ssi", $boMon, $namHoc, $kyHoc);
+                $p->execute();
+                $p->bind_result($maMon);
+                $found = false;
+                while ($p->fetch()) {
+                    $found = true;
+                    $ins = $conn->prepare("INSERT INTO giaovien_monhoc (idGV, idMon) VALUES (?, ?)");
+                    if ($ins) {
+                        $ins->bind_param("ii", $maGV, $maMon);
+                        $ins->execute();
+                        $ins->close();
+                    }
+                }
+                $p->close();
+
+                if (!$found) {
+                    $p2 = $conn->prepare("SELECT maMon FROM monhoc WHERE tenMon = ? LIMIT 1");
+                    if ($p2) {
+                        $p2->bind_param("s", $boMon);
+                        $p2->execute();
+                        $p2->bind_result($maMon);
+                        if ($p2->fetch()) {
+                            $ins2 = $conn->prepare("INSERT INTO giaovien_monhoc (idGV, idMon) VALUES (?, ?)");
+                            if ($ins2) {
+                                $ins2->bind_param("ii", $maGV, $maMon);
+                                $ins2->execute();
+                                $ins2->close();
+                            }
+                        }
+                        $p2->close();
+                    }
+                }
+            }
+        }
 
         echo json_encode(['success' => true]);
         exit();

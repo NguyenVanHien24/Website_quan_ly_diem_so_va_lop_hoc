@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config.php';
+require_once '../../CSDL/db.php';
 // ==== Kiểm tra đăng nhập ====
 if (!isset($_SESSION['userID'])) {
     header('Location: ../../dangnhap.php');
@@ -16,18 +17,37 @@ $currentPage = 'diem-so';
 $pageCSS = ['QuanLyDiemSo.css'];
 require_once '../SidebarAndHeader.php';
 $pageJS = ['QuanLyDiemSo.js'];
-// ==== Lấy thông tin giáo viên từ DB ====
+
 $userID = $_SESSION['userID'];
-$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
-        FROM user u
-        JOIN giaovien g ON u.userId = g.userId
-        WHERE u.userId = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $userID);
+
+// Lấy mã giáo viên
+$stmt = $conn->prepare("SELECT maGV FROM giaovien WHERE userId = ?");
+$stmt->bind_param('i', $userID);
 $stmt->execute();
-$result = $stmt->get_result();
-$teacher = $result->fetch_assoc();
+$res = $stmt->get_result();
+$gv = $res->fetch_assoc();
 $stmt->close();
+$maGV = $gv ? (int)$gv['maGV'] : 0;
+
+// Lấy danh sách lớp + môn được phân công
+$assignedClasses = [];
+$assignedSubjects = [];
+if ($maGV > 0) {
+    $sql = "SELECT DISTINCT p.maLop, l.tenLop, p.maMon, m.tenMon
+            FROM phan_cong p
+            LEFT JOIN lophoc l ON l.maLop = p.maLop
+            LEFT JOIN monhoc m ON m.maMon = p.maMon
+            WHERE p.maGV = '" . $conn->real_escape_string($maGV) . "'";
+    $res = $conn->query($sql);
+    while ($row = $res->fetch_assoc()) {
+        if (!isset($assignedClasses[$row['maLop']])) {
+            $assignedClasses[$row['maLop']] = $row['tenLop'];
+        }
+        if (!isset($assignedSubjects[$row['maMon']])) {
+            $assignedSubjects[$row['maMon']] = $row['tenMon'];
+        }
+    }
+}
 
 ?>
 <main>
@@ -37,114 +57,68 @@ $stmt->close();
         <div class="col-md-4">
             <label for="class-filter" class="form-label fw-bold">Lớp:</label>
             <select class="form-select" id="class-filter">
-                <option value="10A1">Lớp 10A1</option>
-                <option value="11A4" selected>Lớp 11A4</option>
-                <option value="12A1">Lớp 12A1</option>
+                <?php if (empty($assignedClasses)) : ?>
+                    <option>Không có lớp được phân công</option>
+                <?php else: ?>
+                    <?php foreach ($assignedClasses as $id => $name) : ?>
+                        <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </select>
         </div>
         <div class="col-md-4">
             <label for="subject-filter" class="form-label fw-bold">Môn:</label>
             <select class="form-select" id="subject-filter">
-                <option value="math">Toán</option>
-                <option value="physics">Vật Lý</option>
-                <option value="biology" selected>Sinh học</option>
+                <?php if (empty($assignedSubjects)) : ?>
+                    <option>Không có môn được phân công</option>
+                <?php else: ?>
+                    <?php foreach ($assignedSubjects as $id => $name) : ?>
+                        <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </select>
+        </div>
+        <div class="col-md-2" style="display: none;">
+            <label for="semester-filter" class="form-label fw-bold">Học kỳ:</label>
+            <select class="form-select" id="semester-filter">
+                <option value="1">Học kỳ I</option>
+                <option value="2">Học kỳ II</option>
+            </select>
+        </div>
+        <div class="col-md-2" style="display: none;">
+            <label for="year-filter" class="form-label fw-bold">Năm học:</label>
+            <input type="text" id="year-filter" class="form-control" value="2025-2026">
         </div>
     </div>
 
     <div class="content-container">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table" id="score-table">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th>Mã HS</th>
                         <th>Họ Tên</th>
+                        <th>Lớp</th>
                         <th>Môn học</th>
-                        <th>Điểm miệng</th>
-                        <th>Điểm 1 Tiết</th>
-                        <th>Điểm Thi Học Kì I</th>
-                        <th>Điểm Thi Học Kì II</th>
-                        <th>Trung Bình Môn</th>
+                        <th>Điểm HK I</th>
+                        <th>Điểm HK II</th>
+                        <th>Trung Bình</th>
                         <th>Tác Vụ</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>1</td>
-                        <td class="student-id">K25110386</td>
-                        <td class="student-name">Trần Hoàng Nhi</td>
-                        <td>Sinh học</td>
-                        <td class="score-mouth">9.0</td>
-                        <td class="score-45m">8.0</td>
-                        <td class="score-hk1">8.5</td>
-                        <td class="score-hk2">9.0</td>
-                        <td class="score-avg">9.0</td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-view"
-                                data-id="K25110386"
-                                data-name="Trần Hoàng Nhi"
-                                data-s1-mouth="9.0" data-s1-45m="8.0" data-s1-gk="8.5" data-s1-ck="9.0"
-                                data-s2-mouth="9.0" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#viewGradeModal">
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-                            <a href="#" class="btn-edit"
-                                data-id="K25110386"
-                                data-name="Trần Hoàng Nhi"
-                                data-s1-mouth="9.0" data-s1-45m="8.0" data-s1-gk="8.5" data-s1-ck="9.0"
-                                data-s2-mouth="9.0" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#gradeEntryModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#"><i class="bi bi-printer"></i></a>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>2</td>
-                        <td class="student-id">K25999999</td>
-                        <td class="student-name">Nguyễn Văn A</td>
-                        <td>Sinh học</td>
-                        <td class="score-mouth"></td>
-                        <td class="score-45m"></td>
-                        <td class="score-hk1"></td>
-                        <td class="score-hk2"></td>
-                        <td class="score-avg"></td>
-
-                        <td class="action-icons">
-                            <a href="#" class="btn-view"
-                                data-id="K25999999" data-name="Nguyễn Văn A"
-                                data-s1-mouth="" data-s1-45m="" data-s1-gk="" data-s1-ck=""
-                                data-s2-mouth="" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#viewGradeModal">
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-                            <a href="#" class="btn-edit"
-                                data-id="K25999999" data-name="Nguyễn Văn A"
-                                data-s1-mouth="" data-s1-45m="" data-s1-gk="" data-s1-ck=""
-                                data-s2-mouth="" data-s2-45m="" data-s2-gk="" data-s2-ck=""
-                                data-bs-toggle="modal" data-bs-target="#gradeEntryModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#"><i class="bi bi-printer"></i></a>
-                        </td>
-                    </tr>
+                <tbody id="score-tbody">
+                    <!-- Dữ liệu được nạp bằng JS -->
                 </tbody>
             </table>
         </div>
         <div class="table-footer">
-            <span>1-4/18 mục</span>
+            <span id="table-range">0 mục</span>
             <nav>
                 <ul class="pagination mb-0">
                     <li class="page-item"><a class="page-link" href="#">‹</a></li>
                     <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">/5</a></li>
+                    <li class="page-item"><a class="page-link" href="#">/1</a></li>
                     <li class="page-item"><a class="page-link" href="#">›</a></li>
                 </ul>
             </nav>
@@ -190,7 +164,7 @@ $stmt->close();
                         </div>
                         <div class="d-flex justify-content-end gap-3 mt-5">
                             <button type="button" class="btn btn-custom-cancel" data-bs-dismiss="modal">HỦY</button>
-                            <button type="submit" class="btn btn-custom-save">LƯU</button>
+                            <button type="button" class="btn btn-custom-save">LƯU</button>
                         </div>
                     </form>
                 </div>

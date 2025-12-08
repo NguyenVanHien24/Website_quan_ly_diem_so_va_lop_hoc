@@ -1,5 +1,6 @@
 <?php
 require_once '../../config.php';
+require_once '../../csdl/db.php';
 // Đặt tên trang để active menu bên sidebar
 $currentPage = 'phan-cong';
 // Tải CSS riêng cho trang này
@@ -32,48 +33,52 @@ $pageJS = ['QuanLyPhanCong.js'];
                     </tr>
                 </thead>
                 <tbody>
+                    <?php
+                    // Lấy danh sách phân công từ database
+                    $assignmentSql = "SELECT pc.id, l.tenLop, l.khoiLop, m.tenMon, m.maMon, u.hoVaTen, g.maGV, pc.maLop 
+                                      FROM phan_cong pc
+                                      JOIN lophoc l ON l.maLop = pc.maLop
+                                      JOIN monhoc m ON m.maMon = pc.maMon
+                                      JOIN giaovien g ON g.maGV = pc.maGV
+                                      JOIN `user` u ON u.userId = g.userId
+                                      ORDER BY l.tenLop, m.tenMon";
+                    $assignmentRs = $conn->query($assignmentSql);
+                    $i = 1;
+                    if ($assignmentRs && $assignmentRs->num_rows > 0) {
+                        while ($row = $assignmentRs->fetch_assoc()):
+                    ?>
                     <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>1</td>
-                        <td>10A1</td>
-                        <td>10</td>
-                        <td>Toán học</td>
-                        <td>Nguyễn Văn A</td>
+                        <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($row['id']) ?>"></td>
+                        <td><?= $i++ ?></td>
+                        <td><?= htmlspecialchars($row['tenLop']) ?></td>
+                        <td><?= htmlspecialchars($row['khoiLop']) ?></td>
+                        <td><?= htmlspecialchars($row['tenMon']) ?></td>
+                        <td><?= htmlspecialchars($row['hoVaTen']) ?></td>
                         <td class="action-icons">
                             <a href="#" class="btn-edit"
-                                data-id="1"
-                                data-class="10A1"
-                                data-subject="Toán học"
-                                data-teacher="Nguyễn Văn A"
+                                data-id="<?= htmlspecialchars($row['id']) ?>"
+                                data-maLop="<?= htmlspecialchars($row['maLop']) ?>"
+                                data-maMon="<?= htmlspecialchars($row['maMon']) ?>"
+                                data-maGV="<?= htmlspecialchars($row['maGV']) ?>"
+                                data-class="<?= htmlspecialchars($row['tenLop']) ?>"
+                                data-subject="<?= htmlspecialchars($row['tenMon']) ?>"
+                                data-teacher="<?= htmlspecialchars($row['hoVaTen']) ?>"
                                 data-bs-toggle="modal" data-bs-target="#assignFormModal">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <a href="#" class="btn-delete"
-                                data-id="1"
+                                data-id="<?= htmlspecialchars($row['id']) ?>"
                                 data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
                                 <i class="bi bi-trash-fill"></i>
                             </a>
                         </td>
                     </tr>
-
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>2</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="action-icons"></td>
-                    </tr>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>3</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="action-icons"></td>
-                    </tr>
+                    <?php
+                        endwhile;
+                    } else {
+                        echo '<tr><td colspan="7" class="text-center text-muted">Chưa có phân công nào</td></tr>';
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -108,8 +113,18 @@ $pageJS = ['QuanLyPhanCong.js'];
                             <div class="col-md-9">
                                 <select class="form-select py-2" id="pc_class">
                                     <option value="">Chọn lớp...</option>
-                                    <option value="10A1">10A1</option>
-                                    <option value="11A2">11A2</option>
+                                    <?php
+                                    // Lấy danh sách lớp từ CSDL
+                                    $classes = [];
+                                    $rs = $conn->query("SELECT maLop, tenLop FROM lophoc WHERE trangThai = 'active' ORDER BY tenLop");
+                                    if ($rs) {
+                                        while ($r = $rs->fetch_assoc()) {
+                                            $classes[] = $r;
+                                        }
+                                    }
+                                    foreach ($classes as $c): ?>
+                                        <option value="<?= htmlspecialchars($c['maLop']) ?>"><?= htmlspecialchars($c['tenLop']) ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
@@ -119,8 +134,18 @@ $pageJS = ['QuanLyPhanCong.js'];
                             <div class="col-md-9">
                                 <select class="form-select py-2" id="pc_subject">
                                     <option value="">Chọn môn...</option>
-                                    <option value="Toán học">Toán học</option>
-                                    <option value="Vật lý">Vật lý</option>
+                                    <?php
+                                    // Lấy danh sách môn từ CSDL
+                                    $subjects = [];
+                                    $rs2 = $conn->query("SELECT maMon, tenMon FROM monhoc WHERE trangThai = 'active' ORDER BY tenMon");
+                                    if ($rs2) {
+                                        while ($r = $rs2->fetch_assoc()) {
+                                            $subjects[] = $r;
+                                        }
+                                    }
+                                    foreach ($subjects as $s): ?>
+                                        <option value="<?= htmlspecialchars($s['maMon']) ?>"><?= htmlspecialchars($s['tenMon']) ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
@@ -130,8 +155,14 @@ $pageJS = ['QuanLyPhanCong.js'];
                             <div class="col-md-9">
                                 <select class="form-select py-2" id="pc_teacher">
                                     <option value="">Chọn giáo viên...</option>
-                                    <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-                                    <option value="Trần Thị B">Trần Thị B</option>
+                                    <?php
+                                    $rs3 = $conn->query("SELECT g.maGV, u.hoVaTen FROM giaovien g JOIN `user` u ON u.userId = g.userId WHERE g.trangThaiHoatDong = 'Hoạt động' ORDER BY u.hoVaTen");
+                                    if ($rs3) {
+                                        while ($r = $rs3->fetch_assoc()) {
+                                            echo '<option value="' . htmlspecialchars($r['maGV']) . '">' . htmlspecialchars($r['hoVaTen']) . '</option>';
+                                        }
+                                    }
+                                    ?>
                                 </select>
                             </div>
                         </div>

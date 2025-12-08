@@ -1,5 +1,25 @@
 <?php
 require_once '../../csdl/db.php';
+if (isset($_GET['action']) && $_GET['action'] === 'getAllTeachers') {
+
+    header('Content-Type: application/json; charset=UTF-8');
+
+    $sql = "SELECT gv.maGV, u.hoVaTen
+            FROM giaovien gv
+            JOIN user u ON gv.userId = u.userId
+            WHERE u.vaiTro='GiaoVien'
+            ORDER BY u.hoVaTen ASC";
+
+    $result = $conn->query($sql);
+    $teachers = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $teachers[] = $row;
+    }
+
+    echo json_encode($teachers);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tenMon = $_POST['tenMon'] ?? '';

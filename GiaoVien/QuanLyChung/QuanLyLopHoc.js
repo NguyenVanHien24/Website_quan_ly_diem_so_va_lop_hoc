@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", function() {
         
         // Cập nhật text theo ảnh
         document.getElementById('modalTitle').innerText = "THÊM LỚP HỌC";
-        document.getElementById('btnSaveClass').innerText = "+ Thêm mới";
+        const btnSave = document.getElementById('btnSaveClass');
+        if (btnSave) { btnSave.innerText = "+ Thêm mới"; btnSave.style.display = ''; }
         
         document.getElementById('c_id').disabled = false;
         document.getElementById('statusActive').checked = true;
@@ -21,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Cập nhật text theo ảnh
             document.getElementById('modalTitle').innerText = "CHỈNH SỬA LỚP HỌC";
-            document.getElementById('btnSaveClass').innerText = "Lưu thông tin";
+            const btnSave = document.getElementById('btnSaveClass');
+            if (btnSave) { btnSave.innerText = "Lưu thông tin"; btnSave.style.display = ''; }
 
             // Điền dữ liệu
             document.getElementById('c_year').value = d.year;
@@ -38,6 +40,49 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById('statusActive').checked = true;
             } else {
                 document.getElementById('statusInactive').checked = true;
+            }
+        });
+    });
+
+    // 2b. XỬ LÝ NÚT "XEM" - mở modal giống sửa nhưng ở chế độ read-only
+    const viewButtons = document.querySelectorAll('.btn-view');
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const d = this.dataset;
+
+            document.getElementById('modalTitle').innerText = "XEM LỚP HỌC";
+            // Hide/disable save button
+            const btnSave = document.getElementById('btnSaveClass');
+            if (btnSave) btnSave.style.display = 'none';
+
+            if (document.getElementById('c_year')) document.getElementById('c_year').value = d.year || document.getElementById('c_year').value;
+            if (document.getElementById('c_semester')) document.getElementById('c_semester').value = d.semester || document.getElementById('c_semester').value;
+            if (document.getElementById('c_grade')) document.getElementById('c_grade').value = d.grade || document.getElementById('c_grade').value;
+            if (document.getElementById('c_id')) document.getElementById('c_id').value = d.id || '';
+            if (document.getElementById('c_name')) document.getElementById('c_name').value = d.name || '';
+            if (document.getElementById('c_teacher')) document.getElementById('c_teacher').value = d.teacher || '';
+            if (document.getElementById('c_count')) document.getElementById('c_count').value = d.count || '';
+
+            ['c_year','c_semester','c_grade','c_id','c_name','c_teacher','c_count'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = true;
+            });
+            if (document.getElementById('statusActive')) document.getElementById('statusActive').disabled = true;
+            if (document.getElementById('statusInactive')) document.getElementById('statusInactive').disabled = true;
+
+            if (d.status === 'active') {
+                if (document.getElementById('statusActive')) document.getElementById('statusActive').checked = true;
+            } else {
+                if (document.getElementById('statusInactive')) document.getElementById('statusInactive').checked = true;
+            }
+
+            try {
+                const modalEl = document.getElementById('classFormModal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            } catch (e) {
+                // ignore
             }
         });
     });
