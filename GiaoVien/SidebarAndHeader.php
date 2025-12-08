@@ -100,13 +100,7 @@ $stmt->close();
                 <a class="sidebar-menu-toggle collapsed" data-bs-toggle="collapse" href="#dulieuCollapse" role="button" aria-expanded="true">Quản lý dữ liệu</a>
                 <div class="collapse show" id="dulieuCollapse">
                     <ul class="nav flex-column sidebar-submenu">
-                        <li class="nav-item">
-                            <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'mon-hoc') {
-                                                    echo 'active';
-                                                } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDuLieu/QuanLyMonHoc.php">
-                                <i class="bi bi-journal-bookmark"></i> Môn học
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'tai-lieu') {
                                                     echo 'active';
