@@ -3,137 +3,170 @@
 /* =========================== */
 .page-title {
     font-weight: 800;
-    font-size: 2.5rem; 
-    color: #1a202c; 
+    font-size: 2.5rem;
+    color: #1a202c;
     margin-bottom: 1.5rem;
 }
-.filter-section .form-control, .filter-section .form-select {
-    border-radius: 8px; 
-    border: 1px solid #cbd5e0; 
+
+.filter-section .form-control,
+.filter-section .form-select {
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
     background-color: #fff;
 }
+
 .content-container {
-    background-color: #fff; 
-    padding: 2rem; 
-    border-radius: 12px; 
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
 }
+
 .table thead th {
-    color: #718096; 
-    font-weight: 600; 
+    color: #718096;
+    font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.75rem; 
-    border-bottom-width: 2px; 
-    border-color: #e2e8f0; 
+    font-size: 0.75rem;
+    border-bottom-width: 2px;
+    border-color: #e2e8f0;
     padding: 1rem;
 }
+
 .table tbody td {
-    vertical-align: middle; 
-    padding: 1rem; 
-    color: #4a5568; 
+    vertical-align: middle;
+    padding: 1rem;
+    color: #4a5568;
     border-color: #e2e8f0;
 }
+
 .btn-attendance {
-    border-radius: 6px; 
-    border: none; 
-    font-weight: 600; 
-    font-size: 0.8rem; 
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
-    opacity: 0.6;
-    transition: all 0.3s ease;
+    transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    opacity: 0.95;
     cursor: pointer;
 }
-.btn-present { 
-    background-color: #2f855a; 
-    color: #fff; }
+
+.btn-attendance:hover {
+    transform: translateY(-2px);
+}
+
+.btn-present {
+    background-color: #2f855a;
+    color: #fff;
+}
+
 .btn-present:hover {
     opacity: 0.9;
     transform: scale(1.05);
 }
+
 .btn-present.active {
     opacity: 1;
     box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.3);
     transform: scale(1.1);
 }
-.btn-late { 
-    background-color: #dd6b20; 
-    color: #fff; }
+
+.btn-late {
+    background-color: #dd6b20;
+    color: #fff;
+}
+
 .btn-late:hover {
     opacity: 0.9;
     transform: scale(1.05);
 }
+
 .btn-late.active {
     opacity: 1;
     box-shadow: 0 0 0 3px rgba(221, 107, 32, 0.3);
     transform: scale(1.1);
 }
-.btn-absent { 
-    background-color: #e53e3e; 
-    color: #fff; }
+
+.btn-absent {
+    background-color: #e53e3e;
+    color: #fff;
+}
+
 .btn-absent:hover {
     opacity: 0.9;
     transform: scale(1.05);
 }
+
 .btn-absent.active {
     opacity: 1;
     box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.3);
     transform: scale(1.1);
 }
+
 .table-footer {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding-top: 1rem;
-    color: #718096; 
+    color: #718096;
     font-size: 0.9rem;
 }
+
 .pagination .page-link {
-    color: #718096; 
-    border: 1px solid #e2e8f0; 
-    margin: 0 2px; 
+    color: #718096;
+    border: 1px solid #e2e8f0;
+    margin: 0 2px;
     border-radius: 8px;
 }
+
 .summary-panel {
-    background-color: #0b1a48; 
-    color: #fff; 
-    border-radius: 12px; 
-    padding: 1.5rem; 
+    background-color: #0b1a48;
+    color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
     height: 100%;
 }
+
 .summary-panel .panel-title {
-    font-weight: 700; 
-    font-size: 1.2rem; 
-    margin-bottom: 1.5rem; 
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
     text-transform: uppercase;
 }
+
 .summary-item {
-    padding: 1rem; 
-    border-radius: 8px; 
+    padding: 1rem;
+    border-radius: 8px;
     margin-bottom: 1rem;
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
     justify-content: space-between;
     font-weight: 600;
 }
-.summary-item .icon { 
-    font-size: 1.2rem; 
+
+.summary-item .icon {
+    font-size: 1.2rem;
 }
-.summary-item .count { 
-    font-size: 1.5rem; 
+
+.summary-item .count {
+    font-size: 1.5rem;
 }
-.summary-present { 
-    background-color: #c6f6d5; 
-    color: #2f855a; 
+
+.summary-present {
+    background-color: #c6f6d5;
+    color: #2f855a;
 }
-.summary-late { 
-    background-color: #feebc8; 
-    color: #9c4221; 
+
+.summary-late {
+    background-color: #feebc8;
+    color: #9c4221;
 }
-.summary-absent { 
-    background-color: #fed7d7; 
-    color: #c53030; 
+
+.summary-absent {
+    background-color: #fed7d7;
+    color: #c53030;
 }
-.summary-rate { 
-    background-color: #fff; 
-    color: #2d3748; 
+
+.summary-rate {
+    background-color: #fff;
+    color: #2d3748;
 }

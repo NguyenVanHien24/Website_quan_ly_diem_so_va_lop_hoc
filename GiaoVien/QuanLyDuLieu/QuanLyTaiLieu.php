@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config.php';
+require_once '../../CSDL/db.php';
 // ==== Kiểm tra đăng nhập ====
 if (!isset($_SESSION['userID'])) {
     header('Location: ../../dangnhap.php');
@@ -18,7 +19,7 @@ require_once '../SidebarAndHeader.php';
 $pageJS = ['QuanLyTaiLieu.js'];
 // ==== Lấy thông tin giáo viên từ DB ====
 $userID = $_SESSION['userID'];
-$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon
+$sql = "SELECT u.hoVaTen, u.email, u.sdt, u.gioiTinh, g.boMon, g.maGV
         FROM user u
         JOIN giaovien g ON u.userId = g.userId
         WHERE u.userId = ?";
@@ -27,7 +28,32 @@ $stmt->bind_param("i", $userID);
 $stmt->execute();
 $result = $stmt->get_result();
 $teacher = $result->fetch_assoc();
+$maGV = $teacher ? (int)$teacher['maGV'] : 0;
 $stmt->close();
+
+// ==== Lấy danh sách lớp được phân công ====
+$assignedClasses = [];
+$assignedSubjects = [];
+if ($maGV > 0) {
+    $sql = "SELECT DISTINCT p.maLop, l.tenLop, p.maMon, m.tenMon
+            FROM phan_cong p
+            LEFT JOIN lophoc l ON l.maLop = p.maLop
+            LEFT JOIN monhoc m ON m.maMon = p.maMon
+            WHERE p.maGV = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $maGV);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        if (!isset($assignedClasses[$row['maLop']])) {
+            $assignedClasses[$row['maLop']] = $row['tenLop'];
+        }
+        if (!isset($assignedSubjects[$row['maMon']])) {
+            $assignedSubjects[$row['maMon']] = $row['tenMon'];
+        }
+    }
+    $stmt->close();
+}
 
 ?>
 
@@ -39,16 +65,26 @@ $stmt->close();
             <div class="d-flex gap-4 bg-light p-3 rounded-3" style="min-width: 600px;">
                 <div class="flex-grow-1">
                     <label class="fw-bold mb-1">Lớp:</label>
-                    <select class="form-select border-0 shadow-sm">
-                        <option selected>Lớp 11A4</option>
-                        <option>Lớp 10A1</option>
+                    <select class="form-select border-0 shadow-sm" id="class-filter">
+                        <?php if (empty($assignedClasses)): ?>
+                            <option>Không có lớp được phân công</option>
+                        <?php else: ?>
+                            <?php foreach ($assignedClasses as $id => $name): ?>
+                                <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
                 <div class="flex-grow-1">
                     <label class="fw-bold mb-1">Môn:</label>
-                    <select class="form-select border-0 shadow-sm">
-                        <option selected>Sinh học</option>
-                        <option>Toán học</option>
+                    <select class="form-select border-0 shadow-sm" id="subject-filter">
+                        <?php if (empty($assignedSubjects)): ?>
+                            <option>Không có môn được phân công</option>
+                        <?php else: ?>
+                            <?php foreach ($assignedSubjects as $id => $name): ?>
+                                <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
             </div>
@@ -66,10 +102,9 @@ $stmt->close();
                     <tr>
                         <th style="width: 40px;"><i class="bi bi-dash-circle text-primary fs-5"></i></th>
                         <th>STT</th>
-                        <th style="width: 25%;">TIÊU ĐỀ</th>
-                        <th style="width: 30%;">MÔ TẢ</th>
-                        <th>NGƯỜI TẠO</th>
-                        <th>TỪ KHÓA</th>
+                        <th style="width: 30%;">TIÊU ĐỀ</th>
+                        <th style="width: 35%;">MÔ TẢ</th>
+                        <th>TRẠNG THÁI</th>
                         <th>TÁC VỤ</th>
                     </tr>
                 </thead>
@@ -138,6 +173,9 @@ $stmt->close();
                 </div>
                 <div class="modal-body pt-4">
                     <form id="docForm">
+                        <input type="hidden" id="d_id" value="">
+                        <input type="hidden" id="d_maLop" value="">
+                        <input type="hidden" id="d_maMon" value="">
                         <div class="row mb-4">
                             <div class="col-md-7">
                                 <div class="mb-3">
@@ -151,11 +189,20 @@ $stmt->close();
                             </div>
 
                             <div class="col-md-5">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-uppercase fs-6">LỚP</label>
+                                    <select class="form-select" id="d_class">
+                                        <?php foreach ($assignedClasses as $id => $name): ?>
+                                            <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                                 <div class="mb-4">
                                     <label class="form-label fw-bold text-uppercase fs-6">MÔN HỌC</label>
                                     <select class="form-select" id="d_subject">
-                                        <option value="Sinh học">Sinh học</option>
-                                        <option value="Toán học">Toán học</option>
+                                        <?php foreach ($assignedSubjects as $id => $name): ?>
+                                            <option value="<?php echo $id; ?>"><?php echo htmlspecialchars($name); ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div class="mb-3">
