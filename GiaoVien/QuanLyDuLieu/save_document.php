@@ -25,22 +25,22 @@ $maMon = isset($_POST['maMon']) ? (int)$_POST['maMon'] : 0;
 $maLop = isset($_POST['maLop']) ? (int)$_POST['maLop'] : 0;
 $fileTL = isset($_POST['fileName']) ? trim($_POST['fileName']) : '';
 
-if (empty($tieuDe) || $maMon <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Tiêu đề và môn học không được để trống']);
+if (empty($tieuDe) || $maMon <= 0 || $maLop <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Tiêu đề, lớp và môn học không được để trống']);
     exit();
 }
 
-// Validate teacher assignment for this subject
+// Validate teacher assignment for this class and subject
 $stmt = $conn->prepare("SELECT g.maGV FROM giaovien g JOIN phan_cong p ON p.maGV = g.maGV 
-                        WHERE g.userId = ? AND p.maMon = ? LIMIT 1");
-$stmt->bind_param('ii', $userID, $maMon);
+                        WHERE g.userId = ? AND p.maMon = ? AND p.maLop = ? LIMIT 1");
+$stmt->bind_param('iii', $userID, $maMon, $maLop);
 $stmt->execute();
 $res = $stmt->get_result();
 $ok = $res && $res->num_rows > 0;
 $stmt->close();
 
 if (!$ok) {
-    echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thêm tài liệu cho môn này']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thêm tài liệu cho lớp và môn này']);
     exit();
 }
 

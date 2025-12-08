@@ -1,14 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     const classFilter = document.getElementById('class-filter');
     const subjectFilter = document.getElementById('subject-filter');
+    const classSelect = document.getElementById('d_class');
     const tbody = document.querySelector('table tbody');
     
-    // Load documents when subject changes
+    // Load documents when subject or class changes
     function loadDocuments() {
         const maLop = classFilter.value;
         const maMon = subjectFilter.value;
+        
         if (!maMon || !maLop) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chọn lớp và môn học để xem tài liệu</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chọn lớp và môn để xem tài liệu</td></tr>';
             return;
         }
         
@@ -68,8 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById('modalTitle').innerText = "CHỈNH SỬA TÀI LIỆU";
                 document.getElementById('btnSaveDoc').innerText = "Lưu thông tin";
                 document.getElementById('d_id').value = d.id;
-                document.getElementById('d_class').value = classFilter.value;
-                document.getElementById('d_maMon').value = subjectFilter.value;
+                if (classSelect) classSelect.value = classFilter.value;
                 document.getElementById('d_subject').value = subjectFilter.value;
                 document.getElementById('d_title').value = d.title || '';
                 document.getElementById('d_desc').value = d.desc || '';
@@ -93,9 +94,25 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     function deleteDocument(docId) {
-        // Implement delete if needed
-        alert('Xóa tài liệu ID: ' + docId);
-        loadDocuments();
+        const formData = new FormData();
+        formData.append('id', docId);
+        
+        fetch('delete_document.php', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Xóa tài liệu thành công');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                    if (modal) modal.hide();
+                    loadDocuments();
+                } else {
+                    alert('Lỗi: ' + (data.message || 'Không thể xóa'));
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('Lỗi xóa tài liệu');
+            });
     }
     
     // Add button handler
@@ -104,9 +121,8 @@ document.addEventListener("DOMContentLoaded", function() {
         btnAdd.addEventListener('click', function() {
             document.getElementById('docForm').reset();
             document.getElementById('d_id').value = '';
-            document.getElementById('d_class').value = classFilter.value;
-            document.getElementById('d_maMon').value = subjectFilter.value;
-            document.getElementById('d_subject').value = subjectFilter.value;
+            if (classSelect) classSelect.value = classFilter.value;
+            document.getElementById('d_subject').value = subjectFilter.value || '';
             document.getElementById('modalTitle').innerText = "THÊM TÀI LIỆU";
             document.getElementById('btnSaveDoc').innerText = "Thêm mới";
             document.getElementById('statusPublic').checked = true;
@@ -123,8 +139,8 @@ document.addEventListener("DOMContentLoaded", function() {
             formData.append('id', document.getElementById('d_id').value);
             formData.append('title', document.getElementById('d_title').value);
             formData.append('desc', document.getElementById('d_desc').value);
-            formData.append('maMon', subjectFilter.value);
-            formData.append('maLop', classFilter.value);
+            formData.append('maMon', document.getElementById('d_subject').value);
+            formData.append('maLop', document.getElementById('d_class').value);
             formData.append('fileName', document.getElementById('fileNameDisplay').value);
             
             fetch('save_document.php', { method: 'POST', body: formData })
