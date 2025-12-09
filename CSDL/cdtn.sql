@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 07, 2025 at 03:20 PM
+-- Generation Time: Dec 09, 2025 at 06:41 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -200,7 +200,11 @@ INSERT INTO `chuyencan` (`maDiemDanh`, `maHS`, `maLop`, `maMon`, `userId`, `tran
 (7, 10, NULL, NULL, NULL, '0', NULL, '2025-12-02 00:00:00', '2025-12-07 14:09:13', NULL),
 (8, 1, NULL, NULL, NULL, '0', NULL, '2025-12-04 00:00:00', '2025-12-07 14:09:37', NULL),
 (9, 6, NULL, NULL, NULL, '0', NULL, '2025-12-04 00:00:00', '2025-12-07 14:09:38', NULL),
-(10, 10, NULL, NULL, NULL, '0', NULL, '2025-12-04 00:00:00', '2025-12-07 14:09:39', NULL);
+(10, 10, NULL, NULL, NULL, '0', NULL, '2025-12-04 00:00:00', '2025-12-07 14:09:39', NULL),
+(11, 1, 12, 1, 2, '1', NULL, '2025-12-01 00:00:00', '2025-12-07 17:46:36', NULL),
+(12, 6, 12, 1, 2, '2', NULL, '2025-12-01 00:00:00', '2025-12-07 17:46:39', NULL),
+(13, 10, 12, 1, 2, '1', NULL, '2025-12-01 00:00:00', '2025-12-07 17:46:41', NULL),
+(14, 1, 12, 1, 2, '1', NULL, '2025-12-08 00:00:00', '2025-12-08 03:08:18', NULL);
 
 --
 -- Triggers `chuyencan`
@@ -257,7 +261,18 @@ INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTri
 (197, 1, 5, 12, 'Điểm miệng', 8, '2025-12-07 13:43:04', '2025-2026', 1),
 (198, 1, 5, 12, 'Điểm 1 tiết', 8, '2025-12-07 13:43:04', '2025-2026', 1),
 (199, 1, 5, 12, 'Điểm giữa kỳ', 8, '2025-12-07 13:43:04', '2025-2026', 1),
-(200, 1, 5, 12, 'Điểm cuối kỳ', 8, '2025-12-07 13:43:04', '2025-2026', 1);
+(200, 1, 5, 12, 'Điểm cuối kỳ', 8, '2025-12-07 13:43:04', '2025-2026', 1),
+(201, 1, 1, 12, 'Điểm miệng', 8, '2025-12-08 11:20:29', '2025-2026', 1),
+(202, 1, 1, 12, 'Điểm 1 tiết', 8, '2025-12-08 11:20:31', '2025-2026', 1),
+(203, 1, 1, 12, 'Điểm giữa kỳ', 8, '2025-12-08 11:20:32', '2025-2026', 1),
+(204, 1, 1, 12, 'Điểm cuối kỳ', 8, '2025-12-08 11:20:35', '2025-2026', 1),
+(205, 6, 1, 12, 'Điểm miệng', 8, '2025-12-08 14:45:38', '2025-2026', 1),
+(210, 1, 3, 12, 'Điểm miệng', 5, '2025-12-08 14:38:55', '2025-2026', 2),
+(216, 1, 3, 12, 'Điểm giữa kỳ', 6, '2025-12-08 14:39:04', '2025-2026', 2),
+(218, 6, 1, 12, 'Điểm giữa kỳ', 7, '2025-12-08 14:45:38', '2025-2026', 1),
+(221, 10, 1, 12, 'Điểm miệng', 8, '2025-12-08 14:49:51', '2025-2026', 2),
+(222, 1, 1, 12, 'Điểm miệng', 7, '2025-12-08 14:50:02', '2025-2026', 2),
+(223, 6, 1, 12, 'Điểm miệng', 5, '2025-12-08 14:55:48', '2025-2026', 2);
 
 --
 -- Triggers `diemso`
@@ -957,7 +972,105 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (771, NULL, NULL, NULL, NULL, NULL, '2025-12-07 21:09:15'),
 (772, NULL, 'Điểm danh', 'ChuyenCan', 8, 'SYSTEM', '2025-12-07 21:09:37'),
 (773, NULL, 'Điểm danh', 'ChuyenCan', 9, 'SYSTEM', '2025-12-07 21:09:38'),
-(774, NULL, 'Điểm danh', 'ChuyenCan', 10, 'SYSTEM', '2025-12-07 21:09:39');
+(774, NULL, 'Điểm danh', 'ChuyenCan', 10, 'SYSTEM', '2025-12-07 21:09:39'),
+(775, 2, 'Điểm danh', 'ChuyenCan', 11, 'SYSTEM', '2025-12-08 00:46:36'),
+(776, 2, 'Điểm danh', 'ChuyenCan', 12, 'SYSTEM', '2025-12-08 00:46:39'),
+(777, 2, 'Điểm danh', 'ChuyenCan', 13, 'SYSTEM', '2025-12-08 00:46:41'),
+(778, 2, 'Điểm danh', 'ChuyenCan', 14, 'SYSTEM', '2025-12-08 10:08:18'),
+(779, NULL, 'Ghi điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:20:29'),
+(780, NULL, 'Ghi điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:20:31'),
+(781, NULL, 'Ghi điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:20:32'),
+(782, NULL, 'Ghi điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:20:35'),
+(783, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:26:57'),
+(784, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:26:57'),
+(785, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:26:57'),
+(786, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:26:57'),
+(787, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:27:49'),
+(788, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:27:50'),
+(789, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:27:50'),
+(790, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:27:50'),
+(791, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:32:07'),
+(792, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:32:08'),
+(793, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:32:08'),
+(794, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:32:10'),
+(795, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:35:58'),
+(796, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:35:58'),
+(797, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:35:58');
+INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTuong`, `diaChiIP`, `thoiGian`) VALUES
+(798, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:35:58'),
+(799, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:49:55'),
+(800, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:49:55'),
+(801, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:49:55'),
+(802, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:49:55'),
+(803, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:50:18'),
+(804, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:50:19'),
+(805, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:50:19'),
+(806, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:50:19'),
+(807, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:55:30'),
+(808, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:55:35'),
+(809, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:55:40'),
+(810, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:55:44'),
+(811, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:56:00'),
+(812, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:56:00'),
+(813, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:56:00'),
+(814, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:56:00'),
+(815, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 11:56:33'),
+(816, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 11:56:34'),
+(817, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 11:56:36'),
+(818, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 11:56:36'),
+(819, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 12:02:02'),
+(820, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 12:02:03'),
+(821, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 12:02:07'),
+(822, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 12:02:09'),
+(823, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 12:02:27'),
+(824, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 12:02:27'),
+(825, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 12:02:27'),
+(826, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 12:02:27'),
+(827, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 14:04:42'),
+(828, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 14:04:42'),
+(829, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 14:04:42'),
+(830, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 14:04:42'),
+(831, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 14:13:09'),
+(832, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 14:13:10'),
+(833, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 14:13:10'),
+(834, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 14:13:10'),
+(835, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 14:16:15'),
+(836, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 14:16:15'),
+(837, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 14:16:15'),
+(838, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 14:16:15'),
+(839, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 14:18:29'),
+(840, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 14:18:30'),
+(841, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 14:18:30'),
+(842, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 14:18:30'),
+(843, NULL, 'Cập nhật điểm', 'DiemSo', 201, 'SYSTEM', '2025-12-08 14:23:22'),
+(844, NULL, 'Cập nhật điểm', 'DiemSo', 202, 'SYSTEM', '2025-12-08 14:23:23'),
+(845, NULL, 'Cập nhật điểm', 'DiemSo', 203, 'SYSTEM', '2025-12-08 14:23:23'),
+(846, NULL, 'Cập nhật điểm', 'DiemSo', 204, 'SYSTEM', '2025-12-08 14:23:23'),
+(847, NULL, 'Ghi điểm', 'DiemSo', 205, 'SYSTEM', '2025-12-08 14:35:25'),
+(848, NULL, 'Ghi điểm', 'DiemSo', 210, 'SYSTEM', '2025-12-08 14:38:55'),
+(849, NULL, 'Ghi điểm', 'DiemSo', 216, 'SYSTEM', '2025-12-08 14:39:04'),
+(850, NULL, 'Cập nhật điểm', 'DiemSo', 205, 'SYSTEM', '2025-12-08 14:45:28'),
+(851, NULL, 'Ghi điểm', 'DiemSo', 218, 'SYSTEM', '2025-12-08 14:45:29'),
+(852, NULL, 'Cập nhật điểm', 'DiemSo', 205, 'SYSTEM', '2025-12-08 14:45:38'),
+(853, NULL, 'Cập nhật điểm', 'DiemSo', 218, 'SYSTEM', '2025-12-08 14:45:38'),
+(854, NULL, 'Ghi điểm', 'DiemSo', 221, 'SYSTEM', '2025-12-08 14:49:51'),
+(855, NULL, 'Ghi điểm', 'DiemSo', 222, 'SYSTEM', '2025-12-08 14:50:02'),
+(856, NULL, 'Ghi điểm', 'DiemSo', 223, 'SYSTEM', '2025-12-08 14:55:48'),
+(857, NULL, 'Thêm tài liệu', 'TaiLieu', 1, NULL, '2025-12-08 15:06:39'),
+(858, NULL, 'Thêm tài liệu', 'TaiLieu', 2, NULL, '2025-12-08 15:07:08'),
+(859, NULL, 'Cập nhật tài liệu', 'TaiLieu', 2, NULL, '2025-12-08 15:07:28'),
+(860, NULL, 'Xóa tài liệu', 'TaiLieu', 1, NULL, '2025-12-08 17:26:29'),
+(861, NULL, 'Xóa tài liệu', 'TaiLieu', 2, NULL, '2025-12-08 17:26:31'),
+(862, NULL, 'Thêm tài liệu', 'TaiLieu', 3, NULL, '2025-12-08 23:14:18'),
+(863, NULL, 'Thêm tài liệu', 'TaiLieu', 4, NULL, '2025-12-08 23:17:23'),
+(864, NULL, 'Cập nhật tài liệu', 'TaiLieu', 4, NULL, '2025-12-08 23:17:53'),
+(865, NULL, 'Thêm tài liệu', 'TaiLieu', 5, NULL, '2025-12-09 00:42:06'),
+(866, NULL, 'Thêm tài liệu', 'TaiLieu', 6, NULL, '2025-12-09 00:42:48'),
+(867, NULL, 'Xóa tài liệu', 'TaiLieu', 5, NULL, '2025-12-09 01:20:40'),
+(868, NULL, 'Xóa tài liệu', 'TaiLieu', 4, NULL, '2025-12-09 01:20:47'),
+(869, NULL, 'Cập nhật tài liệu', 'TaiLieu', 3, NULL, '2025-12-10 00:39:16'),
+(870, NULL, 'Cập nhật tài liệu', 'TaiLieu', 6, NULL, '2025-12-10 00:39:16'),
+(871, NULL, 'Cập nhật tài liệu', 'TaiLieu', 3, NULL, '2025-12-10 00:40:00');
 
 -- --------------------------------------------------------
 
@@ -1746,18 +1859,52 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `phan_cong`
+--
+
+CREATE TABLE `phan_cong` (
+  `id` int(11) NOT NULL,
+  `maLop` int(11) NOT NULL,
+  `maMon` int(11) NOT NULL,
+  `maGV` int(11) NOT NULL,
+  `namHoc` varchar(20) DEFAULT NULL,
+  `kyHoc` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `phan_cong`
+--
+
+INSERT INTO `phan_cong` (`id`, `maLop`, `maMon`, `maGV`, `namHoc`, `kyHoc`) VALUES
+(1, 12, 5, 5, NULL, NULL),
+(2, 12, 1, 1, NULL, NULL),
+(3, 13, 1, 1, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tailieu`
 --
 
 CREATE TABLE `tailieu` (
   `maTaiLieu` int(11) NOT NULL,
   `maMon` int(11) NOT NULL,
+  `maGV` int(11) DEFAULT NULL,
+  `maLop` int(11) NOT NULL,
   `tieuDe` varchar(255) DEFAULT NULL,
   `moTa` varchar(255) DEFAULT NULL,
   `fileTL` varchar(255) DEFAULT NULL,
   `ngayTao` datetime DEFAULT current_timestamp(),
   `hanNop` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `tailieu`
+--
+
+INSERT INTO `tailieu` (`maTaiLieu`, `maMon`, `maGV`, `maLop`, `tieuDe`, `moTa`, `fileTL`, `ngayTao`, `hanNop`) VALUES
+(3, 1, 1, 12, 'Hàm số', 'các dạng về hàm số', 'Template_testcase.xlsx', '2025-12-08 23:14:18', NULL),
+(6, 1, 1, 13, 'Hàm số', 'các dạng về hàm số test', 'Template_testcase.xlsx', '2025-12-09 00:42:48', NULL);
 
 --
 -- Triggers `tailieu`
@@ -2090,11 +2237,19 @@ ALTER TABLE `monhoc`
   ADD UNIQUE KEY `tenMon` (`tenMon`);
 
 --
+-- Indexes for table `phan_cong`
+--
+ALTER TABLE `phan_cong`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_lp_mon` (`maLop`,`maMon`);
+
+--
 -- Indexes for table `tailieu`
 --
 ALTER TABLE `tailieu`
   ADD PRIMARY KEY (`maTaiLieu`),
-  ADD KEY `tailieu_ibfk_1` (`maMon`);
+  ADD KEY `tailieu_ibfk_1` (`maMon`),
+  ADD KEY `fk_tailieu_giaovien` (`maGV`);
 
 --
 -- Indexes for table `thongbao`
@@ -2138,19 +2293,19 @@ ALTER TABLE `baocao`
 -- AUTO_INCREMENT for table `chuyencan`
 --
 ALTER TABLE `chuyencan`
-  MODIFY `maDiemDanh` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `maDiemDanh` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `diemso`
 --
 ALTER TABLE `diemso`
-  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=201;
+  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=224;
 
 --
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=775;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=872;
 
 --
 -- AUTO_INCREMENT for table `giaovien`
@@ -2189,10 +2344,16 @@ ALTER TABLE `monhoc`
   MODIFY `maMon` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `phan_cong`
+--
+ALTER TABLE `phan_cong`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `tailieu`
 --
 ALTER TABLE `tailieu`
-  MODIFY `maTaiLieu` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `maTaiLieu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `thongbao`
@@ -2295,6 +2456,7 @@ ALTER TABLE `lop_monhoc`
 -- Constraints for table `tailieu`
 --
 ALTER TABLE `tailieu`
+  ADD CONSTRAINT `fk_tailieu_giaovien` FOREIGN KEY (`maGV`) REFERENCES `giaovien` (`maGV`),
   ADD CONSTRAINT `tailieu_ibfk_1` FOREIGN KEY (`maMon`) REFERENCES `monhoc` (`maMon`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --

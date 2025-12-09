@@ -141,8 +141,14 @@ document.addEventListener("DOMContentLoaded", function() {
             formData.append('desc', document.getElementById('d_desc').value);
             formData.append('maMon', document.getElementById('d_subject').value);
             formData.append('maLop', document.getElementById('d_class').value);
-            formData.append('fileName', document.getElementById('fileNameDisplay').value);
-            
+            // If a file was selected, append it as 'file' so server can move it to uploads
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            } else {
+                // send current filename if present (optional)
+                formData.append('fileName', document.getElementById('fileNameDisplay').value);
+            }
+
             fetch('save_document.php', { method: 'POST', body: formData })
                 .then(r => r.json())
                 .then(data => {
