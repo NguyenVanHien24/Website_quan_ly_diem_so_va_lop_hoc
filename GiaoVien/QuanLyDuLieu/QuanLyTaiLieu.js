@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const classSelect = document.getElementById('d_class');
     const tbody = document.querySelector('table tbody');
     
-    // Load documents when subject or class changes
     function loadDocuments() {
         const maLop = classFilter.value;
         const maMon = subjectFilter.value;
@@ -115,7 +114,6 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     }
     
-    // Add button handler
     const btnAdd = document.querySelector('.btn-add-doc');
     if (btnAdd) {
         btnAdd.addEventListener('click', function() {
@@ -129,7 +127,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Save button handler
     const btnSave = document.getElementById('btnSaveDoc');
     if (btnSave) {
         btnSave.addEventListener('click', function(e) {
@@ -141,11 +138,9 @@ document.addEventListener("DOMContentLoaded", function() {
             formData.append('desc', document.getElementById('d_desc').value);
             formData.append('maMon', document.getElementById('d_subject').value);
             formData.append('maLop', document.getElementById('d_class').value);
-            // If a file was selected, append it as 'file' so server can move it to uploads
             if (fileInput && fileInput.files && fileInput.files.length > 0) {
                 formData.append('file', fileInput.files[0]);
             } else {
-                // send current filename if present (optional)
                 formData.append('fileName', document.getElementById('fileNameDisplay').value);
             }
 
@@ -168,7 +163,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // File upload handler
     const btnUpload = document.getElementById('btnUploadTrigger');
     const fileInput = document.getElementById('realFileInput');
     const fileDisplay = document.getElementById('fileNameDisplay');
@@ -183,10 +177,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Event listeners
     if (subjectFilter) subjectFilter.addEventListener('change', loadDocuments);
     if (classFilter) classFilter.addEventListener('change', loadDocuments);
     
-    // Initial load
     loadDocuments();
 });

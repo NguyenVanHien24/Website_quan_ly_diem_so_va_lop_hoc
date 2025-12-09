@@ -26,7 +26,6 @@ if ($maMon <= 0) {
     exit();
 }
 
-// Validate teacher assignment
 $stmt = $conn->prepare("SELECT g.maGV FROM giaovien g JOIN phan_cong p ON p.maGV = g.maGV 
                         WHERE g.userId = ? AND p.maMon = ? LIMIT 1");
 $stmt->bind_param('ii', $userID, $maMon);
@@ -40,7 +39,6 @@ if (!$ok) {
     exit();
 }
 
-// Fetch documents for this class and subject
 $sql = "SELECT maTaiLieu, tieuDe, moTa, fileTL, ngayTao, hanNop 
         FROM tailieu 
         WHERE maMon = ? AND maLop = ?

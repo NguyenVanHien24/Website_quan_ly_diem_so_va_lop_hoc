@@ -25,7 +25,6 @@ if ($maTaiLieu <= 0) {
     exit();
 }
 
-// Verify teacher owns this document (check if teacher teaches the subject)
 $stmt = $conn->prepare("SELECT t.maTaiLieu, t.maMon, t.maLop 
                         FROM tailieu t
                         WHERE t.maTaiLieu = ?");
@@ -40,7 +39,6 @@ if (!$doc) {
     exit();
 }
 
-// Validate teacher assignment for this class and subject
 $stmt = $conn->prepare("SELECT g.maGV FROM giaovien g JOIN phan_cong p ON p.maGV = g.maGV 
                         WHERE g.userId = ? AND p.maMon = ? AND p.maLop = ? LIMIT 1");
 $stmt->bind_param('iii', $userID, $doc['maMon'], $doc['maLop']);
@@ -54,7 +52,6 @@ if (!$ok) {
     exit();
 }
 
-// Delete document
 $sql = "DELETE FROM tailieu WHERE maTaiLieu = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $maTaiLieu);

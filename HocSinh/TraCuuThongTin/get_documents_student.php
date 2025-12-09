@@ -39,13 +39,11 @@ if (!$student) {
 
 $maLop = $student['maLop'];
 
-// Check whether `tailieu` has `maLop` column (DB may be older)
 $hasMaLop = false;
 $colRes = $conn->query("SHOW COLUMNS FROM tailieu LIKE 'maLop'");
 if ($colRes && $colRes->num_rows > 0) $hasMaLop = true;
 
 if ($hasMaLop) {
-    // Get documents for this subject and student's class
     $sql = "SELECT t.maTaiLieu as id, t.tieuDe, t.moTa, t.fileTL, m.tenMon, u.hoVaTen, t.ngayTao
             FROM tailieu t
             JOIN monhoc m ON m.maMon = t.maMon
@@ -61,8 +59,7 @@ if ($hasMaLop) {
     }
     $stmt->bind_param('ii', $maMon, $maLop);
 } else {
-    // Fallback: tailieu has no maLop column — return documents by subject only
-    $sql = "SELECT t.maTaiLieu as id, t.tieuDe, t.moTa, t.fileTL, m.tenMon, NULL as hoVaTen, t.ngayTao
+        $sql = "SELECT t.maTaiLieu as id, t.tieuDe, t.moTa, t.fileTL, m.tenMon, NULL as hoVaTen, t.ngayTao
             FROM tailieu t
             JOIN monhoc m ON m.maMon = t.maMon
             WHERE t.maMon = ?

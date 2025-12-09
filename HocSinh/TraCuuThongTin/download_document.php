@@ -19,7 +19,6 @@ if ($maTaiLieu <= 0) {
     exit('Invalid document');
 }
 
-// Get student's class
 $stmt = $conn->prepare("SELECT maLopHienTai as maLop FROM hocsinh WHERE userId = ?");
 if (!$stmt) {
     header('HTTP/1.0 500 Server Error');
@@ -38,7 +37,6 @@ if (!$student) {
 
 $maLop = $student['maLop'];
 
-// If tailieu has maLop, enforce class match; otherwise fetch by id only
 $colRes = $conn->query("SHOW COLUMNS FROM tailieu LIKE 'maLop'");
 $hasMaLop = ($colRes && $colRes->num_rows > 0);
 
@@ -69,11 +67,9 @@ if (!$document || !$document['fileTL']) {
     exit('Document not found');
 }
 
-// Build absolute uploads path using __DIR__ to avoid relative-path issues
 $uploadsDir = realpath(__DIR__ . '/../../uploads/documents');
 $fileName = basename($document['fileTL']);
 
-// Log helper (temporary) — write minimal debug info to system temp for troubleshooting
 $logFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'download_document.log';
 file_put_contents($logFile, "[" . date('c') . "] request id={$maTaiLieu} file={$fileName} uploadsDir=" . ($uploadsDir ?: 'NULL') . "\n", FILE_APPEND);
 
@@ -86,7 +82,6 @@ if (!$uploadsDir) {
 $filePath = $uploadsDir . DIRECTORY_SEPARATOR . $fileName;
 $realPath = realpath($filePath);
 
-// Security check: ensure resolved file path is inside uploads directory
 if (!$realPath || strpos($realPath, $uploadsDir) !== 0) {
     header('HTTP/1.0 403 Forbidden');
     file_put_contents($logFile, "forbidden: realPath={$realPath}\n", FILE_APPEND);
@@ -99,7 +94,6 @@ if (!is_readable($realPath) || !file_exists($realPath)) {
     exit('File not found');
 }
 
-// Serve file with correct headers
 $mime = 'application/octet-stream';
 if (function_exists('mime_content_type')) {
     $detected = mime_content_type($realPath);
@@ -113,7 +107,6 @@ header('Content-Length: ' . filesize($realPath));
 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 header('Pragma: public');
 
-// Clear output buffers then readfile
 while (ob_get_level()) ob_end_clean();
 readfile($realPath);
 exit();

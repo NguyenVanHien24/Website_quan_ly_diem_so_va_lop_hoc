@@ -20,7 +20,6 @@ if ($maTaiLieu <= 0) {
     exit();
 }
 
-// Get student's class
 $stmt = $conn->prepare("SELECT maLopHienTai as maLop FROM hocsinh WHERE userId = ?");
 if (!$stmt) {
     echo json_encode(['success' => false, 'message' => 'SQL Error: ' . $conn->error]);
@@ -39,7 +38,6 @@ if (!$student) {
 
 $maLop = $student['maLop'];
 
-// If `tailieu` has maLop column, enforce class matching; otherwise allow by document id (subject-level)
 $colRes = $conn->query("SHOW COLUMNS FROM tailieu LIKE 'maLop'");
 $hasMaLop = ($colRes && $colRes->num_rows > 0);
 
@@ -58,7 +56,6 @@ if ($hasMaLop) {
     }
     $stmt->bind_param('ii', $maTaiLieu, $maLop);
 } else {
-    // Fallback: fetch by id only
     $sql = "SELECT t.maTaiLieu as id, t.tieuDe, t.moTa, t.fileTL, m.tenMon, NULL as hoVaTen, t.ngayTao
             FROM tailieu t
             JOIN monhoc m ON m.maMon = t.maMon
