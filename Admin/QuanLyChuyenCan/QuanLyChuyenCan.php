@@ -70,6 +70,7 @@ if ($attendanceRs) {
     }
 }
 
+$pageTitle = "Quản lý chuyên cần";
 $currentPage = 'chuyen-can';
 $pageCSS = ['QuanLyChuyenCan.css'];
 require_once '../SidebarAndHeader.php';

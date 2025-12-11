@@ -17,6 +17,7 @@ $nextMaMon = $rowMax ? $rowMax['maxID'] + 1 : 1;
 $sqlSubjects = "SELECT * FROM monhoc ORDER BY maMon ASC";
 $resultSubjects = $conn->query($sqlSubjects);
 
+$pageTitle = "Quản lý môn học";
 $currentPage = 'mon-hoc';
 $pageCSS = ['QuanLyMonHoc.css'];
 require_once '../SidebarAndHeader.php';

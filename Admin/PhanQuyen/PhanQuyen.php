@@ -1,6 +1,7 @@
 <?php
 require_once '../../config.php';
 // Đặt tên trang (giả sử thuộc nhóm quản lý tài khoản)
+$pageTitle = "Phân quyền";
 $currentPage = 'phan-quyen';
 $pageCSS = ['PhanQuyen.css'];
 require_once '../SidebarAndHeader.php';

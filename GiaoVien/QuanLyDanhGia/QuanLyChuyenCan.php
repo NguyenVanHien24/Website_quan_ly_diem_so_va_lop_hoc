@@ -13,6 +13,7 @@ if ($_SESSION['vaiTro'] !== 'GiaoVien') {
     header('Location: ../../dangnhap.php');
     exit();
 }
+$pageTitle = "Quản lý chuyên cần";
 $currentPage = 'chuyen-can';
 $pageCSS = ['QuanLyChuyenCan.css'];
 require_once '../SidebarAndHeader.php';

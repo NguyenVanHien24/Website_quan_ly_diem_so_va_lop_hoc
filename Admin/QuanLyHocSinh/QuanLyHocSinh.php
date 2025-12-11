@@ -340,6 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit();
     }
 }
+$pageTitle = "Quản lý học sinh";
 $currentPage = 'hoc-sinh';
 $pageCSS = ['QuanLyHocSinh.css'];
 require_once '../SidebarAndHeader.php';

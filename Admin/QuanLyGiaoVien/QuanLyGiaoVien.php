@@ -282,6 +282,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["delete_id"])) {
     exit();
 }
 
+$pageTitle = "Quản lý giáo viên";
 $currentPage = 'giao-vien';
 $pageCSS = ['QuanLyGiaoVien.css'];
 require_once '../SidebarAndHeader.php';

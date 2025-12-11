@@ -1,6 +1,7 @@
 <?php
 require_once '../../config.php';
 // Đặt tên trang để active menu (nếu cần)
+$pageTitle = "Thông báo";
 $currentPage = 'thong-bao';
 $pageCSS = ['ThongBao.css'];
 require_once '../SidebarAndHeader.php';

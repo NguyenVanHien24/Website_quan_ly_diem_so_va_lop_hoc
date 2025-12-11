@@ -129,6 +129,7 @@ if ($scoreRs) {
     }
 }
 
+$pageTitle = "Quản lý điểm số";
 $currentPage = 'diem-so';
 $pageCSS = ['QuanLyDiemSo.css'];
 require_once '../SidebarAndHeader.php';

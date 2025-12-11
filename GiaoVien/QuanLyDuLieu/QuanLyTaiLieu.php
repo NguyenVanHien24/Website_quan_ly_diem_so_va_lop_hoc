@@ -13,6 +13,7 @@ if ($_SESSION['vaiTro'] !== 'GiaoVien') {
     header('Location: ../../dangnhap.php');
     exit();
 }
+$pageTitle = "Quản lý tài liệu";
 $currentPage = 'tai-lieu';
 $pageCSS = ['QuanLyTaiLieu.css'];
 require_once '../SidebarAndHeader.php';

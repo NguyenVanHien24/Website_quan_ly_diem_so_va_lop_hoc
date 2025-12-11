@@ -1,6 +1,7 @@
 <?php
 require_once '../../config.php';
 require_once '../../csdl/db.php';
+$pageTitle = "Quản lý phân công";
 // Đặt tên trang để active menu bên sidebar
 $currentPage = 'phan-cong';
 // Tải CSS riêng cho trang này

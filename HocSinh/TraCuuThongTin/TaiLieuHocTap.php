@@ -15,6 +15,7 @@ if ($_SESSION['vaiTro'] !== 'HocSinh') {
     exit();
 }
 
+$pageTitle = "Tài liệu học tập";
 $currentPage = 'tai-lieu';
 $pageCSS = ['TaiLieuHocTap.css'];
 require_once '../SidebarAndHeader.php';

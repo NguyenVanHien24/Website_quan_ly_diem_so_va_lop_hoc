@@ -1,5 +1,6 @@
 <?php
 require_once '../../config.php';
+$pageTitle = "Kết quả học tập";
 $currentPage = 'ket-qua';
 $pageCSS = ['KetQuaHocTap.css'];
 require_once '../SidebarAndHeader.php';

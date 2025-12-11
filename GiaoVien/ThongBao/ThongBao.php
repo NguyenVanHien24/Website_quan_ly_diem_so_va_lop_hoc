@@ -12,6 +12,7 @@ if ($_SESSION['vaiTro'] !== 'GiaoVien') {
     header('Location: ../../dangnhap.php');
     exit();
 }
+$pageTitle = "Thông báo";
 $currentPage = 'thong-bao';
 $pageCSS = ['ThongBao.css'];
 require_once '../SidebarAndHeader.php';

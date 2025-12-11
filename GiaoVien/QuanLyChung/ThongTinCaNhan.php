@@ -13,7 +13,7 @@ if ($_SESSION['vaiTro'] !== 'GiaoVien') {
     header('Location: ../../dangnhap.php');
     exit();
 }
-
+$pageTitle = "Thông tin cá nhân";
 $currentPage = 'thong-tin';
 // Gọi file CSS riêng
 $pageCSS = ['ThongTinCaNhan.css'];

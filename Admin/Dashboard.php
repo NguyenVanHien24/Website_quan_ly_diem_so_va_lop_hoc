@@ -1,6 +1,7 @@
 <?php
 require_once '../config.php';
 require_once '../csdl/db.php';
+$pageTitle = "Dashboard";
 $currentPage = 'dashboard';
 $pageCSS = ['Dashboard.css'];
 require_once 'SidebarAndHeader.php';

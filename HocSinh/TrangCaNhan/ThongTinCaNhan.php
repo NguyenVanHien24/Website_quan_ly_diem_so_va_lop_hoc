@@ -1,6 +1,7 @@
 <?php
 require_once '../../config.php';
 session_start();
+$pageTitle = "Thông tin cá nhân";
 $currentPage = 'thong-tin';
 $pageCSS = ['ThongTinCaNhan.css'];
 require_once '../SidebarAndHeader.php';

@@ -1,5 +1,6 @@
 <?php
 require_once '../../config.php';
+$pageTitle = "Quản lý tài liệu";
 $currentPage = 'tai-lieu';
 $pageCSS = ['QuanLyTaiLieu.css'];
 require_once '../SidebarAndHeader.php';

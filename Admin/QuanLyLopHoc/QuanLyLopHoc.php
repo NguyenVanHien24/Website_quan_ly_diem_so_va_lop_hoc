@@ -1,5 +1,6 @@
 <?php
 require_once '../../config.php';
+$pageTitle = "Quản lý lớp học";
 $currentPage = 'lop-hoc';
 $pageCSS = ['QuanLyLopHoc.css'];
 require_once '../SidebarAndHeader.php';
