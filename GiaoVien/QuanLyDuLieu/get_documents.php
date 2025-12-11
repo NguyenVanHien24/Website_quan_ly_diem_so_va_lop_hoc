@@ -18,6 +18,7 @@ if (!isset($_SESSION['userID']) || $_SESSION['vaiTro'] !== 'GiaoVien') {
 }
 
 $userID = $_SESSION['userID'];
+$maLop = isset($_GET['maLop']) ? (int)$_GET['maLop'] : 0;
 $maMon = isset($_GET['maMon']) ? (int)$_GET['maMon'] : 0;
 
 if ($maMon <= 0) {
@@ -25,7 +26,6 @@ if ($maMon <= 0) {
     exit();
 }
 
-// Validate teacher assignment
 $stmt = $conn->prepare("SELECT g.maGV FROM giaovien g JOIN phan_cong p ON p.maGV = g.maGV 
                         WHERE g.userId = ? AND p.maMon = ? LIMIT 1");
 $stmt->bind_param('ii', $userID, $maMon);
@@ -39,13 +39,12 @@ if (!$ok) {
     exit();
 }
 
-// Fetch documents
 $sql = "SELECT maTaiLieu, tieuDe, moTa, fileTL, ngayTao, hanNop 
         FROM tailieu 
-        WHERE maMon = ? 
+        WHERE maMon = ? AND maLop = ?
         ORDER BY ngayTao DESC";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param('i', $maMon);
+$stmt->bind_param('ii', $maMon, $maLop);
 $stmt->execute();
 $res = $stmt->get_result();
 

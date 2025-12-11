@@ -1,6 +1,6 @@
 <?php
 require_once '../../config.php';
-require_once '../csdl/db.php';
+require_once '../../CSDL/db.php';
 // Khởi tạo session nếu chưa có
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -19,10 +19,9 @@ if ($_SESSION['vaiTro'] !== 'HocSinh') {
 }
 
 $currentPage = 'thong-tin';
-// Gọi file CSS riêng
-$pageCSS = ['ThongTinCaNhan.css'];
-require_once '../SidebarAndHeader.php';
-$pageJS = ['ThongTinCaNhan.js'];
+if (!isset($currentPage)) {
+    $currentPage = 'thong-tin';
+}
 
 
 // ==== Lấy thông tin học sinh ====
@@ -56,12 +55,38 @@ $stmt->close();
     <!-- BỔ SUNG: Tải CSS CỤ THỂ CHO TỪNG TRANG -->
     <?php
     if (isset($pageCSS) && is_array($pageCSS)) {
+        $reqPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $currentDir = dirname($reqPath);
+        if ($currentDir === "." || $currentDir === "\\") $currentDir = '/';
+
+        $baseUrlPath = parse_url(BASE_URL, PHP_URL_PATH) ?: '/';
+        $docRoot = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
+
         foreach ($pageCSS as $cssFile) {
-            // In link CSS với đường dẫn tương đối
-            // Trình duyệt sẽ tự hiểu file CSS này nằm cùng cấp với file PHP đang chạy
-            // Ví dụ: khi chạy /Admin/QuanLyChuyenCan/QuanLyChuyenCan.php
-            // nó sẽ tải file: /Admin/QuanLyChuyenCan/QuanLyChuyenCan.css
-            echo '<link rel="stylesheet" href="' . htmlspecialchars($cssFile) . '">';
+            if (preg_match('#^(https?:)?//#', $cssFile) || strpos($cssFile, '/') === 0) {
+                $href = $cssFile;
+            } else {
+                $dir = rtrim($currentDir, '/');
+                $candidateRel = ($dir === '' || $dir === '/') ? '/' . $cssFile : $dir . '/' . $cssFile;
+                $candidateFs = $docRoot . rtrim($baseUrlPath, '/') . $candidateRel;
+
+                if (file_exists($candidateFs)) {
+                    $href = rtrim(BASE_URL, '/') . $candidateRel;
+                } else {
+                    $fallbackRel = '/HocSinh/TrangCaNhan/' . $cssFile;
+                    $fallbackFs = $docRoot . rtrim($baseUrlPath, '/') . $fallbackRel;
+                    if (file_exists($fallbackFs)) {
+                        $href = rtrim(BASE_URL, '/') . $fallbackRel;
+                    } else {
+                        $href = rtrim(BASE_URL, '/') . '/' . $cssFile;
+                    }
+                }
+            }
+
+            if (function_exists('error_log')) {
+                error_log('[Sidebar] pageCSS resolved: ' . $href);
+            }
+            echo '<link rel="stylesheet" href="' . htmlspecialchars($href) . '?v=' . time() . '">';
         }
     }
     ?>
