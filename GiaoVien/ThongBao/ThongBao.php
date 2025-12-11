@@ -44,39 +44,39 @@ $stmt->close();
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="notify-row"
-                        data-title="Hướng dẫn Quy trình tổ chức đăng ký tín chỉ và chốt dữ liệu đào tạo"
-                        data-content="Nội dung chi tiết về quy trình đăng ký tín chỉ..."
-                        data-date="06/08/2025"
-                        data-bs-toggle="modal" data-bs-target="#viewDetailModal">
-                        <td class="ps-4 py-3 fw-bold text-primary-hover cursor-pointer">
-                            Hướng dẫn Quy trình tổ chức đăng ký tín chỉ và chốt dữ liệu đào tạo
-                        </td>
-                        <td class="pe-4 py-3 text-end text-secondary">06/08/2025</td>
-                    </tr>
+                    <?php
+                    // Lấy thông báo cho user hiện tại từ bảng thongbaouser
+                    $sqlN = "SELECT tbu.id AS tbuId, tbu.trangThai, tb.tieuDe, tb.noiDung, COALESCE(tb.send_at, tb.ngayGui) AS dateSend
+                             FROM thongbaouser tbu
+                             JOIN thongbao tb ON tbu.maTB = tb.maThongBao
+                             WHERE tbu.userId = ?
+                             ORDER BY tbu.id DESC";
+                    $stmtN = $conn->prepare($sqlN);
+                    if ($stmtN) {
+                        $stmtN->bind_param('i', $userID);
+                        $stmtN->execute();
+                        $rsN = $stmtN->get_result();
+                        while ($r = $rsN->fetch_assoc()) {
+                            $tbuId = (int)$r['tbuId'];
+                            $trangThai = (int)($r['trangThai'] ?? 0);
+                            $tieuDe = htmlspecialchars($r['tieuDe'] ?? '(Không tiêu đề)');
+                            $noiDung = htmlspecialchars($r['noiDung'] ?? '');
+                            $attachment = '';
+                            $dateRaw = $r['dateSend'] ?? null;
+                            $dateDisp = $dateRaw ? date('d/m/Y H:i', strtotime($dateRaw)) : '';
+                            $rowClass = $trangThai === 0 ? 'notify-row unread' : 'notify-row';
+                            $bgStyle = $trangThai === 0 ? 'style="background-color:#eef6ff;"' : '';
 
-                    <tr class="notify-row"
-                        data-title="Khảo sát về công tác hỗ trợ cho sinh viên năm học 2024-2025"
-                        data-content="Nội dung khảo sát..."
-                        data-date="23/05/2025"
-                        data-bs-toggle="modal" data-bs-target="#viewDetailModal">
-                        <td class="ps-4 py-3 fw-bold text-primary-hover cursor-pointer">
-                            Khảo sát về công tác hỗ trợ cho sinh viên năm học 2024-2025
-                        </td>
-                        <td class="pe-4 py-3 text-end text-secondary">23/05/2025</td>
-                    </tr>
-
-                    <tr class="notify-row"
-                        data-title="LIKE PAGE Trường Đại học Sư phạm Hà Nội (https://facebook.com/dhsphnhnue)"
-                        data-content="Hãy like page để cập nhật tin tức mới nhất..."
-                        data-date="15/04/2025"
-                        data-bs-toggle="modal" data-bs-target="#viewDetailModal">
-                        <td class="ps-4 py-3 fw-bold text-primary-hover cursor-pointer">
-                            LIKE PAGE Trường Đại học Sư phạm Hà Nội (https://facebook.com/dhsphnhnue)
-                        </td>
-                        <td class="pe-4 py-3 text-end text-secondary">15/04/2025</td>
-                    </tr>
-
+                            echo '<tr class="' . $rowClass . '" ' . $bgStyle . ' data-tbuid="' . $tbuId . '" data-title="' . $tieuDe . '" data-content="' . $noiDung . '" data-date="' . $dateDisp . '" data-attachment="' . htmlspecialchars($attachment) . '" data-bs-toggle="modal" data-bs-target="#viewDetailModal">';
+                            echo '<td class="ps-4 py-3 fw-bold text-primary-hover cursor-pointer">' . $tieuDe . '</td>';
+                            echo '<td class="pe-4 py-3 text-end text-secondary">' . $dateDisp . '</td>';
+                            echo '</tr>';
+                        }
+                        $stmtN->close();
+                    } else {
+                        echo '<tr><td colspan="2" class="text-center text-muted py-4">Không thể tải thông báo</td></tr>';
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -101,6 +101,13 @@ $stmt->close();
                             <label class="col-md-3 text-secondary fs-5 pt-2">Nội dung:</label>
                             <div class="col-md-9">
                                 <textarea class="form-control bg-white" rows="6" id="v_content" readonly></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 text-secondary fs-5">Tệp đính kèm:</label>
+                            <div class="col-md-9">
+                                <div id="v_attachment" class="mt-2"></div>
                             </div>
                         </div>
 

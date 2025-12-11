@@ -2,10 +2,6 @@
 session_start();
 require_once '../../config.php';
 require_once '../../csdl/db.php';
-if (!isset($_SESSION["userID"])) {
-    header("Location: ../../dangnhap.php");
-    exit();
-}
 
 // Lấy năm học & học kỳ hiện tại
 $yearNow = date('Y');

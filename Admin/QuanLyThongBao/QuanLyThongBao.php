@@ -4,6 +4,35 @@ $currentPage = 'thong-bao';
 $pageCSS = ['QuanLyThongBao.css'];
 require_once '../SidebarAndHeader.php';
 $pageJS = ['QuanLyThongBao.js'];
+require_once '../../CSDL/db.php';
+
+// Lấy danh sách lớp và người dùng để populate UI
+$classList = [];
+$classRs = $conn->query("SELECT maLop, tenLop FROM lophoc WHERE trangThai = 'active' ORDER BY tenLop");
+if ($classRs) while ($r = $classRs->fetch_assoc()) $classList[] = $r;
+
+$userList = [];
+$userRs = $conn->query("SELECT userId, hoVaTen, vaiTro FROM `user` ORDER BY hoVaTen");
+if ($userRs) while ($r = $userRs->fetch_assoc()) $userList[] = $r;
+// Tính số lượng thông báo: tổng, đã gửi và đã lên lịch
+$countTotal = 0;
+$countSent = 0;
+$countScheduled = 0;
+$sqlCounts = "SELECT 
+    COUNT(*) AS total,
+    SUM(CASE WHEN tb.send_at IS NOT NULL AND tb.send_at > NOW() THEN 1 ELSE 0 END) AS scheduled,
+    SUM(CASE WHEN tb.send_at IS NULL OR tb.send_at <= NOW() THEN 1 ELSE 0 END) AS sent
+    FROM thongbao tb";
+$cntRs = $conn->query($sqlCounts);
+if ($cntRs) {
+    $c = $cntRs->fetch_assoc();
+    $countTotal = (int)($c['total'] ?? 0);
+    $countScheduled = (int)($c['scheduled'] ?? 0);
+    $countSent = (int)($c['sent'] ?? 0);
+}
+
+// Status filter from tabs: all|sent|scheduled
+$status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
 ?>
 
 <main>
@@ -15,9 +44,9 @@ $pageJS = ['QuanLyThongBao.js'];
     </div>
 
     <div class="notify-tabs mb-3">
-        <a href="#" class="tab-item active">Tất cả (1234)</a>
-        <a href="#" class="tab-item">Đã gửi (1200)</a>
-        <a href="#" class="tab-item">Đã lên lịch (34)</a>
+        <a href="?status=all" class="<?php echo ($status === 'all' ? 'tab-item active' : 'tab-item'); ?>">Tất cả (<?php echo $countTotal; ?>)</a>
+        <a href="?status=sent" class="<?php echo ($status === 'sent' ? 'tab-item active' : 'tab-item'); ?>">Đã gửi (<?php echo $countSent; ?>)</a>
+        <a href="?status=scheduled" class="<?php echo ($status === 'scheduled' ? 'tab-item active' : 'tab-item'); ?>">Đã lên lịch (<?php echo $countScheduled; ?>)</a>
     </div>
 
     <div class="content-container">
@@ -36,48 +65,97 @@ $pageJS = ['QuanLyThongBao.js'];
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>1</td>
-                        <td>TB00001</td>
-                        <td>Thông báo nghỉ lễ</td>
-                        <td>Admin</td>
-                        <td>Giáo viên</td>
-                        <td><span class="text-secondary fw-bold">ĐÃ GỬI</span></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-view"
-                                data-id="TB00001" data-title="Thông báo nghỉ lễ" data-content="Nội dung chi tiết..."
-                                data-date="15/10/2025" data-receiver="teacher"
-                                data-bs-toggle="modal" data-bs-target="#viewNotifyModal">
-                                <i class="bi bi-box-arrow-up-right"></i>
-                            </a>
-                            <a href="#" class="btn-edit"
-                                data-id="TB00001" data-title="Thông báo nghỉ lễ" data-content="Nội dung chi tiết..."
-                                data-date="15/10/2025" data-receiver="teacher"
-                                data-bs-toggle="modal" data-bs-target="#editNotifyModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#" class="btn-delete"
-                                data-id="TB00001"
-                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox"></td>
-                        <td>2</td>
-                        <td>TB00002</td>
-                        <td>Lịch thi học kỳ 1</td>
-                        <td>Admin</td>
-                        <td>Học sinh</td>
-                        <td><span class="text-secondary fw-bold">ĐÃ GỬI</span></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-view"><i class="bi bi-box-arrow-up-right"></i></a>
-                            <a href="#" class="btn-edit"><i class="bi bi-pencil-square"></i></a>
-                            <a href="#" class="btn-delete"><i class="bi bi-trash-fill"></i></a>
-                        </td>
-                    </tr>
+                    <?php
+                    // Lấy danh sách thông báo từ DB (bao gồm metadata target/send_at nếu có)
+                    // Build SQL with optional status filter
+                    $where = '';
+                    if ($status === 'sent') {
+                        $where = "WHERE tb.send_at IS NULL OR tb.send_at <= NOW()";
+                    } elseif ($status === 'scheduled') {
+                        $where = "WHERE tb.send_at IS NOT NULL AND tb.send_at > NOW()";
+                    }
+                    $sql = "SELECT tb.maThongBao, tb.tieuDe, tb.noiDung, tb.ngayGui, u.hoVaTen AS nguoiGui,
+                                         tb.target_type, tb.target_value, tb.send_at, tb.attachment
+                                     FROM thongbao tb
+                            LEFT JOIN `user` u ON tb.nguoiGui = u.userId
+                            " . $where . "
+                            ORDER BY tb.ngayGui DESC";
+                    $rs = $conn->query($sql);
+                    if ($rs && $rs->num_rows > 0) {
+                        $i = 1;
+                        while ($row = $rs->fetch_assoc()) {
+                            $id = (int)$row['maThongBao'];
+                            $code = 'TB' . str_pad($id, 5, '0', STR_PAD_LEFT);
+                            $title = htmlspecialchars($row['tieuDe'] ?? '');
+                            $content = htmlspecialchars($row['noiDung'] ?? '');
+                            $date = htmlspecialchars($row['ngayGui'] ?? '');
+                            $sender = htmlspecialchars($row['nguoiGui'] ?? '---');
+
+                            // Kiểm tra xem là thông báo được lên lịch hay đã gửi
+                            $sendAtRaw = $row['send_at'] ?? null;
+                            $isScheduled = false;
+                            if ($sendAtRaw !== null && $sendAtRaw !== '' && strtotime($sendAtRaw) > time()) $isScheduled = true;
+
+                            // Nếu đã gửi (hoặc đã phân phối), đếm từ thongbaouser
+                            $cnt = 0;
+                            if (!$isScheduled) {
+                                $countRs = $conn->query("SELECT COUNT(*) AS cnt FROM thongbaouser WHERE maTB = " . $id);
+                                if ($countRs) {
+                                    $c = $countRs->fetch_assoc();
+                                    $cnt = (int)($c['cnt'] ?? 0);
+                                }
+                            } else {
+                                // Nếu lên lịch, tính số người nhận dự kiến dựa trên target_type/target_value
+                                $tt = $row['target_type'] ?? 'all';
+                                $tv = $row['target_value'] ?? '';
+                                if ($tt === 'all') {
+                                    $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user`");
+                                    if ($r2) { $c2 = $r2->fetch_assoc(); $cnt = (int)($c2['cnt'] ?? 0); }
+                                } elseif ($tt === 'role') {
+                                    $role = $conn->real_escape_string($tv);
+                                    $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` WHERE vaiTro = '".$role."'");
+                                    if ($r2) { $c2 = $r2->fetch_assoc(); $cnt = (int)($c2['cnt'] ?? 0); }
+                                } elseif ($tt === 'class') {
+                                    $maLop = (int)$tv;
+                                    $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` u JOIN hocsinh hs ON u.userId = hs.userId WHERE hs.maLopHienTai = '".$maLop."'");
+                                    if ($r2) { $c2 = $r2->fetch_assoc(); $cnt = (int)($c2['cnt'] ?? 0); }
+                                } elseif ($tt === 'users') {
+                                    $arr = json_decode($tv, true);
+                                    if (is_array($arr)) $cnt = count($arr);
+                                }
+                            }
+
+                            echo '<tr>';
+                            echo '<td><input class="form-check-input" type="checkbox" value="' . $id . '"></td>';
+                            echo '<td>' . $i++ . '</td>';
+                            echo '<td>' . $code . '</td>';
+                            echo '<td>' . $title . '</td>';
+                            echo '<td>' . $sender . '</td>';
+                            if ($isScheduled) {
+                                echo '<td>' . ($cnt > 0 ? ($cnt . ' người dự kiến') : 'Chưa phân phối') . '</td>';
+                                echo '<td><span class="text-warning fw-bold">ĐÃ LÊN LỊCH</span></td>';
+                            } else {
+                                echo '<td>' . ($cnt > 0 ? ($cnt . ' người') : 'Chưa phân phối') . '</td>';
+                                echo '<td><span class="text-secondary fw-bold">ĐÃ GỬI</span></td>';
+                            }
+
+                            // Actions: include data attributes for view/edit (include numeric id and target metadata)
+                            $dataAttrs = 'data-ma="' . $id . '" data-id="' . $code . '" data-title="' . $title . '" data-content="' . $content . '" data-date="' . $date . '" data-receiver="' . $cnt . '"';
+                            $dataAttrs .= ' data-target_type="' . htmlspecialchars($row['target_type'] ?? 'all') . '"';
+                            $dataAttrs .= ' data-target_value="' . htmlspecialchars($row['target_value'] ?? '') . '"';
+                            $dataAttrs .= ' data-send_at="' . htmlspecialchars($row['send_at'] ?? '') . '"';
+                            $dataAttrs .= ' data-attachment="' . htmlspecialchars($row['attachment'] ?? '') . '"';
+                            echo '<td class="action-icons">';
+                            echo '<a href="#" class="btn-view" ' . $dataAttrs . ' data-bs-toggle="modal" data-bs-target="#viewNotifyModal"><i class="bi bi-box-arrow-up-right"></i></a> ';
+                            echo '<a href="#" class="btn-edit" ' . $dataAttrs . ' data-bs-toggle="modal" data-bs-target="#editNotifyModal"><i class="bi bi-pencil-square"></i></a> ';
+                            echo '<a href="#" class="btn-delete" data-id="' . $id . '" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"><i class="bi bi-trash-fill"></i></a>';
+                            echo '</td>';
+                            echo '</tr>';
+                        }
+                    } else {
+                        echo '<tr><td colspan="8" class="text-center text-muted py-4">Chưa có thông báo</td></tr>';
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -106,44 +184,67 @@ $pageJS = ['QuanLyThongBao.js'];
                 <form id="addForm">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Tiêu đề:</label>
-                        <input type="text" class="form-control" placeholder="Tiêu đề 1">
+                        <input type="text" class="form-control" id="a_title" name="title" placeholder="Tiêu đề 1">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nội dung:</label>
-                        <textarea class="form-control" rows="4"></textarea>
+                        <textarea class="form-control" id="a_content" name="content" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Thời gian gửi thông báo:</label>
+                        <label class="form-label fw-bold">Thời gian gửi thông báo (tùy chọn):</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="dd/mm/yyyy">
+                            <input type="datetime-local" class="form-control" id="a_send_at" name="send_at">
                             <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold me-3">Người nhận:</label>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="receiverAdd" id="rx1" value="all">
-                            <label class="form-check-label" for="rx1">Toàn hệ thống</label>
+                            <input class="form-check-input" type="radio" name="target_type" id="t_all" value="all" checked>
+                            <label class="form-check-label" for="t_all">Toàn hệ thống</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="receiverAdd" id="rx2" value="teacher" checked>
-                            <label class="form-check-label" for="rx2">Giáo viên</label>
+                            <input class="form-check-input" type="radio" name="target_type" id="t_role" value="role">
+                            <label class="form-check-label" for="t_role">Theo vai trò</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="receiverAdd" id="rx3" value="student">
-                            <label class="form-check-label" for="rx3">Học sinh</label>
+                            <input class="form-check-input" type="radio" name="target_type" id="t_class" value="class">
+                            <label class="form-check-label" for="t_class">Theo lớp</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="target_type" id="t_users" value="users">
+                            <label class="form-check-label" for="t_users">Chọn người nhận cụ thể</label>
+                        </div>
+                        <div class="mt-3" id="targetControls">
+                            <select class="form-select mb-2" id="a_role_select" style="display:none;">
+                                <option value="">Chọn vai trò...</option>
+                                <option value="GiaoVien">Giáo viên</option>
+                                <option value="HocSinh">Học sinh</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                            <select class="form-select mb-2" id="a_class_select" style="display:none;">
+                                <option value="">Chọn lớp...</option>
+                                <?php foreach ($classList as $c): ?>
+                                    <option value="<?php echo (int)$c['maLop']; ?>"><?php echo htmlspecialchars($c['tenLop']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <select class="form-select mb-2" id="a_users_select" multiple style="display:none; height:140px;">
+                                <?php foreach ($userList as $u): ?>
+                                    <option value="<?php echo (int)$u['userId']; ?>"><?php echo htmlspecialchars(($u['hoVaTen'] ?: 'User') . ' [' . $u['vaiTro'] . ']'); ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label fw-bold">Đính kèm tệp (Tùy chọn):</label>
                         <div class="d-flex align-items-center">
-                            <label class="btn btn-light border me-2">Chọn tệp <input type="file" hidden></label>
-                            <span class="text-muted fst-italic">Không tệp nào được chọn</span>
+                            <input type="file" id="a_file" name="attachment" class="form-control me-2">
+                            <span class="text-muted fst-italic" id="a_file_label">Không tệp nào được chọn</span>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
                         <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">HỦY</button>
-                        <button type="button" class="btn btn-primary px-4" style="background-color: #0b1a48;">GỬI THÔNG BÁO</button>
+                        <button type="button" class="btn btn-primary px-4" id="btnSendNotify" style="background-color: #0b1a48;">GỬI THÔNG BÁO</button>
                     </div>
                 </form>
             </div>
@@ -155,6 +256,7 @@ $pageJS = ['QuanLyThongBao.js'];
             <div class="modal-content p-4 bg-light">
                 <h2 class="modal-title fw-bold mb-4">CHỈNH SỬA THÔNG BÁO</h2>
                 <form id="editForm">
+                    <input type="hidden" id="e_ma" name="maThongBao">
                     <div class="row mb-3 align-items-center">
                         <label class="col-md-3 text-secondary">Mã thông báo:</label>
                         <div class="col-md-9">
@@ -177,7 +279,7 @@ $pageJS = ['QuanLyThongBao.js'];
                         <label class="col-md-3 text-secondary">Thời gian gửi thông báo:</label>
                         <div class="col-md-9">
                             <div class="input-group">
-                                <input type="text" class="form-control" id="e_date">
+                                <input type="datetime-local" class="form-control" id="e_date" name="send_at">
                                 <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
                             </div>
                         </div>
@@ -186,27 +288,59 @@ $pageJS = ['QuanLyThongBao.js'];
                         <label class="col-md-3 text-secondary">Người nhận:</label>
                         <div class="col-md-9">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="receiverEdit" id="erx1" value="all">
-                                <label class="form-check-label">Toàn hệ thống</label>
+                                <input class="form-check-input" type="radio" name="target_type_edit" id="et_all" value="all">
+                                <label class="form-check-label" for="et_all">Toàn hệ thống</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="receiverEdit" id="erx2" value="teacher">
-                                <label class="form-check-label">Giáo viên</label>
+                                <input class="form-check-input" type="radio" name="target_type_edit" id="et_role" value="role">
+                                <label class="form-check-label" for="et_role">Theo vai trò</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="receiverEdit" id="erx3" value="student">
-                                <label class="form-check-label">Học sinh</label>
+                                <input class="form-check-input" type="radio" name="target_type_edit" id="et_class" value="class">
+                                <label class="form-check-label" for="et_class">Theo lớp</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="target_type_edit" id="et_users" value="users">
+                                <label class="form-check-label" for="et_users">Chọn người nhận cụ thể</label>
+                            </div>
+                            <div class="mt-3" id="e_targetControls">
+                                <select class="form-select mb-2" id="e_role_select" style="display:none;">
+                                    <option value="">Chọn vai trò...</option>
+                                    <option value="GiaoVien">Giáo viên</option>
+                                    <option value="HocSinh">Học sinh</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                                <select class="form-select mb-2" id="e_class_select" style="display:none;">
+                                    <option value="">Chọn lớp...</option>
+                                    <?php foreach ($classList as $c): ?>
+                                        <option value="<?php echo (int)$c['maLop']; ?>"><?php echo htmlspecialchars($c['tenLop']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select class="form-select mb-2" id="e_users_select" multiple style="display:none; height:140px;">
+                                    <?php foreach ($userList as $u): ?>
+                                        <option value="<?php echo (int)$u['userId']; ?>"><?php echo htmlspecialchars(($u['hoVaTen'] ?: 'User') . ' [' . $u['vaiTro'] . ']'); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
+                        <div class="mb-4 w-100">
+                            <label class="form-label fw-bold">Đính kèm tệp (Tùy chọn):</label>
+                            <input type="file" id="e_file" name="attachment" class="form-control">
+                            <div id="e_attachment_display" class="mt-2"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
                         <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">HỦY</button>
-                        <button type="button" class="btn btn-success px-4 text-white fw-bold">LƯU</button>
+                        <button type="button" class="btn btn-success px-4 text-white fw-bold" id="btnUpdateNotify">LƯU</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Add file input to edit modal (inside form above, we will insert before action buttons) -->
 
     <div class="modal fade" id="viewNotifyModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -232,6 +366,12 @@ $pageJS = ['QuanLyThongBao.js'];
                                 <input type="text" class="form-control bg-white" id="v_date" readonly>
                                 <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3 align-items-center">
+                        <label class="col-md-3 text-secondary">Tệp đính kèm:</label>
+                        <div class="col-md-9">
+                            <div id="v_attachment_display"></div>
                         </div>
                     </div>
                     <div class="row mb-4 align-items-center">
@@ -270,7 +410,7 @@ $pageJS = ['QuanLyThongBao.js'];
                         </div>
                         <div class="d-flex justify-content-center gap-3">
                             <button type="button" class="btn btn-outline-dark px-4 fw-bold" data-bs-dismiss="modal">Hủy</button>
-                            <button type="button" class="btn btn-danger px-4 fw-bold">Xóa</button>
+                            <button type="button" class="btn btn-danger px-4 fw-bold" id="btnConfirmDelete">Xóa</button>
                         </div>
                     </div>
                 </div>
@@ -279,4 +419,5 @@ $pageJS = ['QuanLyThongBao.js'];
     </div>
 
 </main>
+<script>window.BASE_URL = '<?php echo BASE_URL; ?>';</script>
 <?php require_once '../../footer.php'; ?>
