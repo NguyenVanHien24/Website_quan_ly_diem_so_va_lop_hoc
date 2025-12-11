@@ -1,34 +1,51 @@
-document.addEventListener("DOMContentLoaded", function() {
-    
-    const notifyRows = document.querySelectorAll('.notify-row');
+document.addEventListener('DOMContentLoaded', function () {
+    // Delegate click to tbody for dynamic rows (select the notifications table present on the page)
+    const tbody = document.querySelector('main table.table tbody') || document.querySelector('table.table tbody');
+    if (!tbody) return;
 
-    notifyRows.forEach(row => {
-        row.addEventListener('click', function() {
-            const d = this.dataset;
+    tbody.addEventListener('click', function (e) {
+        const tr = e.target.closest('tr.notify-row');
+        if (!tr) return;
 
-            // Điền dữ liệu vào Modal
-            
-            // 1. Tiêu đề (Dạng text, không phải input)
-            document.getElementById('v_title_text').innerText = d.title;
-            
-            // 2. Nội dung (Textarea)
-            document.getElementById('v_content').value = d.content;
-            
-            // 3. Người gửi
-            document.getElementById('v_sender').innerText = d.sender || "Admin"; // Mặc định Admin nếu thiếu
-            
-            // 4. Ngày gửi
-            document.getElementById('v_date_text').innerText = d.date;
-            
-            // 5. Tệp đính kèm
-            const fileLink = document.getElementById('v_file_link');
-            if (d.file) {
+        const d = tr.dataset;
+
+        // Populate modal fields (IDs adapted from PHP template)
+        const titleEl = document.getElementById('v_title_text');
+        const contentEl = document.getElementById('v_content');
+        const senderEl = document.getElementById('v_sender');
+        const dateEl = document.getElementById('v_date_text');
+        const fileLink = document.getElementById('v_file_link');
+
+        if (titleEl) titleEl.innerText = d.title || '';
+        if (contentEl) contentEl.value = d.content || '';
+        if (senderEl) senderEl.innerText = d.sender || 'Admin';
+        if (dateEl) dateEl.innerText = d.date || '';
+
+        if (fileLink) {
+            if (d.file && d.file.trim() !== '') {
                 fileLink.innerText = d.file;
-                fileLink.style.display = "inline"; // Hiện nếu có file
-                // fileLink.href = "/uploads/" + d.file; // Link tải file thực tế
+                fileLink.style.display = 'inline';
+                fileLink.href = window.BASE_URL + 'uploads/documents/' + d.file;
             } else {
-                fileLink.style.display = "none"; // Ẩn nếu không có file
+                fileLink.style.display = 'none';
             }
-        });
+        }
+
+        // Mark as read by calling API (using tbuId)
+        const tbuId = d.tbuid;
+        if (tbuId) {
+            fetch(window.BASE_URL + 'HocSinh/TrangCaNhan/mark_read.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tbuId: tbuId })
+            }).then(r => r.json()).then(data => {
+                if (data && data.success) {
+                    tr.classList.remove('unread');
+                    tr.style.backgroundColor = '';
+                    const badge = document.getElementById('notifBadge');
+                    if (badge) badge.innerText = data.unread || '';
+                }
+            }).catch(() => { /* ignore errors */ });
+        }
     });
 });

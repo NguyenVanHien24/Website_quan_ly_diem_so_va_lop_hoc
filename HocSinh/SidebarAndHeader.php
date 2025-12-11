@@ -90,6 +90,9 @@ $stmt->close();
         }
     }
     ?>
+    <script>
+        window.BASE_URL = <?php echo json_encode(rtrim(BASE_URL, '/') . '/'); ?>;
+    </script>
 </head>
 <body>
     <!-- ========= PHẦN SIDEBAR ========= -->
@@ -153,7 +156,16 @@ $stmt->close();
             </form>
 
             <div class="header-actions ms-auto">
-                <i class="bi bi-bell"></i>
+                <div class="dropdown me-3">
+                    <a href="#" id="notifyToggle" class="text-decoration-none position-relative" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell" style="font-size:1.25rem"></i>
+                        <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+                    </a>
+                    <ul id="notifyList" class="dropdown-menu dropdown-menu-end p-2" style="min-width:320px; max-width:420px;">
+                        <li class="text-center text-muted small">Đang tải...</li>
+                    </ul>
+                </div>
+
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle text-decoration-none user-profile" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle"></i>
@@ -163,10 +175,163 @@ $stmt->close();
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>HocSinh/TrangCaNhan/ThongTinCaNhan.php">Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item" href="#">Cài đặt</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" href="../../DangNhap.php">Đăng xuất</a></li>
                     </ul>
                 </div>
             </div>
         </header>
         <!-- ========= KẾT THÚC HEADER ========= -->
+        <div class="modal fade" id="notifyModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chi tiết thông báo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="notifyModalTitle" class="fw-bold mb-2"></div>
+                        <div id="notifyModalBody" class="mb-3"></div>
+                        <div id="notifyModalMeta" class="text-muted small"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="<?php echo BASE_URL; ?>HocSinh/TrangCaNhan/ThongBao.php" class="btn btn-link">Xem chi tiết</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const notifyList = document.getElementById('notifyList');
+                const notifyBadge = document.getElementById('notifBadge');
+                const notifyToggle = document.getElementById('notifyToggle');
+
+                // Modal elements
+                const notifyModalElem = document.getElementById('notifyModal');
+                const notifyModal = new bootstrap.Modal(notifyModalElem);
+                const modalTitle = document.getElementById('notifyModalTitle');
+                const modalBody = document.getElementById('notifyModalBody');
+                const modalMeta = document.getElementById('notifyModalMeta');
+
+                let isDropdownOpen = false;
+
+                notifyToggle.addEventListener('show.bs.dropdown', () => { isDropdownOpen = true; });
+                notifyToggle.addEventListener('hide.bs.dropdown', () => { isDropdownOpen = false; });
+
+                async function loadNotifies() {
+                    try {
+                        const res = await fetch(window.BASE_URL + 'HocSinh/TrangCaNhan/get_notifications.php');
+                        let data;
+                        try { data = await res.json(); } catch (e) { data = { success:false }; }
+                        if (!data.success) return;
+
+                        updateBadge(data.unread);
+
+                        let htmlContent = '';
+                        if (!data.notifications || data.notifications.length === 0) {
+                            htmlContent = '<li class="text-center text-muted small py-2">Không có thông báo mới</li>';
+                        } else {
+                            data.notifications.forEach(n => {
+                                const isUnread = parseInt(n.trangThai) === 0;
+                                const bgStyle = isUnread ? 'background-color: #eef6ff;' : '';
+                                const fwClass = isUnread ? 'fw-bold' : '';
+                                htmlContent += `
+                                    <li class="d-flex align-items-start gap-2 p-2 border-bottom notify-item ${fwClass}" 
+                                        style="cursor: pointer; ${bgStyle}"
+                                        data-id="${n.tbuId}"
+                                        data-title="${n.tieuDe || ''}"
+                                        data-content="${n.noiDung || ''}"
+                                        data-time="${n.ngayGui}"
+                                        data-status="${n.trangThai}">
+                                        <div class="flex-grow-1">
+                                            <div class="notify-title">${n.tieuDe || '(Không tiêu đề)'}</div>
+                                            <div class="text-muted small mt-1">${n.ngayGui}</div>
+                                        </div>
+                                    </li>
+                                `;
+                            });
+                        }
+
+                        htmlContent += `
+                            <li class="p-2 text-center bg-light sticky-bottom">
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <a href="#" id="markAllReadBtn" class="text-decoration-none">Đánh dấu tất cả đã đọc</a>
+                                    <a href="${window.BASE_URL}HocSinh/TrangCaNhan/ThongBao.php" class="text-decoration-none">Xem tất cả</a>
+                                </div>
+                            </li>
+                        `;
+
+                        notifyList.innerHTML = htmlContent;
+                        attachClickEvents();
+                    } catch (err) {
+                        console.error('Lỗi tải thông báo:', err);
+                    }
+                }
+
+                function attachClickEvents() {
+                    document.querySelectorAll('.notify-item').forEach(item => {
+                        item.addEventListener('click', async function() {
+                            const tbuId = this.dataset.id;
+                            const status = parseInt(this.dataset.status);
+
+                            modalTitle.textContent = this.dataset.title;
+                            modalBody.textContent = this.dataset.content;
+                            modalMeta.textContent = `Thời gian: ${this.dataset.time}`;
+                            notifyModal.show();
+
+                            if (status === 0) {
+                                this.style.backgroundColor = 'transparent';
+                                this.classList.remove('fw-bold');
+                                this.dataset.status = 1;
+                                try {
+                                    const formData = new FormData();
+                                    formData.append('tbuId', tbuId);
+                                    const r = await fetch(window.BASE_URL + 'HocSinh/TrangCaNhan/mark_read.php', { method: 'POST', body: formData });
+                                    const resp = await r.json();
+                                    if (resp.success) updateBadge(resp.unread);
+                                } catch (e) { console.error(e); }
+                            }
+                        });
+                    });
+
+                    const btnAll = document.getElementById('markAllReadBtn');
+                    if (btnAll) {
+                        btnAll.addEventListener('click', async function(e) {
+                            e.preventDefault();
+                            try {
+                                const formData = new FormData();
+                                formData.append('all', '1');
+                                const r = await fetch(window.BASE_URL + 'HocSinh/TrangCaNhan/mark_read.php', { method: 'POST', body: formData });
+                                const resp = await r.json();
+                                if (resp.success) {
+                                    document.querySelectorAll('.notify-item').forEach(item => {
+                                        item.style.backgroundColor = 'transparent';
+                                        item.classList.remove('fw-bold');
+                                        item.dataset.status = 1;
+                                    });
+                                    updateBadge(0);
+                                }
+                            } catch (e) { console.error(e); }
+                        });
+                    }
+                }
+
+                function updateBadge(count) {
+                    const num = parseInt(count);
+                    if (num > 0) {
+                        notifyBadge.style.display = 'inline-block';
+                        notifyBadge.textContent = num > 99 ? '99+' : num;
+                    } else {
+                        notifyBadge.style.display = 'none';
+                    }
+                }
+
+                notifyToggle.addEventListener('click', loadNotifies);
+                loadNotifies();
+                setInterval(() => { if (!isDropdownOpen) loadNotifies(); }, 60000);
+            });
+        </script>
