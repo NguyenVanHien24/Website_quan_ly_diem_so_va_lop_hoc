@@ -1,4 +1,67 @@
 <?php
+require_once '../../vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+if (isset($_GET['download_sample'])) {
+    // 1. Tạo spreadsheet mới
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // 2. Đặt tiêu đề các cột (Phải khớp với thứ tự lúc Import)
+    $headers = [
+        'Họ và Tên',      // Cột A
+        'Email',          // Cột B
+        'Số điện thoại',  // Cột C
+        'Giới tính',      // Cột D
+        'Bộ môn',         // Cột E
+        'Trình độ',       // Cột F
+        'Phòng ban',      // Cột G
+        'Năm học',        // Cột H
+        'Kỳ học'          // Cột I
+    ];
+
+    // Ghi tiêu đề vào dòng 1
+    $sheet->fromArray($headers, NULL, 'A1');
+
+    // 3. Thêm 1 dòng dữ liệu mẫu để người dùng dễ hiểu
+    $sampleData = [
+        'Nguyễn Văn A',
+        'a@gmail.com',
+        '0987654300',
+        'Nam',
+        'Toán học',
+        'Thạc sĩ',
+        'Ban Tự nhiên',
+        '2025-2026',
+        '1'
+    ];
+    $sheet->fromArray($sampleData, NULL, 'A2');
+
+    // 4. Định dạng cột cho đẹp (Optional)
+    foreach (range('A', 'I') as $col) {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
+    $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+
+    // 5. Cấu hình Header để tải file về
+    $filename = "Mau_Nhap_Giao_Vien.xlsx";
+
+    // Xóa bộ đệm (nếu có) để tránh lỗi file bị hỏng
+    if (ob_get_length()) ob_end_clean();
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    // 6. Xuất file ra trình duyệt
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit(); // Dừng chương trình ngay lập tức sau khi tải file
+}
+
 require_once '../../config.php';
 require_once '../../csdl/db.php';
 
@@ -41,7 +104,124 @@ if (!$result) {
 }
 
 $errors = [];
+// =================================================================
+// [NEW] XỬ LÝ IMPORT EXCEL
+// =================================================================
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
+    if (isset($_FILES['file_excel']['name']) && $_FILES['file_excel']['name'] != "") {
+        $allowedExtensions = ['xls', 'xlsx'];
+        $ext = pathinfo($_FILES['file_excel']['name'], PATHINFO_EXTENSION);
 
+        if (in_array($ext, $allowedExtensions)) {
+            $fileTmpPath = $_FILES['file_excel']['tmp_name'];
+
+            try {
+                $spreadsheet = IOFactory::load($fileTmpPath);
+                $data = $spreadsheet->getActiveSheet()->toArray();
+
+                $countSuccess = 0;
+                $countFail = 0;
+                $failLog = [];
+
+                // Bỏ qua dòng tiêu đề (dòng 1), bắt đầu từ dòng 2 ($i = 1)
+                for ($i = 1; $i < count($data); $i++) {
+                    $row = $data[$i];
+
+                    // Cấu trúc file Excel giả định:
+                    // 0: Họ Tên | 1: Email | 2: SĐT | 3: Giới tính | 4: Bộ môn | 5: Trình độ | 6: Phòng ban | 7: Năm học | 8: Kỳ học
+                    $hoVaTen = trim($row[0] ?? '');
+                    $email   = trim($row[1] ?? '');
+                    $sdt     = trim($row[2] ?? '');
+                    $gioiTinh = trim($row[3] ?? 'Nam');
+                    $boMon   = trim($row[4] ?? '');
+                    $trinhDo = trim($row[5] ?? '');
+                    $phongBan = trim($row[6] ?? '');
+                    $namHoc  = trim($row[7] ?? '2024-2025');
+                    $kyHoc   = intval($row[8] ?? 1);
+                    $trangThai = "Hoạt động";
+
+                    // Validate cơ bản
+                    if (empty($hoVaTen) || empty($email) || empty($sdt)) {
+                        $countFail++;
+                        continue;
+                    }
+
+                    // Kiểm tra trùng Email/SĐT
+                    $check = $conn->prepare("SELECT userId FROM user WHERE sdt = ? OR email = ?");
+                    $check->bind_param("ss", $sdt, $email);
+                    $check->execute();
+                    $check->store_result();
+                    if ($check->num_rows > 0) {
+                        $countFail++; // Bỏ qua nếu trùng
+                        $failLog[] = "Dòng " . ($i + 1) . ": Trùng Email hoặc SĐT ($email - $sdt)";
+                        $check->close();
+                        continue;
+                    }
+                    $check->close();
+
+                    // Thêm vào bảng User (Mật khẩu mặc định 12345678)
+                    $stmt = $conn->prepare("INSERT INTO user (hoVaTen, email, sdt, gioiTinh, matKhau, vaiTro) VALUES (?,?,?,?, '12345678','GiaoVien')");
+                    $stmt->bind_param("ssss", $hoVaTen, $email, $sdt, $gioiTinh);
+
+                    if ($stmt->execute()) {
+                        $userId = $conn->insert_id;
+                        $stmt->close();
+
+                        // Cập nhật/Thêm vào bảng Giaovien
+                        // Logic tương tự phần thêm thủ công: Check update -> Insert nếu chưa có
+                        $stmtGV = $conn->prepare("UPDATE giaovien SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?, namHoc=?, kyHoc=? WHERE userId=?");
+                        $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $userId);
+                        $stmtGV->execute();
+
+                        if ($stmtGV->affected_rows === 0) {
+                            $insGV = $conn->prepare("INSERT INTO giaovien (userId,boMon,trinhDo,phongBan,trangThaiHoatDong,namHoc,kyHoc) VALUES (?,?,?,?,?,?,?)");
+                            $insGV->bind_param("isssssi", $userId, $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc);
+                            $insGV->execute();
+                            $insGV->close();
+                        }
+                        $stmtGV->close();
+
+                        // -- XỬ LÝ PHÂN CÔNG MÔN HỌC TỰ ĐỘNG (Nếu có Bộ môn khớp tên môn) --
+                        // Lấy maGV vừa tạo
+                        $qmgv = $conn->query("SELECT maGV FROM giaovien WHERE userId = $userId LIMIT 1");
+                        if ($qmgv && $r = $qmgv->fetch_assoc()) {
+                            $newMaGV = $r['maGV'];
+
+                            // Tìm môn học khớp tên Bộ môn
+                            $qMon = $conn->prepare("SELECT maMon FROM monhoc WHERE tenMon = ? LIMIT 1");
+                            $qMon->bind_param("s", $boMon);
+                            $qMon->execute();
+                            $qMon->bind_result($maMonFound);
+                            if ($qMon->fetch()) {
+                                $qMon->close(); // Đóng để chạy lệnh insert
+                                $insMon = $conn->prepare("INSERT INTO giaovien_monhoc (idGV, idMon) VALUES (?, ?)");
+                                $insMon->bind_param("ii", $newMaGV, $maMonFound);
+                                $insMon->execute();
+                                $insMon->close();
+                            } else {
+                                $qMon->close();
+                            }
+                        }
+
+                        $countSuccess++;
+                    } else {
+                        $countFail++;
+                    }
+                }
+
+                $msg = "Import hoàn tất! Thành công: $countSuccess. Thất bại: $countFail.";
+                if (count($failLog) > 0) {
+                    $msg .= "\\nChi tiết lỗi:\\n" . implode("\\n", array_slice($failLog, 0, 5)); // Show max 5 lỗi
+                }
+                echo "<script>alert('$msg'); window.location.href='QuanLyGiaoVien.php';</script>";
+            } catch (Exception $e) {
+                echo "<script>alert('Lỗi đọc file Excel: " . $e->getMessage() . "');</script>";
+            }
+        } else {
+            echo "<script>alert('Chỉ chấp nhận file .xls hoặc .xlsx');</script>";
+        }
+    }
+}
 // Thêm/sửa giáo viên
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
     $mode = $_POST["mode"];
@@ -415,6 +595,9 @@ $pageJS = ['QuanLyGiaoVien.js'];
         </div>
     </div>
     <div class="d-flex justify-content-end mt-4">
+        <button class="btn btn-import fw-bold px-4 py-2" data-bs-toggle="modal" data-bs-target="#importModal">
+            Import giáo viên
+        </button>
         <button class="btn btn-danger fw-bold px-4 py-2">Xóa giáo viên</button>
     </div>
 
@@ -541,6 +724,44 @@ $pageJS = ['QuanLyGiaoVien.js'];
             </div>
         </div>
     </div>
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Import Giáo Viên từ Excel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="import_action" value="1">
+
+                        <div class="mb-3">
+                            <label for="file_excel" class="form-label">Chọn file Excel (.xls, .xlsx)</label>
+                            <input class="form-control" type="file" id="file_excel" name="file_excel" required accept=".xls, .xlsx">
+                        </div>
+
+                        <div class="alert alert-info">
+                            <small>
+                                <strong>Cấu trúc file mẫu (theo thứ tự cột):</strong><br>
+                                1. Họ Tên | 2. Email | 3. SĐT | 4. Giới tính<br>
+                                5. Bộ môn | 6. Trình độ | 7. Phòng ban<br>
+                                8. Năm học | 9. Kỳ học
+                            </small>
+                            <br>
+                            <a href="?download_sample=1" class="text-primary text-decoration-underline fw-bold">
+                                <i class="bi bi-download me-1"></i> Tải file mẫu chuẩn
+                            </a>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Tiến hành Import</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 <script>
     document.getElementById('teacherForm').addEventListener('submit', function(e) {
@@ -561,6 +782,13 @@ $pageJS = ['QuanLyGiaoVien.js'];
             })
             .catch(err => alert('Lỗi server'));
     });
+    var deleteModal = document.getElementById('deleteConfirmModal')
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget
+        var id = button.getAttribute('data-id')
+        var input = deleteModal.querySelector('#delete_id')
+        input.value = id
+    })
 </script>
 
 <?php
