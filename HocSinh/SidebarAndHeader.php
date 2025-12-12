@@ -336,4 +336,4 @@ $stmt->close();
             });
         </script>
         <!-- Global search enhancement (client-side table filtering) -->
-        <script src="<?php echo BASE_URL; ?>Admin/global-search.js"></script>
+        <script src="<?php echo BASE_URL; ?>HocSinh/global-search.js"></script>
