@@ -49,13 +49,31 @@ if ($classRs) {
 $selectedClass = isset($_GET['class']) ? (int)$_GET['class'] : (isset($assignedClasses[0]) ? $assignedClasses[0]['maLop'] : 0);
 
 // ==== Lấy danh sách học sinh của lớp được chọn ====
+$limit = 10; // Số học sinh mỗi trang
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
+// Điều kiện lọc lớp
+$whereClass = "WHERE hs.maLopHienTai = " . (int)$selectedClass;
+
+// 1. Đếm tổng số học sinh trong lớp (để tính số trang)
+$countSql = "SELECT COUNT(*) as total 
+             FROM hocsinh hs 
+             $whereClass";
+$resCount = $conn->query($countSql);
+$totalRecords = $resCount->fetch_assoc()['total'];
+$totalPages = ceil($totalRecords / $limit);
+
+// 2. Lấy danh sách học sinh theo trang
 $students = [];
 $studentSql = "SELECT hs.maHS, u.hoVaTen, u.email, u.sdt, u.gioiTinh, l.tenLop, hs.chucVu, hs.trangThaiHoatDong
                FROM hocsinh hs
                JOIN user u ON u.userId = hs.userId
                JOIN lophoc l ON l.maLop = hs.maLopHienTai
-               WHERE hs.maLopHienTai = " . (int)$selectedClass . "
-               ORDER BY u.hoVaTen";
+               $whereClass
+               ORDER BY u.hoVaTen
+               LIMIT $limit OFFSET $offset";
+
 $studentRs = $conn->query($studentSql);
 if ($studentRs) {
     while ($s = $studentRs->fetch_assoc()) {
@@ -105,33 +123,33 @@ if ($studentRs) {
                 <tbody>
                     <?php
                     if (count($students) > 0) {
-                        $i = 1;
+                        $i = $offset + 1;
                         foreach ($students as $student):
                             $statusBadge = ($student['trangThaiHoatDong'] === 'Hoạt động') ? '<span class="badge-active">● Active</span>' : '<span class="badge-inactive">● Inactive</span>';
                     ?>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($student['maHS']) ?>"></td>
-                        <td><?= $i++ ?></td>
-                        <td><?= htmlspecialchars($student['maHS']) ?></td>
-                        <td><?= htmlspecialchars($student['hoVaTen']) ?></td>
-                        <td><?= htmlspecialchars($student['tenLop']) ?></td>
-                        <td><?= htmlspecialchars($student['chucVu'] ?? 'Thành viên') ?></td>
-                        <td><?= $statusBadge ?></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-edit"
-                                data-id="<?= htmlspecialchars($student['maHS']) ?>"
-                                data-name="<?= htmlspecialchars($student['hoVaTen']) ?>"
-                                data-email="<?= htmlspecialchars($student['email'] ?? '') ?>"
-                                data-phone="<?= htmlspecialchars($student['sdt'] ?? '') ?>"
-                                data-gender="<?= htmlspecialchars($student['gioiTinh'] ?? '') ?>"
-                                data-class="<?= htmlspecialchars($student['tenLop']) ?>"
-                                data-role="<?= htmlspecialchars($student['chucVu'] ?? 'Thành viên') ?>"
-                                data-status="<?= htmlspecialchars($student['trangThaiHoatDong'] ?? 'Hoạt động') ?>"
-                                data-bs-toggle="modal" data-bs-target="#studentFormModal">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
+                            <tr>
+                                <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($student['maHS']) ?>"></td>
+                                <td><?= $i++ ?></td>
+                                <td><?= htmlspecialchars($student['maHS']) ?></td>
+                                <td><?= htmlspecialchars($student['hoVaTen']) ?></td>
+                                <td><?= htmlspecialchars($student['tenLop']) ?></td>
+                                <td><?= htmlspecialchars($student['chucVu'] ?? 'Thành viên') ?></td>
+                                <td><?= $statusBadge ?></td>
+                                <td class="action-icons">
+                                    <a href="#" class="btn-edit"
+                                        data-id="<?= htmlspecialchars($student['maHS']) ?>"
+                                        data-name="<?= htmlspecialchars($student['hoVaTen']) ?>"
+                                        data-email="<?= htmlspecialchars($student['email'] ?? '') ?>"
+                                        data-phone="<?= htmlspecialchars($student['sdt'] ?? '') ?>"
+                                        data-gender="<?= htmlspecialchars($student['gioiTinh'] ?? '') ?>"
+                                        data-class="<?= htmlspecialchars($student['tenLop']) ?>"
+                                        data-role="<?= htmlspecialchars($student['chucVu'] ?? 'Thành viên') ?>"
+                                        data-status="<?= htmlspecialchars($student['trangThaiHoatDong'] ?? 'Hoạt động') ?>"
+                                        data-bs-toggle="modal" data-bs-target="#studentFormModal">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
                     <?php
                         endforeach;
                     } else {
@@ -143,12 +161,40 @@ if ($studentRs) {
         </div>
 
         <div class="table-footer">
-            <span><?= count($students) ?> học sinh</span>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+
+            // Hàm tạo link giữ nguyên tham số lớp (class)
+            function createPageLink($p, $cls)
+            {
+                $query = [];
+                if ($cls) $query['class'] = $cls;
+                $query['page'] = $p;
+                return '?' . http_build_query($query);
+            }
+            ?>
+            <span>Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> học sinh</span>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? createPageLink($page - 1, $selectedClass) : '#' ?>">‹</a>
+                        </li>
+
+                        <?php for ($p = 1; $p <= $totalPages; $p++): ?>
+                            <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="<?= createPageLink($p, $selectedClass) ?>"><?= $p ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? createPageLink($page + 1, $selectedClass) : '#' ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
     <div class="d-flex justify-content-end mt-4">

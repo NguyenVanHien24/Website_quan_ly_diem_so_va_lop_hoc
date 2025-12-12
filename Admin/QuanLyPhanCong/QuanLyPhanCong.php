@@ -34,45 +34,66 @@ $pageJS = ['QuanLyPhanCong.js'];
                 </thead>
                 <tbody>
                     <?php
-                    // Lấy danh sách phân công từ database
+                    // --- BẮT ĐẦU LOGIC PHÂN TRANG ---
+                    $limit = 10; // Số dòng mỗi trang
+                    $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                    $offset = ($page - 1) * $limit;
+
+                    // 1. Đếm tổng số bản ghi (để tính số trang)
+                    $sqlCount = "SELECT COUNT(*) as total 
+                                 FROM phan_cong pc
+                                 JOIN lophoc l ON l.maLop = pc.maLop
+                                 JOIN monhoc m ON m.maMon = pc.maMon
+                                 JOIN giaovien g ON g.maGV = pc.maGV
+                                 JOIN `user` u ON u.userId = g.userId";
+                    $resCount = $conn->query($sqlCount);
+                    $totalRecords = $resCount->fetch_assoc()['total'];
+                    $totalPages = ceil($totalRecords / $limit);
+
+                    // 2. Lấy danh sách phân công theo trang (Thêm LIMIT và OFFSET)
                     $assignmentSql = "SELECT pc.id, l.tenLop, l.khoiLop, m.tenMon, m.maMon, u.hoVaTen, g.maGV, pc.maLop 
                                       FROM phan_cong pc
                                       JOIN lophoc l ON l.maLop = pc.maLop
                                       JOIN monhoc m ON m.maMon = pc.maMon
                                       JOIN giaovien g ON g.maGV = pc.maGV
                                       JOIN `user` u ON u.userId = g.userId
-                                      ORDER BY l.tenLop, m.tenMon";
+                                      ORDER BY l.tenLop ASC, m.tenMon ASC
+                                      LIMIT $limit OFFSET $offset";
+
                     $assignmentRs = $conn->query($assignmentSql);
-                    $i = 1;
+
+                    // Cập nhật biến STT theo trang hiện tại
+                    $i = $offset + 1;
+
                     if ($assignmentRs && $assignmentRs->num_rows > 0) {
                         while ($row = $assignmentRs->fetch_assoc()):
                     ?>
-                    <tr>
-                        <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($row['id']) ?>"></td>
-                        <td><?= $i++ ?></td>
-                        <td><?= htmlspecialchars($row['tenLop']) ?></td>
-                        <td><?= htmlspecialchars($row['khoiLop']) ?></td>
-                        <td><?= htmlspecialchars($row['tenMon']) ?></td>
-                        <td><?= htmlspecialchars($row['hoVaTen']) ?></td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-edit"
-                                data-id="<?= htmlspecialchars($row['id']) ?>"
-                                data-maLop="<?= htmlspecialchars($row['maLop']) ?>"
-                                data-maMon="<?= htmlspecialchars($row['maMon']) ?>"
-                                data-maGV="<?= htmlspecialchars($row['maGV']) ?>"
-                                data-class="<?= htmlspecialchars($row['tenLop']) ?>"
-                                data-subject="<?= htmlspecialchars($row['tenMon']) ?>"
-                                data-teacher="<?= htmlspecialchars($row['hoVaTen']) ?>"
-                                data-bs-toggle="modal" data-bs-target="#assignFormModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#" class="btn-delete"
-                                data-id="<?= htmlspecialchars($row['id']) ?>"
-                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
+                            <tr>
+                                <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($row['id']) ?>"></td>
+                                <td><?= $i++ ?></td>
+                                <td><?= htmlspecialchars($row['tenLop']) ?></td>
+                                <td><?= htmlspecialchars($row['khoiLop']) ?></td>
+                                <td><?= htmlspecialchars($row['tenMon']) ?></td>
+                                <td><?= htmlspecialchars($row['hoVaTen']) ?></td>
+                                <td class="action-icons">
+                                    <a href="#" class="btn-edit"
+                                        data-id="<?= htmlspecialchars($row['id']) ?>"
+                                        data-maLop="<?= htmlspecialchars($row['maLop']) ?>"
+                                        data-maMon="<?= htmlspecialchars($row['maMon']) ?>"
+                                        data-maGV="<?= htmlspecialchars($row['maGV']) ?>"
+                                        data-class="<?= htmlspecialchars($row['tenLop']) ?>"
+                                        data-subject="<?= htmlspecialchars($row['tenMon']) ?>"
+                                        data-teacher="<?= htmlspecialchars($row['hoVaTen']) ?>"
+                                        data-bs-toggle="modal" data-bs-target="#assignFormModal">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="#" class="btn-delete"
+                                        data-id="<?= htmlspecialchars($row['id']) ?>"
+                                        data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
                     <?php
                         endwhile;
                     } else {
@@ -84,14 +105,31 @@ $pageJS = ['QuanLyPhanCong.js'];
         </div>
 
         <div class="table-footer d-flex justify-content-between align-items-center mt-3">
-            <div class="text-muted">1-4/18 mục</div>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1/5</a></li>
-                    <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+            ?>
+            <div class="text-muted">Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</div>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? "?page=" . ($page - 1) : '#' ?>">&lt;</a>
+                        </li>
+
+                        <?php for ($p = 1; $p <= $totalPages; $p++): ?>
+                            <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $p ?>"><?= $p ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? "?page=" . ($page + 1) : '#' ?>">&gt;</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 

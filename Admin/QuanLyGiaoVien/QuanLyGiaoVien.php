@@ -2,7 +2,21 @@
 require_once '../../config.php';
 require_once '../../csdl/db.php';
 
-// LẤY DANH SÁCH GIÁO VIÊN
+// 1. Cấu hình số lượng bản ghi mỗi trang
+$limit = 10;
+
+// 2. Xác định trang hiện tại (mặc định là 1)
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
+// 3. Đếm tổng số bản ghi để tính tổng số trang
+$sqlCount = "SELECT COUNT(*) as total FROM giaovien gv JOIN user u ON gv.userID = u.userID";
+$resultCount = $conn->query($sqlCount);
+$rowCount = $resultCount->fetch_assoc();
+$totalRecords = $rowCount['total'];
+$totalPages = ceil($totalRecords / $limit);
+
+// 4. Lấy danh sách giáo viên có phân trang (Thêm LIMIT và OFFSET)
 $sql = "
     SELECT 
         gv.maGV,
@@ -17,6 +31,7 @@ $sql = "
     FROM giaovien gv
     JOIN user u ON gv.userID = u.userID
     ORDER BY u.hoVaTen ASC
+    LIMIT $limit OFFSET $offset
 ";
 
 $result = $conn->query($sql);
@@ -314,7 +329,7 @@ $pageJS = ['QuanLyGiaoVien.js'];
                 <tbody>
                     <?php
                     if ($result->num_rows > 0):
-                        $stt = 1;
+                        $stt = $offset + 1;
                         while ($row = $result->fetch_assoc()):
                     ?>
                             <tr>
@@ -372,18 +387,31 @@ $pageJS = ['QuanLyGiaoVien.js'];
         </div>
 
         <div class="table-footer">
-            <span>1-4/18 mục</span>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">‹</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">...</a></li>
-                    <li class="page-item"><a class="page-link" href="#">5</a></li>
-                    <li class="page-item"><a class="page-link" href="#">›</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+            ?>
+            <span>Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</span>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? "?page=" . ($page - 1) : '#' ?>">‹</a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? "?page=" . ($page + 1) : '#' ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
     <div class="d-flex justify-content-end mt-4">

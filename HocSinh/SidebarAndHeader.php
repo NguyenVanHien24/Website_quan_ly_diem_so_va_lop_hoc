@@ -335,3 +335,5 @@ $stmt->close();
                 setInterval(() => { if (!isDropdownOpen) loadNotifies(); }, 60000);
             });
         </script>
+        <!-- Global search enhancement (client-side table filtering) -->
+        <script src="<?php echo BASE_URL; ?>Admin/global-search.js"></script>

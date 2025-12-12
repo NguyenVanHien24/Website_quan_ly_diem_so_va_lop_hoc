@@ -66,23 +66,36 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                 </thead>
                 <tbody>
                     <?php
-                    // Lấy danh sách thông báo từ DB (bao gồm metadata target/send_at nếu có)
-                    // Build SQL with optional status filter
+                    $limit = 10; // Số thông báo mỗi trang
+                    $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                    $offset = ($page - 1) * $limit;
+
+                    // Xử lý bộ lọc trạng thái để tạo WHERE
                     $where = '';
                     if ($status === 'sent') {
                         $where = "WHERE tb.send_at IS NULL OR tb.send_at <= NOW()";
                     } elseif ($status === 'scheduled') {
                         $where = "WHERE tb.send_at IS NOT NULL AND tb.send_at > NOW()";
                     }
+
+                    // 1. Đếm tổng số bản ghi theo bộ lọc hiện tại (để tính số trang)
+                    $sqlCount = "SELECT COUNT(*) as total FROM thongbao tb " . $where;
+                    $resCount = $conn->query($sqlCount);
+                    $totalRecords = $resCount->fetch_assoc()['total'];
+                    $totalPages = ceil($totalRecords / $limit);
+
+                    // 2. Truy vấn lấy dữ liệu có phân trang
                     $sql = "SELECT tb.maThongBao, tb.tieuDe, tb.noiDung, tb.ngayGui, u.hoVaTen AS nguoiGui,
-                                         tb.target_type, tb.target_value, tb.send_at, tb.attachment
-                                     FROM thongbao tb
+                                   tb.target_type, tb.target_value, tb.send_at, tb.attachment
+                            FROM thongbao tb
                             LEFT JOIN `user` u ON tb.nguoiGui = u.userId
                             " . $where . "
-                            ORDER BY tb.ngayGui DESC";
+                            ORDER BY tb.ngayGui DESC
+                            LIMIT $limit OFFSET $offset"; // Thêm LIMIT và OFFSET
+
                     $rs = $conn->query($sql);
                     if ($rs && $rs->num_rows > 0) {
-                        $i = 1;
+                        $i = $offset + 1;
                         while ($row = $rs->fetch_assoc()) {
                             $id = (int)$row['maThongBao'];
                             $code = 'TB' . str_pad($id, 5, '0', STR_PAD_LEFT);
@@ -110,15 +123,24 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                 $tv = $row['target_value'] ?? '';
                                 if ($tt === 'all') {
                                     $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user`");
-                                    if ($r2) { $c2 = $r2->fetch_assoc(); $cnt = (int)($c2['cnt'] ?? 0); }
+                                    if ($r2) {
+                                        $c2 = $r2->fetch_assoc();
+                                        $cnt = (int)($c2['cnt'] ?? 0);
+                                    }
                                 } elseif ($tt === 'role') {
                                     $role = $conn->real_escape_string($tv);
-                                    $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` WHERE vaiTro = '".$role."'");
-                                    if ($r2) { $c2 = $r2->fetch_assoc(); $cnt = (int)($c2['cnt'] ?? 0); }
+                                    $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` WHERE vaiTro = '" . $role . "'");
+                                    if ($r2) {
+                                        $c2 = $r2->fetch_assoc();
+                                        $cnt = (int)($c2['cnt'] ?? 0);
+                                    }
                                 } elseif ($tt === 'class') {
                                     $maLop = (int)$tv;
-                                    $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` u JOIN hocsinh hs ON u.userId = hs.userId WHERE hs.maLopHienTai = '".$maLop."'");
-                                    if ($r2) { $c2 = $r2->fetch_assoc(); $cnt = (int)($c2['cnt'] ?? 0); }
+                                    $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` u JOIN hocsinh hs ON u.userId = hs.userId WHERE hs.maLopHienTai = '" . $maLop . "'");
+                                    if ($r2) {
+                                        $c2 = $r2->fetch_assoc();
+                                        $cnt = (int)($c2['cnt'] ?? 0);
+                                    }
                                 } elseif ($tt === 'users') {
                                     $arr = json_decode($tv, true);
                                     if (is_array($arr)) $cnt = count($arr);
@@ -161,14 +183,37 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
         </div>
 
         <div class="table-footer d-flex justify-content-between align-items-center mt-3">
-            <div class="text-muted">1-4/18 mục</div>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1/5</a></li>
-                    <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+
+            // Hàm tạo link giữ nguyên status
+            function createPageLink($p, $s)
+            {
+                return "?status=" . htmlspecialchars($s) . "&page=" . $p;
+            }
+            ?>
+            <div class="text-muted">Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</div>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? createPageLink($page - 1, $status) : '#' ?>">&lt;</a>
+                        </li>
+
+                        <?php for ($p = 1; $p <= $totalPages; $p++): ?>
+                            <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="<?= createPageLink($p, $status) ?>"><?= $p ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? createPageLink($page + 1, $status) : '#' ?>">&gt;</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -419,5 +464,7 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
     </div>
 
 </main>
-<script>window.BASE_URL = '<?php echo BASE_URL; ?>';</script>
+<script>
+    window.BASE_URL = '<?php echo BASE_URL; ?>';
+</script>
 <?php require_once '../../footer.php'; ?>

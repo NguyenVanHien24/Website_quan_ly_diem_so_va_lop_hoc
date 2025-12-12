@@ -176,8 +176,21 @@
         <header class="header">
             <button class="menu-toggle"><i class="bi bi-list"></i></button>
 
-            <form class="search-form ms-3">
-                <input type="text" class="form-control" placeholder="Tìm kiếm">
+            <form class="search-form ms-3" method="GET" action="">
+                <?php
+                // Giữ lại các tham số filter khác nếu có (ví dụ: status, class, subject)
+                // Loại bỏ 'search' và 'page' để tránh trùng lặp hoặc lỗi phân trang khi search mới
+                $queryParams = $_GET;
+                unset($queryParams['search']);
+                unset($queryParams['page']);
+
+                foreach ($queryParams as $key => $value) {
+                    echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
+                }
+                ?>
+
+                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..."
+                    value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                 <button type="submit" class="btn btn-search"><i class="bi bi-search"></i></button>
             </form>
 
@@ -253,7 +266,7 @@
                         try {
                             data = await res.json();
                         } catch (err) {
-                            const txt = await res.text().catch(()=>'');
+                            const txt = await res.text().catch(() => '');
                             console.error('Invalid JSON from get_notifications.php:', txt || err);
                             notifyList.innerHTML = '<li class="text-center text-muted small py-2">Lỗi tải thông báo</li>';
                             return;
@@ -397,3 +410,6 @@
                 setInterval(loadNotifies, 60000);
             });
         </script>
+
+        <!-- Global search enhancement (client-side table filtering) -->
+        <script src="<?php echo BASE_URL; ?>Admin/global-search.js"></script>

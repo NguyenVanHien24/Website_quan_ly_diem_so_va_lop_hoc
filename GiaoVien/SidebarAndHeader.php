@@ -396,3 +396,5 @@ $stmt->close();
                 }, 60000);
             });
         </script>
+        <!-- Global search enhancement (client-side table filtering) -->
+        <script src="<?php echo BASE_URL; ?>GiaoVien/global-search.js"></script>

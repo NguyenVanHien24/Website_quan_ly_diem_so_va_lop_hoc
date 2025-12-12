@@ -26,10 +26,25 @@ if ($userId > 0) {
     <div class="content-wrapper">
         <?php if ($userId <= 0): ?>
             <h2 class="section-title">DANH SÁCH TÀI KHOẢN</h2>
+
+            <?php
+            // --- BẮT ĐẦU XỬ LÝ PHÂN TRANG ---
+            $limit = 10; // Số tài khoản hiển thị trên mỗi trang
+            $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Trang hiện tại, mặc định là 1
+            $offset = ($page - 1) * $limit; // Vị trí bắt đầu lấy dữ liệu
+
+            // 1. Đếm tổng số bản ghi
+            $countQuery = $conn->query("SELECT COUNT(*) as total FROM `user`");
+            $totalRows = $countQuery->fetch_assoc()['total'];
+            $totalPages = ceil($totalRows / $limit);
+
+            // 2. Lấy dữ liệu phân trang (Thêm LIMIT và OFFSET)
+            // Lưu ý: Đã sửa câu lệnh SQL để thêm LIMIT
+            $q = $conn->query("SELECT userId, hoVaTen, email, sdt, vaiTro FROM `user` ORDER BY userId DESC LIMIT $limit OFFSET $offset");
+            // --- KẾT THÚC XỬ LÝ PHÂN TRANG ---
+            ?>
+
             <div class="table-responsive">
-                <?php
-                $q = $conn->query("SELECT userId, hoVaTen, email, sdt, vaiTro FROM `user` ORDER BY userId DESC");
-                ?>
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
@@ -42,23 +57,60 @@ if ($userId > 0) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if ($q && $q->num_rows): $idx = 1; while($row = $q->fetch_assoc()): ?>
+                        <?php
+                        if ($q && $q->num_rows):
+                            // Tính STT dựa trên trang hiện tại: (Trang 1 bắt đầu từ 1, Trang 2 bắt đầu từ 11...)
+                            $idx = $offset + 1;
+                            while ($row = $q->fetch_assoc()):
+                        ?>
+                                <tr>
+                                    <td><?php echo $idx++; ?></td>
+                                    <td><?php echo htmlspecialchars($row['hoVaTen']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['email']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['sdt']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['vaiTro']); ?></td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-primary" href="?userId=<?php echo intval($row['userId']); ?>">Phân quyền</a>
+                                    </td>
+                                </tr>
+                            <?php endwhile;
+                        else: ?>
                             <tr>
-                                <td><?php echo $idx++; ?></td>
-                                <td><?php echo htmlspecialchars($row['hoVaTen']); ?></td>
-                                <td><?php echo htmlspecialchars($row['email']); ?></td>
-                                <td><?php echo htmlspecialchars($row['sdt']); ?></td>
-                                <td><?php echo htmlspecialchars($row['vaiTro']); ?></td>
-                                <td>
-                                    <a class="btn btn-sm btn-outline-primary" href="?userId=<?php echo intval($row['userId']); ?>">Phân quyền</a>
-                                </td>
+                                <td colspan="6" class="text-center">Không có tài khoản</td>
                             </tr>
-                        <?php endwhile; else: ?>
-                            <tr><td colspan="6" class="text-center">Không có tài khoản</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
+
+            <?php if ($totalPages > 1): ?>
+                <div class="d-flex justify-content-end mt-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $page - 1; ?>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $page + 1; ?>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="text-end text-muted small">
+                    Hiển thị <?php echo ($offset + 1); ?> - <?php echo min($offset + $limit, $totalRows); ?> trên tổng số <?php echo $totalRows; ?> tài khoản
+                </div>
+            <?php endif; ?>
         <?php else: ?>
             <h2 class="section-title">THÔNG TIN TÀI KHOẢN</h2>
 

@@ -71,12 +71,12 @@ $pageJS = ['KetQuaHocTap.js'];
         </div>
 
         <div class="table-footer d-flex justify-content-between align-items-center bg-light p-2 border-top">
-            <div class="text-secondary ps-3 fw-bold fs-6">1-4/18 mục</div>
+            <div id="paginationInfo" class="text-secondary ps-3 fw-bold fs-6">0-0/0 mục</div>
             <nav>
                 <ul class="pagination mb-0 pe-3 gap-1">
-                    <li class="page-item"><button class="page-link custom-page-btn"><i class="bi bi-chevron-left"></i></button></li>
-                    <li class="page-item"><span class="page-link custom-page-number">1/5</span></li>
-                    <li class="page-item"><button class="page-link custom-page-btn"><i class="bi bi-chevron-right"></i></button></li>
+                    <li class="page-item"><button id="btnPrevPage" class="page-link custom-page-btn" title="Trang trước"><i class="bi bi-chevron-left"></i></button></li>
+                    <li class="page-item"><span id="pageNumber" class="page-link custom-page-number">0/0</span></li>
+                    <li class="page-item"><button id="btnNextPage" class="page-link custom-page-btn" title="Trang sau"><i class="bi bi-chevron-right"></i></button></li>
                 </ul>
             </nav>
         </div>

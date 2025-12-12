@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnLoad = document.getElementById('btnLoadScores');
     const tbody = document.querySelector('main table.table tbody');
     const btnExport = document.getElementById('btnExport');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const btnPrevPage = document.getElementById('btnPrevPage');
+    const btnNextPage = document.getElementById('btnNextPage');
+    const pageNumber = document.getElementById('pageNumber');
+
+    // pagination state
+    let fullData = [];
+    let currentPage = 1;
+    const pageSize = 10; // enforced
 
     async function loadYearsAndDefault() {
         try {
@@ -25,23 +34,32 @@ document.addEventListener('DOMContentLoaded', function() {
             const res = await fetch(window.BASE_URL + `HocSinh/TraCuuThongTin/get_student_overview.php?namHoc=${encodeURIComponent(year)}&hocKy=${encodeURIComponent(hk)}`);
             const data = await res.json();
             if (!data.success) return;
-            renderTable(data.data);
+            fullData = data.data || [];
+            renderTablePage(1);
         } catch (e) { console.error(e); }
     }
 
-    function renderTable(rows) {
+    function renderTablePage(page) {
         tbody.innerHTML = '';
-        if (!rows || rows.length === 0) {
+        const total = fullData.length;
+        if (!fullData || total === 0) {
             tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">Không có dữ liệu</td></tr>';
+            updatePagination(0, 0, 0);
             return;
         }
-        let i = 1;
-        rows.forEach(r => {
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (page < 1) page = 1; if (page > totalPages) page = totalPages;
+        currentPage = page;
+        const start = (currentPage - 1) * pageSize;
+        const end = Math.min(total, start + pageSize);
+        for (let idx = start; idx < end; idx++) {
+            const r = fullData[idx];
             const tr = document.createElement('tr');
             tr.className = 'notify-row';
+            const globalIndex = idx + 1;
             tr.innerHTML = `
                 <td class="text-center"><input class="form-check-input custom-checkbox" type="checkbox"></td>
-                <td class="text-center fw-bold">${i}</td>
+                <td class="text-center fw-bold">${globalIndex}</td>
                 <td class="text-secondary"></td>
                 <td class="text-secondary">${escapeHtml(r.tenMon || '')}</td>
                 <td class="text-center text-secondary">${r.avg_gk !== null ? r.avg_gk : ''}</td>
@@ -52,9 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <a href="#" class="icon-download btn-export-subject" data-mamon="${r.maMon}" title="Tải xuống"><i class="bi bi-download"></i></a>
                 </td>`;
             tbody.appendChild(tr);
-            i++;
-        });
+        }
         attachRowEvents();
+        updatePagination(start + 1, end, total);
     }
 
     function attachRowEvents() {
@@ -155,6 +173,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     btnLoad.addEventListener('click', loadOverview);
+    if (btnPrevPage) btnPrevPage.addEventListener('click', function(){ if (currentPage>1) renderTablePage(currentPage-1); });
+    if (btnNextPage) btnNextPage.addEventListener('click', function(){ const totalPages = Math.max(1, Math.ceil(fullData.length / pageSize)); if (currentPage<totalPages) renderTablePage(currentPage+1); });
+
+    function updatePagination(start, end, total) {
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        const displayStart = total === 0 ? 0 : start;
+        const displayEnd = total === 0 ? 0 : end;
+        if (paginationInfo) paginationInfo.innerText = `${displayStart}-${displayEnd}/${total} mục`;
+        if (pageNumber) pageNumber.innerText = `${currentPage}/${totalPages}`;
+        if (btnPrevPage) btnPrevPage.disabled = (currentPage <= 1 || total === 0);
+        if (btnNextPage) btnNextPage.disabled = (currentPage >= totalPages || total === 0);
+    }
     btnExport.addEventListener('click', function() {
         const rows = [];
         // metadata
