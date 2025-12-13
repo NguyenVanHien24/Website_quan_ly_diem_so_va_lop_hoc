@@ -1,20 +1,18 @@
 <?php
 require_once '../../config.php';
 require_once '../../csdl/db.php'; // kết nối DB
-// Lấy danh sách giáo viên
-$sqlTeachers = "SELECT giaovien.maGV, user.hoVaTen
-                FROM giaovien
-                JOIN user ON giaovien.userId = user.userId
-                WHERE user.vaiTro='GiaoVien'
-                ORDER BY user.hoVaTen ASC";
-$resultTeachers = $conn->query($sqlTeachers);
-// Lấy mã môn lớn nhất hiện tại
-$resultMax = $conn->query("SELECT MAX(maMon) AS maxID FROM monhoc");
-$rowMax = $resultMax->fetch_assoc();
-$nextMaMon = $rowMax ? $rowMax['maxID'] + 1 : 1;
+$limit = 10; // Số lượng môn học mỗi trang
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
 
-// Truy vấn dữ liệu môn học
-$sqlSubjects = "SELECT * FROM monhoc ORDER BY maMon ASC";
+// 1. Đếm tổng số môn học
+$sqlCount = "SELECT COUNT(*) as total FROM monhoc";
+$resCount = $conn->query($sqlCount);
+$totalRecords = $resCount->fetch_assoc()['total'];
+$totalPages = ceil($totalRecords / $limit);
+
+// 2. Lấy danh sách môn học theo trang (Thêm LIMIT và OFFSET)
+$sqlSubjects = "SELECT * FROM monhoc ORDER BY maMon ASC LIMIT $limit OFFSET $offset";
 $resultSubjects = $conn->query($sqlSubjects);
 
 $pageTitle = "Quản lý môn học";
@@ -48,7 +46,7 @@ $pageJS = ['QuanLyMonHoc.js'];
                 </thead>
                 <tbody>
                     <?php
-                    $stt = 1;
+                    $stt = $offset + 1;
                     if ($resultSubjects && $resultSubjects->num_rows > 0):
                         while ($row = $resultSubjects->fetch_assoc()):
                     ?>
@@ -103,16 +101,31 @@ $pageJS = ['QuanLyMonHoc.js'];
         </div>
 
         <div class="table-footer">
-            <span>1-4/18 mục</span>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">‹</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">...</a></li>
-                    <li class="page-item"><a class="page-link" href="#">›</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+            ?>
+            <span>Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</span>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? "?page=" . ($page - 1) : '#' ?>">‹</a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? "?page=" . ($page + 1) : '#' ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -157,7 +170,7 @@ $pageJS = ['QuanLyMonHoc.js'];
                                 <label class="form-label">Trưởng bộ môn:</label>
                                 <select class="form-select" id="m_head">
                                     <option value="">-- Chọn giáo viên --</option>
-                                    
+
                                 </select>
                             </div>
                         </div>

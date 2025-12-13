@@ -31,10 +31,31 @@ $result = $stmt->get_result();
 $teacher = $result->fetch_assoc();
 $stmt->close();
 
-// Lấy danh sách lớp mà giáo viên này được phân công
 $assignedClasses = [];
+$totalRecords = 0;
+$totalPages = 0;
+$limit = 10; // Số lớp mỗi trang
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
 if (!empty($teacher['maGV'])) {
     $maGV = (int)$teacher['maGV'];
+
+    // 1. Đếm tổng số lớp được phân công (để tính số trang)
+    // Lưu ý: Dùng COUNT(DISTINCT l.maLop) vì query gốc có DISTINCT
+    $sqlCount = "SELECT COUNT(DISTINCT l.maLop) as total
+                 FROM phan_cong pc
+                 JOIN lophoc l ON l.maLop = pc.maLop
+                 WHERE pc.maGV = $maGV";
+
+    $rsCount = $conn->query($sqlCount);
+    if ($rsCount) {
+        $row = $rsCount->fetch_assoc();
+        $totalRecords = $row['total'];
+        $totalPages = ceil($totalRecords / $limit);
+    }
+
+    // 2. Lấy danh sách lớp theo trang (Thêm LIMIT và OFFSET)
     $sqlc = "SELECT DISTINCT l.maLop, l.tenLop, l.khoiLop, l.giaoVienPhuTrach, l.siSo, l.trangThai, l.namHoc, l.kyHoc,
                      gv.maGV AS gv_maGV, u2.hoVaTen AS gvName
              FROM phan_cong pc
@@ -42,7 +63,9 @@ if (!empty($teacher['maGV'])) {
              LEFT JOIN giaovien gv ON gv.maGV = l.giaoVienPhuTrach
              LEFT JOIN `user` u2 ON u2.userId = gv.userId
              WHERE pc.maGV = $maGV
-             ORDER BY l.tenLop";
+             ORDER BY l.tenLop
+             LIMIT $limit OFFSET $offset";
+
     $rs = $conn->query($sqlc);
     if ($rs) {
         while ($r = $rs->fetch_assoc()) {
@@ -50,7 +73,6 @@ if (!empty($teacher['maGV'])) {
         }
     }
 }
-
 ?>
 <main>
     <div class="main-header">
@@ -76,7 +98,7 @@ if (!empty($teacher['maGV'])) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (count($assignedClasses) > 0): $i = 1; ?>
+                    <?php if (count($assignedClasses) > 0): $i = $offset + 1; ?>
                         <?php foreach ($assignedClasses as $c): ?>
                             <tr>
                                 <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($c['maLop']) ?>"></td>
@@ -94,19 +116,40 @@ if (!empty($teacher['maGV'])) {
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="8" class="text-center text-muted">Bạn chưa được phân công lớp nào</td></tr>
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">Bạn chưa được phân công lớp nào</td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <div class="table-footer">
-            <span>1-1/18 mục</span>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+            ?>
+            <span>Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> lớp</span>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? "?page=" . ($page - 1) : '#' ?>">‹</a>
+                        </li>
+
+                        <?php for ($p = 1; $p <= $totalPages; $p++): ?>
+                            <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $p ?>"><?= $p ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? "?page=" . ($page + 1) : '#' ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 

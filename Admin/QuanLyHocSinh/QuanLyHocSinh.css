@@ -169,3 +169,15 @@
 .btn-danger:hover {
     background-color: #9b2c2c;
 }
+
+/* Nút import */
+.btn-import {
+    background-color: #2729a3;
+    color: white;
+    border: none;
+    margin-right: 30px;
+}
+.btn-import:hover {
+    background-color: #29237b;
+    color: white;
+}

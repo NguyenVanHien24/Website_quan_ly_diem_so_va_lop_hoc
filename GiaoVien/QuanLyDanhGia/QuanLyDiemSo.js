@@ -39,7 +39,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (yearInput && (!yearInput.value || yearInput.value.trim() === '')) yearInput.value = currentClassInfo.namHoc || '2025-2026';
                         if (semesterSelect && (!semesterSelect.value || semesterSelect.value === '')) semesterSelect.value = currentClassInfo.hocKy || 1;
                     }
-                    renderTable(resp.data);
+                        // setup pagination data
+                        fullData = resp.data || [];
+                        currentPage = 1;
+                        pageSize = parseInt(pageSizeSelect ? pageSizeSelect.value : 10) || 10;
+                        renderPage(currentPage);
                 } catch (e) {
                     console.error('JSON parse error:', text);
                     tbody.innerHTML = '<tr><td colspan="9">Lỗi phân tích dữ liệu: ' + text.substring(0, 100) + '</td></tr>';
@@ -49,6 +53,68 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error(err);
             });
     }
+
+        // Pagination state
+        let fullData = [];
+        let currentPage = 1;
+        let pageSize = 10;
+
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        const pageInfo = document.getElementById('page-info');
+        const pageSizeSelect = document.getElementById('page-size');
+
+        function renderTableRows(rows) {
+            tbody.innerHTML = '';
+            if (!rows || rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9">Không có học sinh</td></tr>';
+                return;
+            }
+            rows.forEach((row) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.stt}</td>
+                    <td>${row.maHS}</td>
+                    <td>${row.hoVaTen}</td>
+                    <td>${row.tenLop}</td>
+                    <td>${subjectSelect.options[subjectSelect.selectedIndex].text}</td>
+                    <td>${row.avgHK1 || '-'}</td>
+                    <td>${row.avgHK2 || '-'}</td>
+                    <td>${row.avg || '-'}</td>
+                    <td class="action-icons">
+                        <a href="#" class="btn-view" data-mahs="${row.maHS}" data-name="${row.hoVaTen}" data-mouth="${row.mouth}" data-45m="${row['45m']}" data-gk="${row.gk}" data-ck="${row.ck}" data-bs-toggle="modal" data-bs-target="#viewGradeModal">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="#" class="btn-edit" data-mahs="${row.maHS}" data-name="${row.hoVaTen}" data-mouth="${row.mouth}" data-45m="${row['45m']}" data-gk="${row.gk}" data-ck="${row.ck}" data-bs-toggle="modal" data-bs-target="#gradeEntryModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updatePaginationControls() {
+            const total = fullData.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            pageInfo.textContent = currentPage + '/' + totalPages;
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(total, currentPage * pageSize);
+            tableRange.textContent = (total === 0 ? '0 mục' : (`${start}-${end} / ${total} mục`));
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+        }
+
+        function renderPage(page) {
+            currentPage = page || 1;
+            const start = (currentPage - 1) * pageSize;
+            const pageRows = fullData.slice(start, start + pageSize);
+            // adjust stt numbering
+            pageRows.forEach((r, idx) => r.stt = start + idx + 1);
+            renderTableRows(pageRows);
+            updatePaginationControls();
+        }
 
     function renderTable(data) {
         tbody.innerHTML = '';
@@ -95,6 +161,11 @@ document.addEventListener('DOMContentLoaded', function() {
             fetchAndPopulateModal(btnEdit, 'edit');
         }
     });
+
+        // Pagination controls
+        if (prevBtn) prevBtn.addEventListener('click', function(e) { e.preventDefault(); if (currentPage>1) renderPage(currentPage-1); });
+        if (nextBtn) nextBtn.addEventListener('click', function(e) { e.preventDefault(); const totalPages = Math.max(1, Math.ceil(fullData.length / pageSize)); if (currentPage<totalPages) renderPage(currentPage+1); });
+        if (pageSizeSelect) pageSizeSelect.addEventListener('change', function() { pageSize = parseInt(this.value)||10; currentPage = 1; renderPage(currentPage); });
 
     function fetchAndPopulateModal(btn, mode) {
         const maHS = btn.dataset.mahs;

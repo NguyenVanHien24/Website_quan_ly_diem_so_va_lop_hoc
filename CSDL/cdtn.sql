@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2025 at 06:41 PM
+-- Generation Time: Dec 11, 2025 at 05:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1070,7 +1070,180 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (868, NULL, 'Xóa tài liệu', 'TaiLieu', 4, NULL, '2025-12-09 01:20:47'),
 (869, NULL, 'Cập nhật tài liệu', 'TaiLieu', 3, NULL, '2025-12-10 00:39:16'),
 (870, NULL, 'Cập nhật tài liệu', 'TaiLieu', 6, NULL, '2025-12-10 00:39:16'),
-(871, NULL, 'Cập nhật tài liệu', 'TaiLieu', 3, NULL, '2025-12-10 00:40:00');
+(871, NULL, 'Cập nhật tài liệu', 'TaiLieu', 3, NULL, '2025-12-10 00:40:00'),
+(872, NULL, 'Cập nhật tài liệu', 'TaiLieu', 3, NULL, '2025-12-10 00:58:24'),
+(873, NULL, 'Gửi thông báo ID 5 cho user 1', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(874, NULL, 'Gửi thông báo ID 5 cho user 2', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(875, NULL, 'Gửi thông báo ID 5 cho user 35', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(876, NULL, 'Gửi thông báo ID 5 cho user 18', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(877, NULL, 'Gửi thông báo ID 5 cho user 28', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(878, NULL, 'Gửi thông báo ID 5 cho user 29', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(879, NULL, 'Gửi thông báo ID 5 cho user 30', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(880, NULL, 'Gửi thông báo ID 5 cho user 31', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(881, NULL, 'Gửi thông báo ID 5 cho user 36', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(882, NULL, 'Gửi thông báo ID 5 cho user 37', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(883, NULL, 'Gửi thông báo ID 5 cho user 52', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(884, NULL, 'Gửi thông báo ID 5 cho user 46', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(885, NULL, 'Gửi thông báo ID 5 cho user 3', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(886, NULL, 'Gửi thông báo ID 5 cho user 20', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(887, NULL, 'Gửi thông báo ID 5 cho user 21', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(888, NULL, 'Gửi thông báo ID 5 cho user 22', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(889, NULL, 'Gửi thông báo ID 5 cho user 23', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(890, NULL, 'Gửi thông báo ID 5 cho user 24', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(891, NULL, 'Gửi thông báo ID 5 cho user 26', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(892, NULL, 'Gửi thông báo ID 5 cho user 27', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(893, NULL, 'Gửi thông báo ID 5 cho user 51', NULL, NULL, NULL, '2025-12-11 20:15:40'),
+(894, NULL, 'Gửi thông báo ID 6 cho user 3', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(895, NULL, 'Gửi thông báo ID 6 cho user 20', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(896, NULL, 'Gửi thông báo ID 6 cho user 21', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(897, NULL, 'Gửi thông báo ID 6 cho user 22', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(898, NULL, 'Gửi thông báo ID 6 cho user 23', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(899, NULL, 'Gửi thông báo ID 6 cho user 24', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(900, NULL, 'Gửi thông báo ID 6 cho user 26', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(901, NULL, 'Gửi thông báo ID 6 cho user 27', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(902, NULL, 'Gửi thông báo ID 6 cho user 51', NULL, NULL, NULL, '2025-12-11 20:17:11'),
+(903, NULL, 'Gửi thông báo ID 4 cho user 3', NULL, NULL, NULL, '2025-12-11 20:24:15'),
+(904, NULL, 'Gửi thông báo ID 4 cho user 21', NULL, NULL, NULL, '2025-12-11 20:24:15'),
+(905, NULL, 'Gửi thông báo ID 4 cho user 24', NULL, NULL, NULL, '2025-12-11 20:24:15'),
+(906, NULL, 'Xóa thông báo ID 4 của user 3', NULL, NULL, NULL, '2025-12-11 20:37:15'),
+(907, NULL, 'Xóa thông báo ID 4 của user 21', NULL, NULL, NULL, '2025-12-11 20:37:15'),
+(908, NULL, 'Xóa thông báo ID 4 của user 24', NULL, NULL, NULL, '2025-12-11 20:37:15'),
+(909, NULL, 'Gửi thông báo ID 4 cho user 3', NULL, NULL, NULL, '2025-12-11 20:37:15'),
+(910, NULL, 'Gửi thông báo ID 4 cho user 21', NULL, NULL, NULL, '2025-12-11 20:37:15'),
+(911, NULL, 'Gửi thông báo ID 4 cho user 24', NULL, NULL, NULL, '2025-12-11 20:37:15'),
+(912, NULL, 'Xóa thông báo ID 4 của user 3', NULL, NULL, NULL, '2025-12-11 20:37:34'),
+(913, NULL, 'Xóa thông báo ID 4 của user 21', NULL, NULL, NULL, '2025-12-11 20:37:34'),
+(914, NULL, 'Xóa thông báo ID 4 của user 24', NULL, NULL, NULL, '2025-12-11 20:37:34'),
+(915, NULL, 'Gửi thông báo ID 4 cho user 3', NULL, NULL, NULL, '2025-12-11 20:37:34'),
+(916, NULL, 'Gửi thông báo ID 4 cho user 21', NULL, NULL, NULL, '2025-12-11 20:37:34'),
+(917, NULL, 'Gửi thông báo ID 4 cho user 24', NULL, NULL, NULL, '2025-12-11 20:37:34'),
+(918, NULL, 'Xóa thông báo ID 4 của user 3', NULL, NULL, NULL, '2025-12-11 20:42:26'),
+(919, NULL, 'Xóa thông báo ID 4 của user 21', NULL, NULL, NULL, '2025-12-11 20:42:26'),
+(920, NULL, 'Xóa thông báo ID 4 của user 24', NULL, NULL, NULL, '2025-12-11 20:42:26'),
+(921, NULL, 'Gửi thông báo ID 4 cho user 20', NULL, NULL, NULL, '2025-12-11 20:42:26'),
+(922, NULL, 'Xóa thông báo ID 4 của user 20', NULL, NULL, NULL, '2025-12-11 20:47:13'),
+(923, NULL, 'Gửi thông báo ID 4 cho user 2', NULL, NULL, NULL, '2025-12-11 20:47:13'),
+(924, NULL, 'Xóa thông báo ID 4 của user 2', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(925, NULL, 'Gửi thông báo ID 4 cho user 2', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(926, NULL, 'Gửi thông báo ID 4 cho user 18', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(927, NULL, 'Gửi thông báo ID 4 cho user 28', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(928, NULL, 'Gửi thông báo ID 4 cho user 29', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(929, NULL, 'Gửi thông báo ID 4 cho user 30', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(930, NULL, 'Gửi thông báo ID 4 cho user 31', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(931, NULL, 'Gửi thông báo ID 4 cho user 35', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(932, NULL, 'Gửi thông báo ID 4 cho user 36', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(933, NULL, 'Gửi thông báo ID 4 cho user 37', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(934, NULL, 'Gửi thông báo ID 4 cho user 46', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(935, NULL, 'Gửi thông báo ID 4 cho user 52', NULL, NULL, NULL, '2025-12-11 20:47:45'),
+(936, NULL, 'Gửi thông báo ID 7 cho user 1', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(937, NULL, 'Gửi thông báo ID 7 cho user 2', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(938, NULL, 'Gửi thông báo ID 7 cho user 35', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(939, NULL, 'Gửi thông báo ID 7 cho user 18', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(940, NULL, 'Gửi thông báo ID 7 cho user 28', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(941, NULL, 'Gửi thông báo ID 7 cho user 29', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(942, NULL, 'Gửi thông báo ID 7 cho user 30', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(943, NULL, 'Gửi thông báo ID 7 cho user 31', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(944, NULL, 'Gửi thông báo ID 7 cho user 36', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(945, NULL, 'Gửi thông báo ID 7 cho user 37', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(946, NULL, 'Gửi thông báo ID 7 cho user 52', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(947, NULL, 'Gửi thông báo ID 7 cho user 46', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(948, NULL, 'Gửi thông báo ID 7 cho user 3', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(949, NULL, 'Gửi thông báo ID 7 cho user 20', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(950, NULL, 'Gửi thông báo ID 7 cho user 21', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(951, NULL, 'Gửi thông báo ID 7 cho user 22', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(952, NULL, 'Gửi thông báo ID 7 cho user 23', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(953, NULL, 'Gửi thông báo ID 7 cho user 24', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(954, NULL, 'Gửi thông báo ID 7 cho user 26', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(955, NULL, 'Gửi thông báo ID 7 cho user 27', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(956, NULL, 'Gửi thông báo ID 7 cho user 51', NULL, NULL, NULL, '2025-12-11 20:56:16'),
+(957, NULL, 'Xóa thông báo ID 7 của user 1', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(958, NULL, 'Xóa thông báo ID 7 của user 2', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(959, NULL, 'Xóa thông báo ID 7 của user 35', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(960, NULL, 'Xóa thông báo ID 7 của user 18', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(961, NULL, 'Xóa thông báo ID 7 của user 28', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(962, NULL, 'Xóa thông báo ID 7 của user 29', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(963, NULL, 'Xóa thông báo ID 7 của user 30', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(964, NULL, 'Xóa thông báo ID 7 của user 31', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(965, NULL, 'Xóa thông báo ID 7 của user 36', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(966, NULL, 'Xóa thông báo ID 7 của user 37', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(967, NULL, 'Xóa thông báo ID 7 của user 52', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(968, NULL, 'Xóa thông báo ID 7 của user 46', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(969, NULL, 'Xóa thông báo ID 7 của user 3', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(970, NULL, 'Xóa thông báo ID 7 của user 20', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(971, NULL, 'Xóa thông báo ID 7 của user 21', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(972, NULL, 'Xóa thông báo ID 7 của user 22', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(973, NULL, 'Xóa thông báo ID 7 của user 23', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(974, NULL, 'Xóa thông báo ID 7 của user 24', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(975, NULL, 'Xóa thông báo ID 7 của user 26', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(976, NULL, 'Xóa thông báo ID 7 của user 27', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(977, NULL, 'Xóa thông báo ID 7 của user 51', NULL, NULL, NULL, '2025-12-11 21:06:37'),
+(978, NULL, 'Gửi thông báo ID 7 cho user 2', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(979, NULL, 'Gửi thông báo ID 7 cho user 18', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(980, NULL, 'Gửi thông báo ID 7 cho user 28', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(981, NULL, 'Gửi thông báo ID 7 cho user 29', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(982, NULL, 'Gửi thông báo ID 7 cho user 30', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(983, NULL, 'Gửi thông báo ID 7 cho user 31', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(984, NULL, 'Gửi thông báo ID 7 cho user 35', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(985, NULL, 'Gửi thông báo ID 7 cho user 36', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(986, NULL, 'Gửi thông báo ID 7 cho user 37', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(987, NULL, 'Gửi thông báo ID 7 cho user 46', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(988, NULL, 'Gửi thông báo ID 7 cho user 52', NULL, NULL, NULL, '2025-12-11 21:07:21'),
+(989, NULL, 'Xóa thông báo ID 7 của user 2', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(990, NULL, 'Xóa thông báo ID 7 của user 18', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(991, NULL, 'Xóa thông báo ID 7 của user 28', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(992, NULL, 'Xóa thông báo ID 7 của user 29', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(993, NULL, 'Xóa thông báo ID 7 của user 30', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(994, NULL, 'Xóa thông báo ID 7 của user 31', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(995, NULL, 'Xóa thông báo ID 7 của user 35', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(996, NULL, 'Xóa thông báo ID 7 của user 36', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(997, NULL, 'Xóa thông báo ID 7 của user 37', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(998, NULL, 'Xóa thông báo ID 7 của user 46', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(999, NULL, 'Xóa thông báo ID 7 của user 52', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1000, NULL, 'Gửi thông báo ID 7 cho user 1', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1001, NULL, 'Gửi thông báo ID 7 cho user 2', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1002, NULL, 'Gửi thông báo ID 7 cho user 35', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1003, NULL, 'Gửi thông báo ID 7 cho user 18', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1004, NULL, 'Gửi thông báo ID 7 cho user 28', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1005, NULL, 'Gửi thông báo ID 7 cho user 29', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1006, NULL, 'Gửi thông báo ID 7 cho user 30', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1007, NULL, 'Gửi thông báo ID 7 cho user 31', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1008, NULL, 'Gửi thông báo ID 7 cho user 36', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1009, NULL, 'Gửi thông báo ID 7 cho user 37', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1010, NULL, 'Gửi thông báo ID 7 cho user 52', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1011, NULL, 'Gửi thông báo ID 7 cho user 46', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1012, NULL, 'Gửi thông báo ID 7 cho user 3', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1013, NULL, 'Gửi thông báo ID 7 cho user 20', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1014, NULL, 'Gửi thông báo ID 7 cho user 21', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1015, NULL, 'Gửi thông báo ID 7 cho user 22', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1016, NULL, 'Gửi thông báo ID 7 cho user 23', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1017, NULL, 'Gửi thông báo ID 7 cho user 24', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1018, NULL, 'Gửi thông báo ID 7 cho user 26', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1019, NULL, 'Gửi thông báo ID 7 cho user 27', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1020, NULL, 'Gửi thông báo ID 7 cho user 51', NULL, NULL, NULL, '2025-12-11 21:07:29'),
+(1021, NULL, 'Xóa thông báo ID 7 của user 1', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1022, NULL, 'Xóa thông báo ID 7 của user 2', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1023, NULL, 'Xóa thông báo ID 7 của user 35', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1024, NULL, 'Xóa thông báo ID 7 của user 18', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1025, NULL, 'Xóa thông báo ID 7 của user 28', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1026, NULL, 'Xóa thông báo ID 7 của user 29', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1027, NULL, 'Xóa thông báo ID 7 của user 30', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1028, NULL, 'Xóa thông báo ID 7 của user 31', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1029, NULL, 'Xóa thông báo ID 7 của user 36', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1030, NULL, 'Xóa thông báo ID 7 của user 37', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1031, NULL, 'Xóa thông báo ID 7 của user 52', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1032, NULL, 'Xóa thông báo ID 7 của user 46', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1033, NULL, 'Xóa thông báo ID 7 của user 3', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1034, NULL, 'Xóa thông báo ID 7 của user 20', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1035, NULL, 'Xóa thông báo ID 7 của user 21', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1036, NULL, 'Xóa thông báo ID 7 của user 22', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1037, NULL, 'Xóa thông báo ID 7 của user 23', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1038, NULL, 'Xóa thông báo ID 7 của user 24', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1039, NULL, 'Xóa thông báo ID 7 của user 26', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1040, NULL, 'Xóa thông báo ID 7 của user 27', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1041, NULL, 'Xóa thông báo ID 7 của user 51', NULL, NULL, NULL, '2025-12-11 21:07:50'),
+(1042, NULL, 'User 2 đã thay đổi trạng thái thông báo ID 5', NULL, NULL, NULL, '2025-12-11 23:55:41'),
+(1043, NULL, 'User 2 đã thay đổi trạng thái thông báo ID 4', NULL, NULL, NULL, '2025-12-11 23:55:41'),
+(1044, NULL, 'User 1 đã thay đổi trạng thái thông báo ID 5', NULL, NULL, NULL, '2025-12-11 23:56:49');
 
 -- --------------------------------------------------------
 
@@ -1903,7 +2076,7 @@ CREATE TABLE `tailieu` (
 --
 
 INSERT INTO `tailieu` (`maTaiLieu`, `maMon`, `maGV`, `maLop`, `tieuDe`, `moTa`, `fileTL`, `ngayTao`, `hanNop`) VALUES
-(3, 1, 1, 12, 'Hàm số', 'các dạng về hàm số', 'Template_testcase.xlsx', '2025-12-08 23:14:18', NULL),
+(3, 1, 1, 12, 'Hàm số', 'các dạng về hàm số', 'Template_Report_1765303104.docx', '2025-12-08 23:14:18', NULL),
 (6, 1, 1, 13, 'Hàm số', 'các dạng về hàm số test', 'Template_testcase.xlsx', '2025-12-09 00:42:48', NULL);
 
 --
@@ -1942,19 +2115,22 @@ CREATE TABLE `thongbao` (
   `tieuDe` varchar(255) DEFAULT NULL,
   `noiDung` text DEFAULT NULL,
   `ngayGui` datetime DEFAULT current_timestamp(),
-  `nguoiGui` int(11) DEFAULT NULL
+  `nguoiGui` int(11) DEFAULT NULL,
+  `target_type` enum('all','role','class','users') NOT NULL DEFAULT 'all',
+  `target_value` text DEFAULT NULL,
+  `send_at` datetime DEFAULT NULL,
+  `attachment` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Triggers `thongbao`
+-- Dumping data for table `thongbao`
 --
-DELIMITER $$
-CREATE TRIGGER `trg_thongbao_after_insert` AFTER INSERT ON `thongbao` FOR EACH ROW BEGIN
-    INSERT INTO ThongBaoUser(maTB, userId)
-    SELECT NEW.maThongBao, userId FROM User;
-END
-$$
-DELIMITER ;
+
+INSERT INTO `thongbao` (`maThongBao`, `tieuDe`, `noiDung`, `ngayGui`, `nguoiGui`, `target_type`, `target_value`, `send_at`, `attachment`) VALUES
+(4, 'thử 1', 'thử nha', '2025-12-11 17:26:23', 1, 'role', 'GiaoVien', '2025-12-10 09:24:00', 'tb_693acb61db7f0.docx'),
+(5, 'thu', 'thử test', '2025-12-11 20:15:40', 1, 'all', '', NULL, NULL),
+(6, 'thuhs', 'thử gửi cho hs', '2025-12-11 20:17:11', 1, 'role', 'HocSinh', NULL, NULL),
+(7, 'thongbao', 'lên lịch', '2025-12-11 20:56:15', 1, 'role', 'GiaoVien', '2025-12-19 16:00:00', 'tb_693acd7fe3b86.docx');
 
 -- --------------------------------------------------------
 
@@ -1964,18 +2140,65 @@ DELIMITER ;
 
 CREATE TABLE `thongbaouser` (
   `id` int(11) NOT NULL,
-  `maTB` int(11) DEFAULT NULL,
-  `userId` int(11) DEFAULT NULL,
+  `maTB` int(11) NOT NULL,
+  `userId` int(11) NOT NULL,
   `ngayNhan` datetime DEFAULT current_timestamp(),
   `trangThai` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `thongbaouser`
+--
+
+INSERT INTO `thongbaouser` (`id`, `maTB`, `userId`, `ngayNhan`, `trangThai`) VALUES
+(55, 5, 1, '2025-12-11 20:15:40', 1),
+(56, 5, 2, '2025-12-11 20:15:40', 1),
+(57, 5, 35, '2025-12-11 20:15:40', 0),
+(58, 5, 18, '2025-12-11 20:15:40', 0),
+(59, 5, 28, '2025-12-11 20:15:40', 0),
+(60, 5, 29, '2025-12-11 20:15:40', 0),
+(61, 5, 30, '2025-12-11 20:15:40', 0),
+(62, 5, 31, '2025-12-11 20:15:40', 0),
+(63, 5, 36, '2025-12-11 20:15:40', 0),
+(64, 5, 37, '2025-12-11 20:15:40', 0),
+(65, 5, 52, '2025-12-11 20:15:40', 0),
+(66, 5, 46, '2025-12-11 20:15:40', 0),
+(67, 5, 3, '2025-12-11 20:15:40', 0),
+(68, 5, 20, '2025-12-11 20:15:40', 0),
+(69, 5, 21, '2025-12-11 20:15:40', 0),
+(70, 5, 22, '2025-12-11 20:15:40', 0),
+(71, 5, 23, '2025-12-11 20:15:40', 0),
+(72, 5, 24, '2025-12-11 20:15:40', 0),
+(73, 5, 26, '2025-12-11 20:15:40', 0),
+(74, 5, 27, '2025-12-11 20:15:40', 0),
+(75, 5, 51, '2025-12-11 20:15:40', 0),
+(76, 6, 3, '2025-12-11 20:17:11', 0),
+(77, 6, 20, '2025-12-11 20:17:11', 0),
+(78, 6, 21, '2025-12-11 20:17:11', 0),
+(79, 6, 22, '2025-12-11 20:17:11', 0),
+(80, 6, 23, '2025-12-11 20:17:11', 0),
+(81, 6, 24, '2025-12-11 20:17:11', 0),
+(82, 6, 26, '2025-12-11 20:17:11', 0),
+(83, 6, 27, '2025-12-11 20:17:11', 0),
+(84, 6, 51, '2025-12-11 20:17:11', 0),
+(96, 4, 2, '2025-12-11 20:47:45', 1),
+(97, 4, 18, '2025-12-11 20:47:45', 0),
+(98, 4, 28, '2025-12-11 20:47:45', 0),
+(99, 4, 29, '2025-12-11 20:47:45', 0),
+(100, 4, 30, '2025-12-11 20:47:45', 0),
+(101, 4, 31, '2025-12-11 20:47:45', 0),
+(102, 4, 35, '2025-12-11 20:47:45', 0),
+(103, 4, 36, '2025-12-11 20:47:45', 0),
+(104, 4, 37, '2025-12-11 20:47:45', 0),
+(105, 4, 46, '2025-12-11 20:47:45', 0),
+(106, 4, 52, '2025-12-11 20:47:45', 0);
 
 --
 -- Triggers `thongbaouser`
 --
 DELIMITER $$
 CREATE TRIGGER `trg_thongbaouser_delete` AFTER DELETE ON `thongbaouser` FOR EACH ROW BEGIN
-    INSERT INTO GhiLog(hoatDong, thoiGian)
+    INSERT INTO GhiLog(hanhDong, thoiGian)
     VALUES (
         CONCAT('Xóa thông báo ID ', OLD.maTB, ' của user ', OLD.userID),
         NOW()
@@ -1985,7 +2208,7 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_thongbaouser_insert` AFTER INSERT ON `thongbaouser` FOR EACH ROW BEGIN
-    INSERT INTO GhiLog(hoatDong, thoiGian)
+    INSERT INTO GhiLog(hanhDong, thoiGian)
     VALUES (
         CONCAT('Gửi thông báo ID ', NEW.maTB, ' cho user ', NEW.userID), 
         NOW()
@@ -1996,7 +2219,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `trg_thongbaouser_update` AFTER UPDATE ON `thongbaouser` FOR EACH ROW BEGIN
     IF NEW.trangThai <> OLD.trangThai THEN
-        INSERT INTO GhiLog(hoatDong, thoiGian)
+        INSERT INTO GhiLog(hanhDong, thoiGian)
         VALUES (
             CONCAT('User ', NEW.userID, ' đã thay đổi trạng thái thông báo ID ', NEW.maTB),
             NOW()
@@ -2305,7 +2528,7 @@ ALTER TABLE `diemso`
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=872;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1045;
 
 --
 -- AUTO_INCREMENT for table `giaovien`
@@ -2359,13 +2582,13 @@ ALTER TABLE `tailieu`
 -- AUTO_INCREMENT for table `thongbao`
 --
 ALTER TABLE `thongbao`
-  MODIFY `maThongBao` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `maThongBao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `thongbaouser`
 --
 ALTER TABLE `thongbaouser`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=160;
 
 --
 -- AUTO_INCREMENT for table `user`

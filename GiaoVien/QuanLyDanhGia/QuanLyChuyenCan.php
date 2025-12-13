@@ -104,17 +104,7 @@ $today = date('Y-m-d');
                         </tbody>
                     </table>
                 </div>
-                <div class="table-footer d-flex justify-content-between align-items-center">
-                    <div id="table-range">0 mục</div>
-                    <nav>
-                        <ul class="pagination mb-0">
-                            <li class="page-item"><a class="page-link" href="#">‹</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">/1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">›</a></li>
-                        </ul>
-                    </nav>
-                </div>
+                
             </div>
         </div>
 

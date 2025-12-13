@@ -113,14 +113,15 @@ if ($maGV > 0) {
                 </tbody>
             </table>
         </div>
-        <div class="table-footer">
-            <span id="table-range">0 mục</span>
+        <div class="table-footer d-flex align-items-center justify-content-between">
+            <div>
+                <span id="table-range">0 mục</span>
+            </div>
             <nav>
                 <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">‹</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">/1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">›</a></li>
+                    <li class="page-item"><button id="prev-page" class="page-link">‹</button></li>
+                    <li class="page-item"><span id="page-info" class="page-link">1/1</span></li>
+                    <li class="page-item"><button id="next-page" class="page-link">›</button></li>
                 </ul>
             </nav>
         </div>

@@ -5,12 +5,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Hàm xử lý khi thay đổi bộ lọc
     function handleFilterChange() {
-        const selectedClass = filterClass.value;
-        const selectedSubject = filterSubject.value;
+        const selectedClass = filterClass ? filterClass.value : '';
+        const selectedSubject = filterSubject ? filterSubject.value : '';
 
-        console.log(`Đang lọc tài liệu: Lớp ${selectedClass} - Môn ${selectedSubject}`);
-        // Tại đây bạn có thể thêm logic gọi API hoặc reload trang với tham số GET
-        // Ví dụ: window.location.href = `?lop=${selectedClass}&mon=${selectedSubject}`;
+        // Build query params and reload page to apply server-side filter
+        const params = new URLSearchParams();
+        if (selectedClass) params.set('maLop', selectedClass);
+        if (selectedSubject) params.set('maMon', selectedSubject);
+
+        const query = params.toString();
+        const base = window.location.pathname;
+        window.location.href = query ? base + '?' + query : base;
     }
 
     // Gán sự kiện change

@@ -9,8 +9,17 @@ $pageJS = ['KetQuaHocTap.js'];
 
 <main>
     <h1 class="page-title mb-4">BẢNG ĐIỂM</h1>
-
     <div class="content-container bg-white p-0 border rounded-3 overflow-hidden">
+        <div class="p-3 border-bottom bg-light d-flex gap-3 align-items-center">
+            <label class="mb-0 fw-bold">Năm học</label>
+            <select id="selYear" class="form-select form-select-sm" style="width:180px"></select>
+            <label class="mb-0 fw-bold ms-3">Học kỳ</label>
+            <select id="selSemester" class="form-select form-select-sm" style="width:120px">
+                <option value="1">Học kỳ 1</option>
+                <option value="2">Học kỳ 2</option>
+            </select>
+            <button id="btnLoadScores" class="btn btn-primary btn-sm ms-3">Lọc</button>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
@@ -21,8 +30,8 @@ $pageJS = ['KetQuaHocTap.js'];
                         <th class="text-center" style="width: 60px;">STT</th>
                         <th>MÃ HS</th>
                         <th>MÔN HỌC</th>
-                        <th class="text-center">ĐIỂM THI<br>HỌC KÌ I</th>
-                        <th class="text-center">ĐIỂM THI<br>HỌC KÌ II</th>
+                        <th class="text-center">ĐIỂM GIỮA KỲ</th>
+                        <th class="text-center">ĐIỂM CUỐI KỲ</th>
                         <th class="text-center">TRUNG BÌNH<br>MÔN</th>
                         <th class="text-center">TÁC VỤ</th>
                     </tr>
@@ -63,12 +72,12 @@ $pageJS = ['KetQuaHocTap.js'];
         </div>
 
         <div class="table-footer d-flex justify-content-between align-items-center bg-light p-2 border-top">
-            <div class="text-secondary ps-3 fw-bold fs-6">1-4/18 mục</div>
+            <div id="paginationInfo" class="text-secondary ps-3 fw-bold fs-6">0-0/0 mục</div>
             <nav>
                 <ul class="pagination mb-0 pe-3 gap-1">
-                    <li class="page-item"><button class="page-link custom-page-btn"><i class="bi bi-chevron-left"></i></button></li>
-                    <li class="page-item"><span class="page-link custom-page-number">1/5</span></li>
-                    <li class="page-item"><button class="page-link custom-page-btn"><i class="bi bi-chevron-right"></i></button></li>
+                    <li class="page-item"><button id="btnPrevPage" class="page-link custom-page-btn" title="Trang trước"><i class="bi bi-chevron-left"></i></button></li>
+                    <li class="page-item"><span id="pageNumber" class="page-link custom-page-number">0/0</span></li>
+                    <li class="page-item"><button id="btnNextPage" class="page-link custom-page-btn" title="Trang sau"><i class="bi bi-chevron-right"></i></button></li>
                 </ul>
             </nav>
         </div>
@@ -79,6 +88,59 @@ $pageJS = ['KetQuaHocTap.js'];
             Xuất bảng điểm
         </button>
     </div>
+    
+    <!-- Modal chi tiết điểm môn -->
+    <div class="modal fade" id="viewDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-light border-0">
+                <div class="modal-header border-0 pb-0 pt-4 px-5">
+                    <h2 class="modal-title fw-bold text-uppercase">CHI TIẾT ĐIỂM MÔN</h2>
+                </div>
+                <div class="modal-body pt-4 px-5 pb-5">
+                    <form>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-md-3 text-secondary fs-5">Môn học:</label>
+                            <div class="col-md-9">
+                                <div class="form-control-plaintext text-dark fw-bold fs-5" id="v_title_text"></div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 text-secondary fs-5 pt-2">Chi tiết điểm:</label>
+                            <div class="col-md-9">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary">Điểm miệng</label>
+                                        <input type="text" id="v_diem_mieng" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary">Điểm thi GK</label>
+                                        <input type="text" id="v_diem_gk" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary">Điểm 1 tiết</label>
+                                        <input type="text" id="v_diem_1tiet" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary">Điểm thi CK</label>
+                                        <input type="text" id="v_diem_ck" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-outline-dark px-4 py-2 text-uppercase fw-bold" data-bs-dismiss="modal" style="color: #0b1a48; border-color: #0b1a48;">
+                                ĐÓNG
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </main>
+    <!-- SheetJS for .xlsx export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <?php require_once '../../footer.php'; ?>

@@ -6,9 +6,19 @@ $pageCSS = ['QuanLyLopHoc.css'];
 require_once '../SidebarAndHeader.php';
 require_once '../../csdl/db.php';
 
-// Lấy danh sách lớp học
+$limit = 10; // Số dòng mỗi trang
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
+// 1. Đếm tổng số bản ghi
+$sqlCount = "SELECT COUNT(*) as total FROM lophoc";
+$resCount = $conn->query($sqlCount);
+$totalRecords = $resCount->fetch_assoc()['total'];
+$totalPages = ceil($totalRecords / $limit);
+
+// 2. Lấy danh sách lớp có phân trang
 $sql = "
-        SELECT 
+    SELECT 
         l.maLop,
         l.tenLop,
         l.khoiLop,
@@ -22,6 +32,7 @@ $sql = "
     LEFT JOIN giaovien gv ON l.giaoVienPhuTrach = gv.maGV
     LEFT JOIN user u ON gv.userId = u.userId
     ORDER BY l.maLop DESC
+    LIMIT $limit OFFSET $offset
 ";
 $result = $conn->query($sql);
 
@@ -71,7 +82,7 @@ $pageJS = ['QuanLyLopHoc.js'];
                 </thead>
                 <tbody>
                     <?php
-                    $stt = 1;
+                    $stt = $offset + 1;
                     if ($result && $result->num_rows > 0):
                         while ($row = $result->fetch_assoc()):
                     ?>
@@ -126,12 +137,31 @@ $pageJS = ['QuanLyLopHoc.js'];
             </table>
         </div>
         <div class="table-footer">
-            <span>1-1/<?= $result ? $result->num_rows : 0 ?> mục</span>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+            ?>
+            <span>Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</span>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? "?page=" . ($page - 1) : '#' ?>">‹</a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? "?page=" . ($page + 1) : '#' ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 

@@ -1,0 +1,27 @@
+17:51:31 - --- BẮT ĐẦU REQUEST ---
+17:51:31 - Dữ liệu nhận được: Array
+(
+    [all] => 1
+)
+
+17:51:31 - User ID: 2
+17:51:31 - Trạng thái isAll: TRUE
+17:51:36 - Số dòng đã Update (có sẵn): -1
+17:54:13 - --- BẮT ĐẦU REQUEST ---
+17:54:13 - Dữ liệu nhận được: Array
+(
+    [all] => 1
+)
+
+17:54:13 - User ID: 2
+17:54:13 - Trạng thái isAll: TRUE
+17:54:13 - Lỗi EXECUTE SQL: Unknown column 'hoatDong' in 'field list'
+17:55:41 - --- BẮT ĐẦU REQUEST ---
+17:55:41 - Dữ liệu nhận được: Array
+(
+    [all] => 1
+)
+
+17:55:41 - User ID: 2
+17:55:41 - Trạng thái isAll: TRUE
+17:55:42 - Thực thi thành công. Số dòng update: 2

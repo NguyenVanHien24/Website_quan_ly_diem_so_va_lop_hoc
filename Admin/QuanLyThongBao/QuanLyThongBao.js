@@ -1,3 +1,14 @@
+// helper: show/hide controls in Edit modal (defined globally so edit-button can call it)
+function updateEditTargetControls(){
+    const v = document.querySelector('input[name="target_type_edit"]:checked')?.value || 'all';
+    const er = document.getElementById('e_role_select');
+    const ec = document.getElementById('e_class_select');
+    const eu = document.getElementById('e_users_select');
+    if(er) er.style.display = (v === 'role') ? '' : 'none';
+    if(ec) ec.style.display = (v === 'class') ? '' : 'none';
+    if(eu) eu.style.display = (v === 'users') ? '' : 'none';
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     
     // 1. XỬ LÝ NÚT "THÊM THÔNG BÁO"
@@ -5,6 +16,10 @@ document.addEventListener("DOMContentLoaded", function() {
     if (btnAdd) {
         btnAdd.addEventListener('click', function() {
             document.getElementById('addForm').reset();
+            // ẩn các control target
+            const role = document.getElementById('a_role_select'); if (role) role.style.display = 'none';
+            const cls = document.getElementById('a_class_select'); if (cls) cls.style.display = 'none';
+            const users = document.getElementById('a_users_select'); if (users) users.style.display = 'none';
         });
     }
 
@@ -13,16 +28,54 @@ document.addEventListener("DOMContentLoaded", function() {
     editButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const d = this.dataset;
-            
-            document.getElementById('e_id').value = d.id;
-            document.getElementById('e_title').value = d.title;
-            document.getElementById('e_content').value = d.content;
-            document.getElementById('e_date').value = d.date;
-            
-            // Chọn radio button dựa trên data-receiver
-            if(d.receiver === 'all') document.getElementById('erx1').checked = true;
-            if(d.receiver === 'teacher') document.getElementById('erx2').checked = true;
-            if(d.receiver === 'student') document.getElementById('erx3').checked = true;
+            // numeric id
+            document.getElementById('e_ma').value = d.ma || '';
+            document.getElementById('e_id').value = d.id || '';
+            document.getElementById('e_title').value = d.title || '';
+            document.getElementById('e_content').value = d.content || '';
+            // set send_at if present (convert to datetime-local format if possible)
+            if (d.send_at) {
+                const dt = new Date(d.send_at);
+                const local = dt.toISOString().slice(0,16);
+                document.getElementById('e_date').value = local;
+            } else {
+                document.getElementById('e_date').value = '';
+            }
+
+            // populate target_type and controls
+            const t = d.target_type || 'all';
+            if (t === 'all') document.getElementById('et_all').checked = true;
+            if (t === 'role') document.getElementById('et_role').checked = true;
+            if (t === 'class') document.getElementById('et_class').checked = true;
+            if (t === 'users') document.getElementById('et_users').checked = true;
+            updateEditTargetControls();
+            // fill target values
+            const tv = d.target_value || '';
+            try {
+                const parsed = JSON.parse(tv);
+                if (Array.isArray(parsed)) {
+                    const opts = document.getElementById('e_users_select').options;
+                    for (let i=0;i<opts.length;i++) opts[i].selected = parsed.includes(opts[i].value);
+                } else {
+                    document.getElementById('e_role_select').value = parsed || '';
+                    document.getElementById('e_class_select').value = parsed || '';
+                }
+            } catch(e){
+                // not json
+                document.getElementById('e_role_select').value = tv;
+                document.getElementById('e_class_select').value = tv;
+            }
+            // show existing attachment if any
+            const att = d.attachment || '';
+            const disp = document.getElementById('e_attachment_display');
+            if (disp) {
+                if (att) {
+                    const url = (window.BASE_URL || '/') + 'uploads/documents/' + encodeURIComponent(att);
+                    disp.innerHTML = '<a href="' + url + '" target="_blank">' + att + '</a>';
+                } else {
+                    disp.innerHTML = '<span class="text-muted">Không có tệp đính kèm</span>';
+                }
+            }
         });
     });
 
@@ -41,6 +94,17 @@ document.addEventListener("DOMContentLoaded", function() {
             if(d.receiver === 'all') document.getElementById('vrx1').checked = true;
             if(d.receiver === 'teacher') document.getElementById('vrx2').checked = true;
             if(d.receiver === 'student') document.getElementById('vrx3').checked = true;
+            // display attachment in view modal
+            const vdisp = document.getElementById('v_attachment_display');
+            if (vdisp) {
+                const att = d.attachment || '';
+                if (att) {
+                    const url = (window.BASE_URL || '/') + 'uploads/documents/' + encodeURIComponent(att);
+                    vdisp.innerHTML = '<a href="' + url + '" target="_blank">' + att + '</a>';
+                } else {
+                    vdisp.innerHTML = '<span class="text-muted">Không có tệp đính kèm</span>';
+                }
+            }
         });
     });
 
@@ -62,6 +126,161 @@ document.addEventListener("DOMContentLoaded", function() {
             const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
             document.getElementById('deleteMsg').innerText = "Bạn chắc chắn muốn xóa các thông báo này?";
             modal.show();
+        });
+    }
+    // Delete handling (single and multi)
+    let pendingDeleteIds = [];
+    const singleDeleteButtons = document.querySelectorAll('.btn-delete');
+    singleDeleteButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            pendingDeleteIds = [this.dataset.id];
+            document.getElementById('deleteMsg').innerText = `Bạn chắc chắn muốn xóa thông báo ${this.dataset.id}?`;
+        });
+    });
+
+    const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+    if (btnConfirmDelete) {
+        btnConfirmDelete.addEventListener('click', function(){
+            // if multi-delete invoked, collect checked
+            const checkboxes = Array.from(document.querySelectorAll('tbody input.form-check-input[type="checkbox"]'));
+            const checked = checkboxes.filter(c => c.checked).map(c => c.value);
+            if (checked.length > 0) pendingDeleteIds = checked;
+
+            if (pendingDeleteIds.length === 0) { alert('Chưa chọn thông báo để xóa'); return; }
+
+            const fd = new FormData();
+            fd.append('ids', JSON.stringify(pendingDeleteIds));
+            btnConfirmDelete.disabled = true;
+            fetch('delete_notify.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(resp => {
+                    btnConfirmDelete.disabled = false;
+                    if (resp.success) location.reload();
+                    else alert(resp.message || 'Lỗi khi xóa');
+                }).catch(err => { btnConfirmDelete.disabled = false; alert('Lỗi mạng'); });
+        });
+    }
+});
+
+// --- XỬ LÝ GỬI THÔNG BÁO TỪ MODAL ---
+document.addEventListener('DOMContentLoaded', function(){
+    const radios = document.querySelectorAll('input[name="target_type"]');
+    const roleSel = document.getElementById('a_role_select');
+    const classSel = document.getElementById('a_class_select');
+    const usersSel = document.getElementById('a_users_select');
+
+    function updateTargetControls(){
+        const v = document.querySelector('input[name="target_type"]:checked')?.value || 'all';
+        if(roleSel) roleSel.style.display = (v === 'role') ? '' : 'none';
+        if(classSel) classSel.style.display = (v === 'class') ? '' : 'none';
+        if(usersSel) usersSel.style.display = (v === 'users') ? '' : 'none';
+    }
+    radios.forEach(r=> r.addEventListener('change', updateTargetControls));
+    updateTargetControls();
+
+    // Edit modal target controls
+    const editRadios = document.querySelectorAll('input[name="target_type_edit"]');
+    function updateEditTargetControls(){
+        const v = document.querySelector('input[name="target_type_edit"]:checked')?.value || 'all';
+        const er = document.getElementById('e_role_select');
+        const ec = document.getElementById('e_class_select');
+        const eu = document.getElementById('e_users_select');
+        if(er) er.style.display = (v === 'role') ? '' : 'none';
+        if(ec) ec.style.display = (v === 'class') ? '' : 'none';
+        if(eu) eu.style.display = (v === 'users') ? '' : 'none';
+    }
+    editRadios.forEach(r=> r.addEventListener('change', updateEditTargetControls));
+
+    const btnSend = document.getElementById('btnSendNotify');
+    if (btnSend) {
+        btnSend.addEventListener('click', function(){
+            const title = document.getElementById('a_title')?.value || '';
+            const content = document.getElementById('a_content')?.value || '';
+            const sendAt = document.getElementById('a_send_at')?.value || '';
+            const targetType = document.querySelector('input[name="target_type"]:checked')?.value || 'all';
+
+            let targetValue = '';
+            if (targetType === 'role') targetValue = roleSel?.value || '';
+            if (targetType === 'class') targetValue = classSel?.value || '';
+            if (targetType === 'users') {
+                const selected = Array.from(usersSel?.selectedOptions || []).map(o => o.value);
+                targetValue = JSON.stringify(selected);
+            }
+
+            if (!title.trim()) { alert('Tiêu đề không được để trống'); return; }
+
+            const fd = new FormData();
+            fd.append('title', title);
+            fd.append('content', content);
+            if (sendAt) fd.append('send_at', sendAt);
+            fd.append('target_type', targetType);
+            fd.append('target_value', targetValue);
+            // include file if selected
+            const aFile = document.getElementById('a_file');
+            if (aFile && aFile.files && aFile.files.length > 0) fd.append('attachment', aFile.files[0]);
+
+            btnSend.disabled = true;
+            fetch('save_notify.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(resp => {
+                    btnSend.disabled = false;
+                    if (resp.success) {
+                        location.reload();
+                    } else {
+                        alert(resp.message || 'Lỗi khi gửi thông báo');
+                    }
+                }).catch(err => {
+                    btnSend.disabled = false;
+                    alert('Lỗi mạng');
+                });
+        });
+    }
+
+    // --- XỬ LÝ LƯU Ở MODAL CHỈNH SỬA ---
+    const btnUpdate = document.getElementById('btnUpdateNotify');
+    if (btnUpdate) {
+        btnUpdate.addEventListener('click', function(){
+            const ma = document.getElementById('e_ma')?.value || '';
+            const title = document.getElementById('e_title')?.value || '';
+            const content = document.getElementById('e_content')?.value || '';
+            const sendAt = document.getElementById('e_date')?.value || '';
+            const targetType = document.querySelector('input[name="target_type_edit"]:checked')?.value || 'all';
+
+            let targetValue = '';
+            if (targetType === 'role') targetValue = document.getElementById('e_role_select')?.value || '';
+            if (targetType === 'class') targetValue = document.getElementById('e_class_select')?.value || '';
+            if (targetType === 'users') {
+                const selected = Array.from(document.getElementById('e_users_select')?.selectedOptions || []).map(o => o.value);
+                targetValue = JSON.stringify(selected);
+            }
+
+            if (!ma) { alert('Mã thông báo không hợp lệ'); return; }
+
+            const fd = new FormData();
+            fd.append('maThongBao', ma);
+            fd.append('title', title);
+            fd.append('content', content);
+            if (sendAt) fd.append('send_at', sendAt);
+            fd.append('target_type', targetType);
+            fd.append('target_value', targetValue);
+            // include edit file if provided
+            const eFile = document.getElementById('e_file');
+            if (eFile && eFile.files && eFile.files.length > 0) fd.append('attachment', eFile.files[0]);
+
+            btnUpdate.disabled = true;
+            fetch('update_notify.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(resp => {
+                    btnUpdate.disabled = false;
+                    if (resp.success) {
+                        location.reload();
+                    } else {
+                        alert(resp.message || 'Lỗi khi cập nhật thông báo');
+                    }
+                }).catch(err => {
+                    btnUpdate.disabled = false;
+                    alert('Lỗi mạng');
+                });
         });
     }
 });

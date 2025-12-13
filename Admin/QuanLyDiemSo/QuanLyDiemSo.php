@@ -2,10 +2,6 @@
 session_start();
 require_once '../../config.php';
 require_once '../../csdl/db.php';
-if (!isset($_SESSION["userID"])) {
-    header("Location: ../../dangnhap.php");
-    exit();
-}
 
 // Lấy năm học & học kỳ hiện tại
 $yearNow = date('Y');
@@ -36,65 +32,95 @@ while ($row = $subjectRs->fetch_assoc()) {
     $subjects[] = $row;
 }
 
-// Query để lấy bảng điểm: students × subjects, left-join điểm CK (cuối kỳ) của HK1 và HK2
-$scoreQuery = "
-    SELECT
-        hs.maHS,
-        u.hoVaTen,
-        l.tenLop,
-        l.maLop,
-        m.maMon,
-        m.tenMon,
-        d.loaiDiem,
-        d.giaTriDiem,
-        d.hocKy
+$limit = 10; // Số dòng (Học sinh - Môn học) mỗi trang
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
+// 1. Xây dựng điều kiện lọc (WHERE)
+$whereClause = "WHERE 1=1";
+if (!empty($selectedClass)) {
+    $whereClause .= " AND l.maLop = '" . $conn->real_escape_string($selectedClass) . "'";
+}
+if (!empty($selectedSubject)) {
+    $whereClause .= " AND m.maMon = '" . $conn->real_escape_string($selectedSubject) . "'";
+}
+
+// 2. Đếm tổng số dòng (Học sinh x Môn học) để tính số trang
+$countSql = "
+    SELECT COUNT(*) as total
     FROM hocsinh hs
     JOIN user u ON hs.userId = u.userId
     LEFT JOIN lophoc l ON hs.maLopHienTai = l.maLop
     CROSS JOIN monhoc m
-    LEFT JOIN diemso d
-        ON d.maHS = hs.maHS
-        AND d.maMonHoc = m.maMon
-        AND d.namHoc = '$currentYear'
-    WHERE 1=1
+    $whereClause
 ";
+$resCount = $conn->query($countSql);
+$totalRecords = $resCount->fetch_assoc()['total'];
+$totalPages = ceil($totalRecords / $limit);
 
-// Thêm filter nếu có
-if (!empty($selectedClass)) {
-    $scoreQuery .= " AND l.maLop = '" . $conn->real_escape_string($selectedClass) . "'";
-}
-if (!empty($selectedSubject)) {
-    $scoreQuery .= " AND m.maMon = '" . $conn->real_escape_string($selectedSubject) . "'";
-}
-
-$scoreQuery .= " ORDER BY l.tenLop, u.hoVaTen, m.tenMon";
+// 3. Truy vấn dữ liệu chính (Sử dụng Subquery để phân trang đúng)
+// Bước 3a: Lấy danh sách 10 cặp (Học sinh - Môn học) cho trang hiện tại
+// Bước 3b: JOIN với bảng diemso để lấy chi tiết điểm
+$scoreQuery = "
+    SELECT 
+        T.*,
+        d.loaiDiem,
+        d.giaTriDiem,
+        d.hocKy
+    FROM (
+        SELECT 
+            hs.maHS,
+            u.hoVaTen,
+            l.tenLop,
+            l.maLop,
+            m.maMon,
+            m.tenMon
+        FROM hocsinh hs
+        JOIN user u ON hs.userId = u.userId
+        LEFT JOIN lophoc l ON hs.maLopHienTai = l.maLop
+        CROSS JOIN monhoc m
+        $whereClause
+        ORDER BY l.tenLop ASC, u.hoVaTen ASC, m.tenMon ASC
+        LIMIT $limit OFFSET $offset
+    ) AS T
+    LEFT JOIN diemso d 
+        ON d.maHS = T.maHS 
+        AND d.maMonHoc = T.maMon 
+        AND d.namHoc = '$currentYear'
+";
 
 $scoreRs = $conn->query($scoreQuery);
 $scores = [];
 function mapLoaiDiem($loai)
 {
     if ($loai === null || $loai === '') return '';
-    
+
     $s = mb_strtolower(trim((string)$loai), 'UTF-8');
     if ($s === '') return '';
-    
+
     // Check for "Điểm miệng", "miệng", etc.
     if (mb_strpos($s, 'miệng') !== false || mb_strpos($s, 'mieng') !== false) {
         return 'mouth';
     }
     // Check for "Điểm 1 tiết"
-    if (mb_strpos($s, '1 tiết') !== false || mb_strpos($s, '1 tiet') !== false || 
-        mb_strpos($s, '1tiết') !== false || mb_strpos($s, '1tiet') !== false) {
+    if (
+        mb_strpos($s, '1 tiết') !== false || mb_strpos($s, '1 tiet') !== false ||
+        mb_strpos($s, '1tiết') !== false || mb_strpos($s, '1tiet') !== false
+    ) {
         return '45m';
     }
     // Check for "Điểm giữa kỳ", "giữa kỳ", "gk", etc.
-    if (mb_strpos($s, 'giữa') !== false || mb_strpos($s, 'giua') !== false || 
-        mb_strpos($s, 'gk') !== false) {
+    if (
+        mb_strpos($s, 'giữa') !== false || mb_strpos($s, 'giua') !== false ||
+        mb_strpos($s, 'gk') !== false
+    ) {
         return 'gk';
     }
     // Check for "Điểm cuối kỳ", "cuối kỳ", "ck", etc.
-    if (mb_strpos($s, 'cuối') !== false || mb_strpos($s, 'cuoi') !== false || 
-        mb_strpos($s, 'ck') !== false) {
+    if (
+        mb_strpos($s, 'cuối') !== false || mb_strpos($s, 'cuoi') !== false ||
+        mb_strpos($s, 'ck') !== false
+    ) {
         return 'ck';
     }
     // Return empty string for unmapped types
@@ -178,7 +204,7 @@ $pageJS = ['QuanLyDiemSo.js'];
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $i = 1;
+                    <?php $i = $offset + 1;
                     foreach ($scores as $sc):
                         // BẮT ĐẦU KHỐI TÍNH TOÁN ĐIỂM (ĐƯỢC ĐƯA LÊN TRƯỚC để các cột có thể sử dụng)
 
@@ -280,15 +306,50 @@ $pageJS = ['QuanLyDiemSo.js'];
             </table>
         </div>
         <div class="table-footer">
-            <span>1-4/18 mục</span>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">‹</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">/5</a></li>
-                    <li class="page-item"><a class="page-link" href="#">›</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+
+            // Giữ lại các tham số filter trên URL
+            $queryParams = $_GET;
+            // Hàm helper tạo link
+            function buildPageLink($pageNum, $params)
+            {
+                $params['page'] = $pageNum;
+                return '?' . http_build_query($params);
+            }
+            ?>
+            <span>Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</span>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? buildPageLink($page - 1, $queryParams) : '#' ?>">‹</a>
+                        </li>
+
+                        <?php
+                        // Hiển thị tối đa 5 nút trang để tránh quá dài
+                        $startPage = max(1, $page - 2);
+                        $endPage = min($totalPages, $page + 2);
+
+                        if ($startPage > 1) echo '<li class="page-item disabled"><a class="page-link">...</a></li>';
+
+                        for ($p = $startPage; $p <= $endPage; $p++): ?>
+                            <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="<?= buildPageLink($p, $queryParams) ?>"><?= $p ?></a>
+                            </li>
+                        <?php endfor;
+
+                        if ($endPage < $totalPages) echo '<li class="page-item disabled"><a class="page-link">...</a></li>';
+                        ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? buildPageLink($page + 1, $queryParams) : '#' ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 

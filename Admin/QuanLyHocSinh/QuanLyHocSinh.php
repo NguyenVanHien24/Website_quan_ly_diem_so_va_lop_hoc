@@ -1,13 +1,192 @@
 <?php
 session_start();
+require_once '../../vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 require_once '../../config.php';
 require_once '../../csdl/db.php';
 if (!isset($_SESSION["userID"])) {
     header("Location: ../../dangnhap.php");
     exit();
 }
+if (isset($_GET['download_sample'])) {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
 
-// LẤY DANH SÁCH HỌC SINH TỪ CSDL
+    // Tiêu đề cột
+    $headers = ['Họ và Tên', 'Email', 'Số điện thoại', 'Giới tính', 'Lớp (Tên lớp)', 'Chức vụ'];
+    $sheet->fromArray($headers, NULL, 'A1');
+
+    // Dữ liệu mẫu
+    $sampleData = [
+        'Nguyễn Văn A',
+        'hsA@gmail.com',
+        '0987600321',
+        'Nam',
+        '10A1',
+        'Thành viên'
+    ];
+    $sheet->fromArray($sampleData, NULL, 'A2');
+
+    // Format
+    foreach (range('A', 'F') as $col) $sheet->getColumnDimension($col)->setAutoSize(true);
+    $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+
+    // Xuất file
+    $filename = "Mau_Nhap_Hoc_Sinh.xlsx";
+    if (ob_get_length()) ob_end_clean();
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
+    if (isset($_FILES['file_excel']['name']) && $_FILES['file_excel']['name'] != "") {
+        $allowedExtensions = ['xls', 'xlsx'];
+        $ext = pathinfo($_FILES['file_excel']['name'], PATHINFO_EXTENSION);
+
+        if (in_array($ext, $allowedExtensions)) {
+            $fileTmpPath = $_FILES['file_excel']['tmp_name'];
+            try {
+                $spreadsheet = IOFactory::load($fileTmpPath);
+                $data = $spreadsheet->getActiveSheet()->toArray();
+
+                $countSuccess = 0;
+                $countFail = 0;
+                $failLog = [];
+
+                // Lấy thông tin học kỳ hiện tại
+                $yearNow = date('Y');
+                $monthNow = date('n');
+                if ($monthNow >= 1 && $monthNow <= 6) {
+                    $currentSemester = 2;
+                    $currentYear = ($yearNow - 1) . '-' . $yearNow;
+                } else {
+                    $currentSemester = 1;
+                    $currentYear = $yearNow . '-' . ($yearNow + 1);
+                }
+
+                // Duyệt qua từng dòng (bỏ dòng header)
+                for ($i = 1; $i < count($data); $i++) {
+                    $row = $data[$i];
+                    // Cấu trúc: 0:Tên | 1:Email | 2:SDT | 3:GioiTinh | 4:TenLop | 5:ChucVu
+                    $hoVaTen = trim($row[0] ?? '');
+                    $email   = trim($row[1] ?? '');
+                    $sdt     = trim($row[2] ?? '');
+                    $gioiTinh = trim($row[3] ?? 'Nam');
+                    $tenLop  = trim($row[4] ?? '');
+                    $chucVu  = trim($row[5] ?? 'Thành viên');
+
+                    if (empty($hoVaTen) || empty($email)) {
+                        $countFail++;
+                        continue;
+                    }
+
+                    // 1. Kiểm tra trùng Email/SĐT trong bảng User
+                    $check = $conn->prepare("SELECT userId FROM user WHERE sdt = ? OR email = ?");
+                    $check->bind_param("ss", $sdt, $email);
+                    $check->execute();
+                    $check->store_result();
+                    if ($check->num_rows > 0) {
+                        $countFail++;
+                        $failLog[] = "Dòng " . ($i + 1) . ": Trùng Email/SĐT ($email)";
+                        $check->close();
+                        continue;
+                    }
+                    $check->close();
+
+                    // 2. Tìm ID Lớp từ Tên Lớp (nếu có nhập)
+                    $maLop = null;
+                    if (!empty($tenLop)) {
+                        $stmtLop = $conn->prepare("SELECT maLop FROM lophoc WHERE tenLop = ? LIMIT 1");
+                        $stmtLop->bind_param("s", $tenLop);
+                        $stmtLop->execute();
+                        $stmtLop->bind_result($resMaLop);
+                        if ($stmtLop->fetch()) {
+                            $maLop = $resMaLop;
+                        }
+                        $stmtLop->close();
+                        if ($maLop === null) {
+                            $siSoMacDinh = 0;
+                            $stmtNewClass = $conn->prepare("INSERT INTO lophoc (tenLop, namHoc, siSo) VALUES (?, ?, ?)");
+                            $stmtNewClass->bind_param("ssi", $tenLop, $currentYear, $siSoMacDinh);
+
+                            if ($stmtNewClass->execute()) {
+                                $maLop = $conn->insert_id; // Lấy ID của lớp vừa tạo
+                            } else {
+                                // Nếu lỗi tạo lớp -> Báo lỗi và bỏ qua dòng này
+                                $failLog[] = "Dòng " . ($i + 1) . ": Không thể tạo lớp '$tenLop'. Lỗi DB.";
+                                $stmtNewClass->close();
+                                continue;
+                            }
+                            $stmtNewClass->close();
+                        }
+                    }
+
+                    // 3. Insert User
+                    $stmt = $conn->prepare("INSERT INTO user (hoVaTen, email, sdt, gioiTinh, matKhau, vaiTro) VALUES (?,?,?,?, '12345678','HocSinh')");
+                    $stmt->bind_param("ssss", $hoVaTen, $email, $sdt, $gioiTinh);
+
+                    if ($stmt->execute()) {
+                        $userId = $conn->insert_id;
+                        $stmt->close();
+
+                        // 4. Insert HocSinh
+                        // Lưu ý: maLopHienTai có thể là NULL nếu không tìm thấy lớp hoặc không nhập
+                        $statusDb = 'Hoạt động';
+                        $insHS = $conn->prepare("INSERT INTO hocsinh (userId, maLopHienTai, chucVu, trangThaiHoatDong, namHoc, kyHoc) VALUES (?, ?, ?, ?, ?, ?)");
+                        $insHS->bind_param("iisssi", $userId, $maLop, $chucVu, $statusDb, $currentYear, $currentSemester);
+
+                        if ($insHS->execute()) {
+                            $newMaHS = $conn->insert_id; // Lấy maHS vừa tạo (Auto Increment)
+                            $insHS->close();
+
+                            // 5. Nếu có lớp, tạo điểm số và tăng sĩ số
+                            if ($maLop) {
+                                createDiemsoForStudent($conn, $newMaHS, $maLop, $currentYear, $currentSemester);
+                                $conn->query("UPDATE lophoc SET siSo = siSo + 1 WHERE maLop = $maLop");
+                            }
+                            $countSuccess++;
+                        } else {
+                            $countFail++; // Lỗi insert hocsinh
+                        }
+                    } else {
+                        $countFail++; // Lỗi insert user
+                    }
+                }
+
+                $msg = "Import hoàn tất! Thành công: $countSuccess. Thất bại: $countFail.";
+                if (count($failLog) > 0) {
+                    $msg .= "\\nChi tiết lỗi:\\n" . implode("\\n", array_slice($failLog, 0, 3)) . "...";
+                }
+                echo "<script>alert('$msg'); window.location.href='QuanLyHocSinh.php';</script>";
+            } catch (Exception $e) {
+                echo "<script>alert('Lỗi file: " . $e->getMessage() . "');</script>";
+            }
+        } else {
+            echo "<script>alert('Chỉ hỗ trợ file .xls, .xlsx');</script>";
+        }
+    }
+}
+
+$limit = 10; // Số lượng học sinh mỗi trang
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
+// 1. Đếm tổng số học sinh
+$sqlCount = "SELECT COUNT(*) as total FROM hocsinh hs JOIN user u ON hs.userId = u.userId";
+$resCount = $conn->query($sqlCount);
+$totalRecords = $resCount->fetch_assoc()['total'];
+$totalPages = ceil($totalRecords / $limit);
+
+// 2. Lấy danh sách học sinh theo trang (Thêm LIMIT và OFFSET)
 $sql = "
     SELECT 
         hs.maHS,
@@ -22,6 +201,7 @@ $sql = "
     JOIN user u ON hs.userId = u.userId
     LEFT JOIN lophoc l ON hs.maLopHienTai = l.maLop
     ORDER BY u.hoVaTen
+    LIMIT $limit OFFSET $offset
 ";
 
 $result = $conn->query($sql);
@@ -53,7 +233,7 @@ function createDiemsoForStudent($conn, $maHS, $maLop, $namHoc, $kyHoc)
     if (!$lopMonRs || $lopMonRs->num_rows === 0) return;
 
     // 3 loại điểm
-    $loaiDiem = ['Điểm miệng', 'Điểm 15 phút', 'Điểm 1 tiết'];
+    $loaiDiem = ['Điểm miệng', 'Điểm 1 tiết', 'Điểm giữa kỳ', 'Điểm cuối kỳ'];
 
     while ($lopMon = $lopMonRs->fetch_assoc()) {
         $maMon = $lopMon['maMon'];
@@ -391,7 +571,7 @@ $pageJS = ['QuanLyHocSinh.js'];
 
                     <?php
                     if ($result->num_rows > 0):
-                        $stt = 1;
+                        $stt = $offset + 1;
                         while ($row = $result->fetch_assoc()):
 
                             $tenLop = $row['tenLop'] ?: 'Chưa có lớp';
@@ -450,21 +630,37 @@ $pageJS = ['QuanLyHocSinh.js'];
         </div>
 
         <div class="table-footer">
-            <span>1-4/18 mục</span>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item"><a class="page-link" href="#">‹</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">...</a></li>
-                    <li class="page-item"><a class="page-link" href="#">5</a></li>
-                    <li class="page-item"><a class="page-link" href="#">›</a></li>
-                </ul>
-            </nav>
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+            ?>
+            <span>Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</span>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page > 1) ? "?page=" . ($page - 1) : '#' ?>">‹</a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= ($page < $totalPages) ? "?page=" . ($page + 1) : '#' ?>">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
     <div class="d-flex justify-content-end mt-4">
+        <button class="btn btn-import fw-bold px-4 py-2" data-bs-toggle="modal" data-bs-target="#importModal">
+            Import học sinh
+        </button>
         <button class="btn btn-danger fw-bold px-4 py-2">Xóa học sinh</button>
     </div>
     <!-- THÊM HỌC SINH -->
@@ -578,6 +774,43 @@ $pageJS = ['QuanLyHocSinh.js'];
                             <button type="button" class="btn btn-danger px-4 fw-bold">Xóa</button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Import Học Sinh từ Excel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="import_action" value="1">
+
+                        <div class="mb-3">
+                            <label for="file_excel" class="form-label">Chọn file Excel (.xls, .xlsx)</label>
+                            <input class="form-control" type="file" id="file_excel" name="file_excel" required accept=".xls, .xlsx">
+                        </div>
+
+                        <div class="alert alert-info">
+                            <small>
+                                <strong>Lưu ý:</strong><br>
+                                - Cột "Lớp": Phải nhập chính xác tên lớp đã có trong hệ thống (VD: 10A1).<br>
+                                - Nếu để trống lớp, học sinh sẽ ở trạng thái "Chưa có lớp".
+                            </small>
+                            <br>
+                            <a href="?download_sample=1" class="text-primary text-decoration-underline fw-bold">
+                                <i class="bi bi-download me-1"></i> Tải file mẫu chuẩn
+                            </a>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Tiến hành Import</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

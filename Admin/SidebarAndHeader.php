@@ -26,6 +26,9 @@
         }
     }
     ?>
+    <script>
+        window.BASE_URL = <?php echo json_encode(rtrim(BASE_URL, '/') . '/'); ?>;
+    </script>
 </head>
 
 <body>
@@ -173,13 +176,35 @@
         <header class="header">
             <button class="menu-toggle"><i class="bi bi-list"></i></button>
 
-            <form class="search-form ms-3">
-                <input type="text" class="form-control" placeholder="Tìm kiếm">
+            <form class="search-form ms-3" method="GET" action="">
+                <?php
+                // Giữ lại các tham số filter khác nếu có (ví dụ: status, class, subject)
+                // Loại bỏ 'search' và 'page' để tránh trùng lặp hoặc lỗi phân trang khi search mới
+                $queryParams = $_GET;
+                unset($queryParams['search']);
+                unset($queryParams['page']);
+
+                foreach ($queryParams as $key => $value) {
+                    echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
+                }
+                ?>
+
+                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..."
+                    value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                 <button type="submit" class="btn btn-search"><i class="bi bi-search"></i></button>
             </form>
 
             <div class="header-actions ms-auto">
-                <i class="bi bi-bell"></i>
+                <div class="dropdown me-3">
+                    <a href="#" id="notifyToggle" class="text-decoration-none position-relative" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell" style="font-size:1.25rem"></i>
+                        <span id="notifyBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span>
+                    </a>
+                    <ul id="notifyList" class="dropdown-menu dropdown-menu-end p-2" style="min-width:320px; max-width:420px;">
+                        <li class="text-center text-muted small">Đang tải...</li>
+                    </ul>
+                </div>
+
                 <div class="dropdown">
                     <a href="#" class="dropdown-toggle text-decoration-none user-profile" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle"></i>
@@ -198,3 +223,193 @@
             </div>
         </header>
         <!-- ========= KẾT THÚC HEADER ========= -->
+
+        <!-- Notification modal -->
+        <div class="modal fade" id="notifyModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chi tiết thông báo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="notifyModalTitle" class="fw-bold mb-2"></div>
+                        <div id="notifyModalBody" class="mb-3"></div>
+                        <div id="notifyModalMeta" class="text-muted small"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="<?php echo BASE_URL; ?>Admin/QuanLyThongBao/QuanLyThongBao.php" class="btn btn-link">Xem chi tiết</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const notifyList = document.getElementById('notifyList');
+                const notifyBadge = document.getElementById('notifyBadge');
+                const notifyToggle = document.getElementById('notifyToggle');
+
+                // Modal elements
+                const notifyModalElem = document.getElementById('notifyModal');
+                const notifyModal = new bootstrap.Modal(notifyModalElem);
+                const modalTitle = document.getElementById('notifyModalTitle');
+                const modalBody = document.getElementById('notifyModalBody');
+                const modalMeta = document.getElementById('notifyModalMeta');
+
+                // Hàm tải thông báo
+                async function loadNotifies() {
+                    try {
+                        const res = await fetch(window.BASE_URL + 'Admin/QuanLyThongBao/get_notifications.php');
+                        let data;
+                        try {
+                            data = await res.json();
+                        } catch (err) {
+                            const txt = await res.text().catch(() => '');
+                            console.error('Invalid JSON from get_notifications.php:', txt || err);
+                            notifyList.innerHTML = '<li class="text-center text-muted small py-2">Lỗi tải thông báo</li>';
+                            return;
+                        }
+
+                        notifyList.innerHTML = ''; // Xóa danh sách cũ
+
+                        if (!data.success) {
+                            notifyList.innerHTML = '<li class="text-center text-muted small py-2">Lỗi tải thông báo</li>';
+                            return;
+                        }
+
+                        // Cập nhật số lượng chưa đọc (Badge)
+                        updateBadge(data.unread);
+
+                        if (!data.notifications || data.notifications.length === 0) {
+                            notifyList.innerHTML = '<li class="text-center text-muted small py-2">Không có thông báo mới</li>';
+                        } else {
+                            // Render danh sách thông báo
+                            data.notifications.forEach(n => {
+                                const li = document.createElement('li');
+                                li.className = 'd-flex align-items-start gap-2 p-2 border-bottom notify-item';
+                                li.style.cursor = 'pointer';
+                                // Style cho tin chưa đọc
+                                if (parseInt(n.trangThai) === 0) {
+                                    li.style.backgroundColor = '#eef6ff';
+                                    li.classList.add('fw-bold'); // Thêm đậm nếu chưa đọc
+                                }
+
+                                li.innerHTML = `
+                            <div class="flex-grow-1">
+                                <div class="notify-title">${n.tieuDe || '(Không tiêu đề)'}</div>
+                                <div class="text-muted small mt-1">${n.ngayGui || ''}</div>
+                            </div>
+                        `;
+
+                                // --- SỰ KIỆN CLICK VÀO TỪNG THÔNG BÁO ---
+                                li.addEventListener('click', async function() {
+                                    // 1. Mở Modal hiển thị nội dung
+                                    modalTitle.textContent = n.tieuDe;
+                                    modalBody.textContent = n.noiDung;
+                                    modalMeta.textContent = `Thời gian: ${n.ngayGui}`;
+                                    notifyModal.show();
+
+                                    // 2. Nếu tin chưa đọc -> Gọi API đánh dấu đã đọc
+                                    if (parseInt(n.trangThai) === 0) {
+                                        try {
+                                            // Đổi giao diện ngay lập tức (Optimistic UI)
+                                            li.style.backgroundColor = 'transparent';
+                                            li.classList.remove('fw-bold');
+                                            n.trangThai = 1; // Cập nhật biến cục bộ
+
+                                            // Gọi Backend
+                                            const formData = new FormData();
+                                            formData.append('tbuId', n.tbuId);
+
+                                            const r = await fetch(window.BASE_URL + 'Admin/QuanLyThongBao/mark_read.php', {
+                                                method: 'POST',
+                                                body: formData
+                                            });
+                                            const resp = await r.json();
+
+                                            // Cập nhật lại số trên badge từ server trả về
+                                            if (resp.success) {
+                                                updateBadge(resp.unread);
+                                            }
+                                        } catch (e) {
+                                            console.error('Lỗi đánh dấu đã đọc:', e);
+                                        }
+                                    }
+                                });
+
+                                notifyList.appendChild(li);
+                            });
+                        }
+
+                        // Thêm Footer cho dropdown (Nút Đánh dấu tất cả)
+                        const liFooter = document.createElement('li');
+                        liFooter.className = 'p-2 text-center bg-light sticky-bottom';
+                        liFooter.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center small">
+                        <a href="#" id="markAllReadBtn" class="text-decoration-none">Đánh dấu tất cả đã đọc</a>
+                        <a href="${window.BASE_URL}Admin/QuanLyThongBao/QuanLyThongBao.php" class="text-decoration-none">Xem tất cả</a>
+                    </div>
+                `;
+                        notifyList.appendChild(liFooter);
+
+                        // --- SỰ KIỆN CLICK "ĐÁNH DẤU TẤT CẢ" ---
+                        document.getElementById('markAllReadBtn').addEventListener('click', async function(e) {
+                            e.preventDefault();
+                            e.stopPropagation(); // Ngăn dropdown đóng lại nếu muốn
+
+                            try {
+                                // Gọi API
+                                const formData = new FormData();
+                                formData.append('all', '1');
+
+                                const r = await fetch(window.BASE_URL + 'Admin/QuanLyThongBao/mark_read.php', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                const resp = await r.json();
+
+                                if (resp.success) {
+                                    // Cập nhật giao diện: Xóa màu nền tất cả item & ẩn badge
+                                    document.querySelectorAll('.notify-item').forEach(item => {
+                                        item.style.backgroundColor = 'transparent';
+                                        item.classList.remove('fw-bold');
+                                    });
+                                    updateBadge(0);
+                                }
+                            } catch (e) {
+                                console.error('Lỗi đánh dấu tất cả:', e);
+                                alert('Có lỗi xảy ra khi xử lý.');
+                            }
+                        });
+
+                    } catch (err) {
+                        console.error('Lỗi loadNotifies:', err);
+                    }
+                }
+
+                // Helper: Cập nhật số trên chuông
+                function updateBadge(count) {
+                    const num = parseInt(count);
+                    if (num > 0) {
+                        notifyBadge.style.display = 'inline-block';
+                        notifyBadge.textContent = num > 99 ? '99+' : num;
+                    } else {
+                        notifyBadge.style.display = 'none';
+                    }
+                }
+
+                // Tải thông báo khi click vào chuông
+                notifyToggle.addEventListener('click', loadNotifies);
+
+                // Tự động tải lần đầu
+                loadNotifies();
+
+                // Tự động refresh sau mỗi 60s
+                setInterval(loadNotifies, 60000);
+            });
+        </script>
+
+        <!-- Global search enhancement (client-side table filtering) -->
+        <script src="<?php echo BASE_URL; ?>Admin/global-search.js"></script>
