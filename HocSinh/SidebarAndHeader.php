@@ -18,7 +18,6 @@ if ($_SESSION['vaiTro'] !== 'HocSinh') {
     exit();
 }
 
-$currentPage = 'thong-tin';
 if (!isset($currentPage)) {
     $currentPage = 'thong-tin';
 }

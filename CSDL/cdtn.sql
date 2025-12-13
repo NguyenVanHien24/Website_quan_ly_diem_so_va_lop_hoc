@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 11, 2025 at 05:57 PM
+-- Generation Time: Dec 12, 2025 at 04:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -204,7 +204,10 @@ INSERT INTO `chuyencan` (`maDiemDanh`, `maHS`, `maLop`, `maMon`, `userId`, `tran
 (11, 1, 12, 1, 2, '1', NULL, '2025-12-01 00:00:00', '2025-12-07 17:46:36', NULL),
 (12, 6, 12, 1, 2, '2', NULL, '2025-12-01 00:00:00', '2025-12-07 17:46:39', NULL),
 (13, 10, 12, 1, 2, '1', NULL, '2025-12-01 00:00:00', '2025-12-07 17:46:41', NULL),
-(14, 1, 12, 1, 2, '1', NULL, '2025-12-08 00:00:00', '2025-12-08 03:08:18', NULL);
+(14, 1, 12, 1, 2, '1', NULL, '2025-12-08 00:00:00', '2025-12-08 03:08:18', NULL),
+(15, 1, 12, 1, 2, '1', NULL, '2025-12-12 00:00:00', '2025-12-12 14:34:46', NULL),
+(16, 6, 12, 1, 2, '1', NULL, '2025-12-12 00:00:00', '2025-12-12 14:34:48', NULL),
+(17, 10, 12, 1, 2, '2', NULL, '2025-12-12 00:00:00', '2025-12-12 14:34:50', NULL);
 
 --
 -- Triggers `chuyencan`
@@ -1243,7 +1246,26 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (1041, NULL, 'Xóa thông báo ID 7 của user 51', NULL, NULL, NULL, '2025-12-11 21:07:50'),
 (1042, NULL, 'User 2 đã thay đổi trạng thái thông báo ID 5', NULL, NULL, NULL, '2025-12-11 23:55:41'),
 (1043, NULL, 'User 2 đã thay đổi trạng thái thông báo ID 4', NULL, NULL, NULL, '2025-12-11 23:55:41'),
-(1044, NULL, 'User 1 đã thay đổi trạng thái thông báo ID 5', NULL, NULL, NULL, '2025-12-11 23:56:49');
+(1044, NULL, 'User 1 đã thay đổi trạng thái thông báo ID 5', NULL, NULL, NULL, '2025-12-11 23:56:49'),
+(1045, NULL, 'User 3 đã thay đổi trạng thái thông báo ID 6', NULL, NULL, NULL, '2025-12-12 00:11:32'),
+(1046, NULL, 'User 3 đã thay đổi trạng thái thông báo ID 5', NULL, NULL, NULL, '2025-12-12 00:14:17'),
+(1056, 52, 'Cập nhật tài khoản', 'User', 52, 'SYSTEM', '2025-12-12 02:11:45'),
+(1057, 52, 'Thêm học sinh', 'HocSinh', 32, NULL, '2025-12-12 02:11:45'),
+(1058, 52, 'Xóa giáo viên', 'GiaoVien', 40, 'SYSTEM', '2025-12-12 02:11:45'),
+(1059, NULL, 'Xóa toàn bộ phân công môn của giáo viên 40', NULL, NULL, NULL, '2025-12-12 02:11:45'),
+(1060, 52, 'Cập nhật tài khoản', 'User', 52, 'SYSTEM', '2025-12-12 02:12:19'),
+(1061, 52, 'Thêm giáo viên', 'GiaoVien', 41, 'SYSTEM', '2025-12-12 02:12:19'),
+(1062, 52, 'Xóa học sinh', 'HocSinh', 32, NULL, '2025-12-12 02:12:19'),
+(1063, 52, 'Cập nhật tài khoản', 'User', 52, 'SYSTEM', '2025-12-12 02:13:58'),
+(1064, 52, 'Thêm học sinh', 'HocSinh', 33, NULL, '2025-12-12 02:13:58'),
+(1065, 52, 'Xóa giáo viên', 'GiaoVien', 41, 'SYSTEM', '2025-12-12 02:13:58'),
+(1066, NULL, 'Xóa toàn bộ phân công môn của giáo viên 41', NULL, NULL, NULL, '2025-12-12 02:13:58'),
+(1067, 52, 'Cập nhật tài khoản', 'User', 52, 'SYSTEM', '2025-12-12 02:14:18'),
+(1068, 52, 'Thêm giáo viên', 'GiaoVien', 42, 'SYSTEM', '2025-12-12 02:14:18'),
+(1069, 52, 'Xóa học sinh', 'HocSinh', 33, NULL, '2025-12-12 02:14:18'),
+(1070, 2, 'Điểm danh', 'ChuyenCan', 15, 'SYSTEM', '2025-12-12 21:34:46'),
+(1071, 2, 'Điểm danh', 'ChuyenCan', 16, 'SYSTEM', '2025-12-12 21:34:48'),
+(1072, 2, 'Điểm danh', 'ChuyenCan', 17, 'SYSTEM', '2025-12-12 21:34:50');
 
 -- --------------------------------------------------------
 
@@ -1277,7 +1299,7 @@ INSERT INTO `giaovien` (`maGV`, `userId`, `boMon`, `trinhDo`, `phongBan`, `trang
 (21, 36, 'Toán học', '', '', 'Hoạt động', '2024-2025', 1),
 (23, 37, 'Vật lý', '', '', 'Hoạt động', '2024-2025', 1),
 (39, 46, 'Tiếng Anh', '', '', 'Hoạt động', '2024-2025', 1),
-(40, 52, 'Hóa học', '', '', 'Hoạt động', '2024-2025', 1);
+(42, 52, NULL, '', '', 'Hoạt động', NULL, NULL);
 
 --
 -- Triggers `giaovien`
@@ -1358,7 +1380,7 @@ DELIMITER $$
 CREATE TRIGGER `trg_gv_delete_monhoc` AFTER DELETE ON `giaovien` FOR EACH ROW BEGIN
     DELETE FROM giaovien_monhoc WHERE idGV = OLD.maGV;
 
-    INSERT INTO GhiLog(hoatDong, thoiGian)
+    INSERT INTO GhiLog(hanhDong, thoiGian)
     VALUES (CONCAT('Xóa toàn bộ phân công môn của giáo viên ', OLD.maGV), NOW());
 END
 $$
@@ -2163,7 +2185,7 @@ INSERT INTO `thongbaouser` (`id`, `maTB`, `userId`, `ngayNhan`, `trangThai`) VAL
 (64, 5, 37, '2025-12-11 20:15:40', 0),
 (65, 5, 52, '2025-12-11 20:15:40', 0),
 (66, 5, 46, '2025-12-11 20:15:40', 0),
-(67, 5, 3, '2025-12-11 20:15:40', 0),
+(67, 5, 3, '2025-12-11 20:15:40', 1),
 (68, 5, 20, '2025-12-11 20:15:40', 0),
 (69, 5, 21, '2025-12-11 20:15:40', 0),
 (70, 5, 22, '2025-12-11 20:15:40', 0),
@@ -2172,7 +2194,7 @@ INSERT INTO `thongbaouser` (`id`, `maTB`, `userId`, `ngayNhan`, `trangThai`) VAL
 (73, 5, 26, '2025-12-11 20:15:40', 0),
 (74, 5, 27, '2025-12-11 20:15:40', 0),
 (75, 5, 51, '2025-12-11 20:15:40', 0),
-(76, 6, 3, '2025-12-11 20:17:11', 0),
+(76, 6, 3, '2025-12-11 20:17:11', 1),
 (77, 6, 20, '2025-12-11 20:17:11', 0),
 (78, 6, 21, '2025-12-11 20:17:11', 0),
 (79, 6, 22, '2025-12-11 20:17:11', 0),
@@ -2516,7 +2538,7 @@ ALTER TABLE `baocao`
 -- AUTO_INCREMENT for table `chuyencan`
 --
 ALTER TABLE `chuyencan`
-  MODIFY `maDiemDanh` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `maDiemDanh` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `diemso`
@@ -2528,13 +2550,13 @@ ALTER TABLE `diemso`
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1045;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1073;
 
 --
 -- AUTO_INCREMENT for table `giaovien`
 --
 ALTER TABLE `giaovien`
-  MODIFY `maGV` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `maGV` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `giaovien_monhoc`
@@ -2546,7 +2568,7 @@ ALTER TABLE `giaovien_monhoc`
 -- AUTO_INCREMENT for table `hocsinh`
 --
 ALTER TABLE `hocsinh`
-  MODIFY `maHS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `maHS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `lophoc`
