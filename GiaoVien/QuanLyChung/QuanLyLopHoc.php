@@ -152,8 +152,8 @@ if (!empty($teacher['maGV'])) {
         </div>
     </div>
 
-    <div class="d-flex justify-content-end mt-4" style="display: none;">
-        <button class="btn btn-danger fw-bold px-4 py-2">Xóa lớp học</button>
+    <div class="d-flex justify-content-end mt-4" >
+        <button class="btn btn-danger fw-bold px-4 py-2" style="display: none;">Xóa lớp học</button>
     </div>
 
     <div class="modal fade" id="classFormModal" tabindex="-1" aria-hidden="true">

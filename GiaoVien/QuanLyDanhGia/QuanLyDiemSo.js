@@ -72,24 +72,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             rows.forEach((row) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.stt}</td>
-                    <td>${row.maHS}</td>
-                    <td>${row.hoVaTen}</td>
-                    <td>${row.tenLop}</td>
-                    <td>${subjectSelect.options[subjectSelect.selectedIndex].text}</td>
-                    <td>${row.avgHK1 || '-'}</td>
-                    <td>${row.avgHK2 || '-'}</td>
-                    <td>${row.avg || '-'}</td>
-                    <td class="action-icons">
-                        <a href="#" class="btn-view" data-mahs="${row.maHS}" data-name="${row.hoVaTen}" data-mouth="${row.mouth}" data-45m="${row['45m']}" data-gk="${row.gk}" data-ck="${row.ck}" data-bs-toggle="modal" data-bs-target="#viewGradeModal">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                        <a href="#" class="btn-edit" data-mahs="${row.maHS}" data-name="${row.hoVaTen}" data-mouth="${row.mouth}" data-45m="${row['45m']}" data-gk="${row.gk}" data-ck="${row.ck}" data-bs-toggle="modal" data-bs-target="#gradeEntryModal">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                    </td>
-                `;
+                    tr.innerHTML = `
+                        <td><input class="form-check-input row-check" type="checkbox"></td>
+                        <td>${row.stt}</td>
+                        <td>${row.maHS}</td>
+                        <td>${row.hoVaTen}</td>
+                        <td>${row.tenLop}</td>
+                        <td>${subjectSelect.options[subjectSelect.selectedIndex].text}</td>
+                        <td>${row.avgHK1 || '-'}</td>
+                        <td>${row.avgHK2 || '-'}</td>
+                        <td>${row.avg || '-'}</td>
+                        <td class="action-icons">
+                            <a href="#" class="btn-view" data-mahs="${row.maHS}" data-name="${row.hoVaTen}" data-mouth="${row.mouth}" data-45m="${row['45m']}" data-gk="${row.gk}" data-ck="${row.ck}" data-bs-toggle="modal" data-bs-target="#viewGradeModal">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="#" class="btn-edit" data-mahs="${row.maHS}" data-name="${row.hoVaTen}" data-mouth="${row.mouth}" data-45m="${row['45m']}" data-gk="${row.gk}" data-ck="${row.ck}" data-bs-toggle="modal" data-bs-target="#gradeEntryModal">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        </td>
+                    `;
                 tbody.appendChild(tr);
             });
         }
@@ -335,4 +336,67 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial load
     if (classSelect && subjectSelect) loadScores();
+
+    // ===== Import / Export =====
+    const btnExport = document.getElementById('btnExport');
+    const btnImport = document.getElementById('btnImport');
+    const importModalEl = document.getElementById('importModal');
+    const importModalFile = document.getElementById('importModalFile');
+    const importUploadBtn = document.getElementById('importUploadBtn');
+    const selectAll = document.getElementById('selectAll');
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            const checks = document.querySelectorAll('#score-tbody input.row-check');
+            checks.forEach(ch => ch.checked = selectAll.checked);
+        });
+    }
+
+    if (btnExport) {
+        btnExport.addEventListener('click', function () {
+            // collect checked rows
+            const checked = Array.from(document.querySelectorAll('#score-tbody input.row-check'))
+                .filter(ch => ch.checked);
+            if (checked.length === 0) { alert('Vui lòng chọn hàng để xuất'); return; }
+
+            const selected = [];
+            checked.forEach(ch => {
+                const tr = ch.closest('tr');
+                if (!tr) return;
+                const mahs = tr.querySelector('td:nth-child(3)') ? tr.querySelector('td:nth-child(3)').innerText.trim() : '';
+                const mamon = subjectSelect.value || '';
+                const malop = classSelect.value || '';
+                const namhoc = yearInput && yearInput.value ? yearInput.value : '';
+                const hocky = semesterSelect && semesterSelect.value ? semesterSelect.value : '';
+                selected.push([mahs, mamon, malop, namhoc, hocky].join('|'));
+            });
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '../../Admin/QuanLyDiemSo/export_scores.php';
+            form.style.display = 'none';
+            selected.forEach(s => {
+                const inp = document.createElement('input'); inp.type = 'hidden'; inp.name = 'selected[]'; inp.value = s; form.appendChild(inp);
+            });
+            document.body.appendChild(form); form.submit(); form.remove();
+        });
+    }
+
+    let importModal = null;
+    if (importModalEl) importModal = new bootstrap.Modal(importModalEl);
+    if (btnImport && importModal) btnImport.addEventListener('click', () => importModal.show());
+
+    if (importUploadBtn && importModalFile) {
+        importUploadBtn.addEventListener('click', function () {
+            const f = importModalFile.files[0]; if (!f) { alert('Vui lòng chọn file'); return; }
+            const fd = new FormData(); fd.append('file', f);
+            fd.append('maLop', classSelect.value || ''); fd.append('maMon', subjectSelect.value || '');
+
+            importUploadBtn.disabled = true; importUploadBtn.innerText = 'Đang nhập...';
+            fetch('../../Admin/QuanLyDiemSo/import_scores.php', { method: 'POST', body: fd })
+            .then(r => r.json()).then(resp => { alert('Kết quả: ' + JSON.stringify(resp)); if (resp && (resp.inserted || resp.updated)) { importModal.hide(); loadScores(); } })
+            .catch(err => { console.error(err); alert('Lỗi khi nhập'); })
+            .finally(() => { importUploadBtn.disabled = false; importUploadBtn.innerText = 'Tải lên và nhập'; });
+        });
+    }
 });

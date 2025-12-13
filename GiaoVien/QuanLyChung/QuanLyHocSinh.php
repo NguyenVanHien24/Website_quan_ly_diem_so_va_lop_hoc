@@ -100,7 +100,7 @@ if ($studentRs) {
             </div>
         </div>
 
-        <button class="btn btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#studentFormModal">
+        <button class="btn btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#studentFormModal" style="display: none;">
             <i class="bi bi-plus-lg me-2"></i>Thêm Học Sinh
         </button>
     </div>
