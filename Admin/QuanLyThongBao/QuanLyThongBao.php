@@ -21,7 +21,7 @@ $countScheduled = 0;
 $sqlCounts = "SELECT 
     COUNT(*) AS total,
     SUM(CASE WHEN tb.send_at IS NOT NULL AND tb.send_at > NOW() THEN 1 ELSE 0 END) AS scheduled,
-    SUM(CASE WHEN tb.send_at IS NULL OR tb.send_at <= NOW() THEN 1 ELSE 0 END) AS sent
+    SUM(CASE WHEN (tb.send_at IS NULL OR tb.send_at <= NOW()) AND EXISTS(SELECT 1 FROM `user` uu WHERE uu.userId = tb.nguoiGui AND uu.vaiTro = 'Admin') THEN 1 ELSE 0 END) AS sent
     FROM thongbao tb";
 $cntRs = $conn->query($sqlCounts);
 if ($cntRs) {
@@ -70,13 +70,15 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
                     $offset = ($page - 1) * $limit;
 
-                    // Xử lý bộ lọc trạng thái để tạo WHERE
-                    $where = '';
-                    if ($status === 'sent') {
-                        $where = "WHERE tb.send_at IS NULL OR tb.send_at <= NOW()";
-                    } elseif ($status === 'scheduled') {
-                        $where = "WHERE tb.send_at IS NOT NULL AND tb.send_at > NOW()";
-                    }
+                                    // Xử lý bộ lọc trạng thái để tạo WHERE
+                                    $where = '';
+                                    if ($status === 'sent') {
+                                        // Chỉ hiển thị các thông báo đã gửi (send_at NULL hoặc <= NOW())
+                                        // và do Admin tạo (nguoiGui có vaiTro = 'Admin')
+                                        $where = "WHERE (tb.send_at IS NULL OR tb.send_at <= NOW()) AND EXISTS(SELECT 1 FROM `user` uu WHERE uu.userId = tb.nguoiGui AND uu.vaiTro = 'Admin')";
+                                    } elseif ($status === 'scheduled') {
+                                        $where = "WHERE tb.send_at IS NOT NULL AND tb.send_at > NOW()";
+                                    }
 
                     // 1. Đếm tổng số bản ghi theo bộ lọc hiện tại (để tính số trang)
                     $sqlCount = "SELECT COUNT(*) as total FROM thongbao tb " . $where;
