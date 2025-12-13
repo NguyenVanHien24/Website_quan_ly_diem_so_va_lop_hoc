@@ -1,4 +1,3 @@
-// helper: show/hide controls in Edit modal (defined globally so edit-button can call it)
 function updateEditTargetControls(){
     const v = document.querySelector('input[name="target_type_edit"]:checked')?.value || 'all';
     const er = document.getElementById('e_role_select');
@@ -28,12 +27,10 @@ document.addEventListener("DOMContentLoaded", function() {
     editButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const d = this.dataset;
-            // numeric id
             document.getElementById('e_ma').value = d.ma || '';
             document.getElementById('e_id').value = d.id || '';
             document.getElementById('e_title').value = d.title || '';
             document.getElementById('e_content').value = d.content || '';
-            // set send_at if present (convert to datetime-local format if possible)
             if (d.send_at) {
                 const dt = new Date(d.send_at);
                 const local = dt.toISOString().slice(0,16);
@@ -42,14 +39,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById('e_date').value = '';
             }
 
-            // populate target_type and controls
             const t = d.target_type || 'all';
             if (t === 'all') document.getElementById('et_all').checked = true;
             if (t === 'role') document.getElementById('et_role').checked = true;
             if (t === 'class') document.getElementById('et_class').checked = true;
             if (t === 'users') document.getElementById('et_users').checked = true;
             updateEditTargetControls();
-            // fill target values
             const tv = d.target_value || '';
             try {
                 const parsed = JSON.parse(tv);
@@ -61,11 +56,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('e_class_select').value = parsed || '';
                 }
             } catch(e){
-                // not json
                 document.getElementById('e_role_select').value = tv;
                 document.getElementById('e_class_select').value = tv;
             }
-            // show existing attachment if any
             const att = d.attachment || '';
             const disp = document.getElementById('e_attachment_display');
             if (disp) {
@@ -90,11 +83,53 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('v_content').value = d.content;
             document.getElementById('v_date').value = d.date;
             
-            // Chọn radio button (readonly)
-            if(d.receiver === 'all') document.getElementById('vrx1').checked = true;
-            if(d.receiver === 'teacher') document.getElementById('vrx2').checked = true;
-            if(d.receiver === 'student') document.getElementById('vrx3').checked = true;
-            // display attachment in view modal
+            // Chọn radio button (readonly) dựa trên target_type và vai trò người nhận thực tế nếu có
+            const ttype = d.target_type || 'all';
+            let recRoles = [];
+            if (d.recRoles) {
+                try { recRoles = JSON.parse(d.recRoles); } catch(e) { recRoles = []; }
+            }
+            if (Array.isArray(recRoles) && recRoles.length > 0) {
+                const hasAll = recRoles.includes('all');
+                const hasTeacher = recRoles.includes('GiaoVien');
+                const hasStudent = recRoles.includes('HocSinh');
+                const hasAdmin = recRoles.includes('Admin');
+                const distinctCount = (hasAll ? 1 : 0) + (hasTeacher ? 1 : 0) + (hasStudent ? 1 : 0) + (hasAdmin ? 1 : 0);
+                if (hasAll || distinctCount > 1) {
+                    document.getElementById('vrx1').checked = true;
+                } else if (hasStudent) {
+                    document.getElementById('vrx3').checked = true;
+                } else if (hasTeacher) {
+                    document.getElementById('vrx2').checked = true;
+                } else if (hasAdmin) {
+                    document.getElementById('vrx1').checked = true;
+                } else {
+                    if (ttype === 'all') document.getElementById('vrx1').checked = true;
+                    else if (ttype === 'role') {
+                        if (d.target_value === 'HocSinh') document.getElementById('vrx3').checked = true;
+                        else if (d.target_value === 'GiaoVien') document.getElementById('vrx2').checked = true;
+                        else document.getElementById('vrx1').checked = true;
+                    } else if (ttype === 'class') document.getElementById('vrx3').checked = true;
+                    else document.getElementById('vrx1').checked = true;
+                }
+            } else {
+                if (ttype === 'all') document.getElementById('vrx1').checked = true;
+                else if (ttype === 'role') {
+                    if (d.target_value === 'HocSinh') document.getElementById('vrx3').checked = true;
+                    else if (d.target_value === 'GiaoVien') document.getElementById('vrx2').checked = true;
+                    else document.getElementById('vrx1').checked = true;
+                } else if (ttype === 'class') {
+                    document.getElementById('vrx3').checked = true;
+                } else if (ttype === 'users') {
+                    document.getElementById('vrx3').checked = true;
+                }
+            }
+
+            const recipEl = document.getElementById('v_recipients');
+            if (recipEl) {
+                const txt = d.recipients || '';
+                recipEl.innerHTML = txt ? ('<div class="small text-muted">' + txt + '</div>') : '<span class="text-muted">Chưa phân phối</span>';
+            }
             const vdisp = document.getElementById('v_attachment_display');
             if (vdisp) {
                 const att = d.attachment || '';
@@ -128,7 +163,6 @@ document.addEventListener("DOMContentLoaded", function() {
             modal.show();
         });
     }
-    // Delete handling (single and multi)
     let pendingDeleteIds = [];
     const singleDeleteButtons = document.querySelectorAll('.btn-delete');
     singleDeleteButtons.forEach(btn => {
@@ -141,7 +175,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnConfirmDelete = document.getElementById('btnConfirmDelete');
     if (btnConfirmDelete) {
         btnConfirmDelete.addEventListener('click', function(){
-            // if multi-delete invoked, collect checked
             const checkboxes = Array.from(document.querySelectorAll('tbody input.form-check-input[type="checkbox"]'));
             const checked = checkboxes.filter(c => c.checked).map(c => c.value);
             if (checked.length > 0) pendingDeleteIds = checked;
@@ -178,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function(){
     radios.forEach(r=> r.addEventListener('change', updateTargetControls));
     updateTargetControls();
 
-    // Edit modal target controls
     const editRadios = document.querySelectorAll('input[name="target_type_edit"]');
     function updateEditTargetControls(){
         const v = document.querySelector('input[name="target_type_edit"]:checked')?.value || 'all';
@@ -215,7 +247,6 @@ document.addEventListener('DOMContentLoaded', function(){
             if (sendAt) fd.append('send_at', sendAt);
             fd.append('target_type', targetType);
             fd.append('target_value', targetValue);
-            // include file if selected
             const aFile = document.getElementById('a_file');
             if (aFile && aFile.files && aFile.files.length > 0) fd.append('attachment', aFile.files[0]);
 
@@ -263,7 +294,6 @@ document.addEventListener('DOMContentLoaded', function(){
             if (sendAt) fd.append('send_at', sendAt);
             fd.append('target_type', targetType);
             fd.append('target_value', targetValue);
-            // include edit file if provided
             const eFile = document.getElementById('e_file');
             if (eFile && eFile.files && eFile.files.length > 0) fd.append('attachment', eFile.files[0]);
 

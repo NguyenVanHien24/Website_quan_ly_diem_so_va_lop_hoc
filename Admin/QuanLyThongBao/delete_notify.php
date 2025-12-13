@@ -28,7 +28,6 @@ if (empty($ids)) {
     exit();
 }
 
-// Fetch attachments to delete files
 $placeholders = implode(',', array_fill(0, count($ids), '?'));
 $colChk = $conn->query("SHOW COLUMNS FROM `thongbao` LIKE 'attachment'");
 if ($colChk && $colChk->num_rows > 0) {
@@ -40,7 +39,6 @@ if (!$stmt) {
     echo json_encode(['success' => false, 'message' => 'Prepare error: '.$conn->error]);
     exit();
 }
-// bind params dynamically
 $types = str_repeat('i', count($ids));
 $stmt->bind_param($types, ...$ids);
 $stmt->execute();
@@ -51,14 +49,12 @@ while ($r = $res->fetch_assoc()) {
 }
 $stmt->close();
 
-// delete rows
 $conn->begin_transaction();
 $delStmt = $conn->prepare("DELETE FROM thongbao WHERE maThongBao IN ($placeholders)");
 if ($delStmt) {
     $delStmt->bind_param($types, ...$ids);
     $ok = $delStmt->execute();
     $delStmt->close();
-    // delete related thongbaouser
     $del2 = $conn->prepare("DELETE FROM thongbaouser WHERE maTB IN ($placeholders)");
     if ($del2) {
         $del2->bind_param($types, ...$ids);
@@ -66,7 +62,6 @@ if ($delStmt) {
         $del2->close();
     }
     $conn->commit();
-    // remove files
     $uploadDir = __DIR__ . '/../../uploads/documents/';
     foreach ($attachments as $a) {
         $p = $uploadDir . $a;

@@ -24,7 +24,6 @@ $send_at = isset($_POST['send_at']) && $_POST['send_at'] !== '' ? $_POST['send_a
 $target_type = isset($_POST['target_type']) ? trim($_POST['target_type']) : 'all';
 $target_value = isset($_POST['target_value']) ? trim($_POST['target_value']) : '';
 
-// Handle file upload
 $attachmentName = null;
 if (!empty($_FILES['attachment']) && $_FILES['attachment']['error'] !== UPLOAD_ERR_NO_FILE) {
     $colRs = $conn->query("SHOW COLUMNS FROM `thongbao` LIKE 'attachment'");
@@ -56,7 +55,6 @@ if ($ma <= 0) {
     exit();
 }
 
-// Update thongbao
 $params = [];
 $sets = [];
 if ($title !== '') { $sets[] = "tieuDe = ?"; $params[] = $title; }
@@ -67,7 +65,7 @@ if (!empty($sets)) {
     $sql = "UPDATE thongbao SET " . implode(', ', $sets) . " WHERE maThongBao = ?";
     $stmt = $conn->prepare($sql);
     if (!$stmt) { echo json_encode(['success'=>false,'message'=>'Prepare error: '.$conn->error]); exit(); }
-    // bind params dynamically
+    
     $types = str_repeat('s', count($params)) . 'i';
     $params[] = $ma;
     $stmt->bind_param($types, ...$params);
@@ -75,7 +73,6 @@ if (!empty($sets)) {
     $stmt->close();
 }
 
-// If target columns exist, update them
 $colsRs = $conn->query("SHOW COLUMNS FROM `thongbao` LIKE 'target_type'");
 if ($colsRs && $colsRs->num_rows > 0) {
     $tt = $conn->real_escape_string($target_type);
@@ -83,16 +80,13 @@ if ($colsRs && $colsRs->num_rows > 0) {
     $conn->query("UPDATE thongbao SET target_type='".$tt."', target_value='".$tv."' WHERE maThongBao=".(int)$ma);
 }
 
-// If uploaded file saved, update attachment column
 if ($attachmentName !== null) {
-    // Update only if column exists
     $check = $conn->query("SHOW COLUMNS FROM `thongbao` LIKE 'attachment'");
     if ($check && $check->num_rows > 0) {
         $conn->query("UPDATE thongbao SET attachment='".$conn->real_escape_string($attachmentName)."' WHERE maThongBao=".(int)$ma);
     }
 }
 
-// Rebuild recipients: delete old then insert new (but only insert when send_at is not in the future)
 $conn->begin_transaction();
 $conn->query("DELETE FROM thongbaouser WHERE maTB = " . (int)$ma);
 $userIds = [];
@@ -112,7 +106,6 @@ if ($target_type === 'all') {
     if (is_array($arr)) foreach ($arr as $v) $userIds[] = (int)$v;
 }
 
-// Determine current send_at for this notification (use posted value if provided)
 $current_send_at = null;
 if ($send_at !== null) {
     $current_send_at = $send_at;

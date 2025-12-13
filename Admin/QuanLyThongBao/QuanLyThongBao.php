@@ -31,7 +31,6 @@ if ($cntRs) {
     $countSent = (int)($c['sent'] ?? 0);
 }
 
-// Status filter from tabs: all|sent|scheduled
 $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
 ?>
 
@@ -70,11 +69,8 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
                     $offset = ($page - 1) * $limit;
 
-                                    // Xử lý bộ lọc trạng thái để tạo WHERE
                                     $where = '';
                                     if ($status === 'sent') {
-                                        // Chỉ hiển thị các thông báo đã gửi (send_at NULL hoặc <= NOW())
-                                        // và do Admin tạo (nguoiGui có vaiTro = 'Admin')
                                         $where = "WHERE (tb.send_at IS NULL OR tb.send_at <= NOW()) AND EXISTS(SELECT 1 FROM `user` uu WHERE uu.userId = tb.nguoiGui AND uu.vaiTro = 'Admin')";
                                     } elseif ($status === 'scheduled') {
                                         $where = "WHERE tb.send_at IS NOT NULL AND tb.send_at > NOW()";
@@ -93,7 +89,7 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                             LEFT JOIN `user` u ON tb.nguoiGui = u.userId
                             " . $where . "
                             ORDER BY tb.ngayGui DESC
-                            LIMIT $limit OFFSET $offset"; // Thêm LIMIT và OFFSET
+                            LIMIT $limit OFFSET $offset"; 
 
                     $rs = $conn->query($sql);
                     if ($rs && $rs->num_rows > 0) {
@@ -106,12 +102,10 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                             $date = htmlspecialchars($row['ngayGui'] ?? '');
                             $sender = htmlspecialchars($row['nguoiGui'] ?? '---');
 
-                            // Kiểm tra xem là thông báo được lên lịch hay đã gửi
                             $sendAtRaw = $row['send_at'] ?? null;
                             $isScheduled = false;
                             if ($sendAtRaw !== null && $sendAtRaw !== '' && strtotime($sendAtRaw) > time()) $isScheduled = true;
 
-                            // Nếu đã gửi (hoặc đã phân phối), đếm từ thongbaouser
                             $cnt = 0;
                             if (!$isScheduled) {
                                 $countRs = $conn->query("SELECT COUNT(*) AS cnt FROM thongbaouser WHERE maTB = " . $id);
@@ -120,7 +114,6 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                     $cnt = (int)($c['cnt'] ?? 0);
                                 }
                             } else {
-                                // Nếu lên lịch, tính số người nhận dự kiến dựa trên target_type/target_value
                                 $tt = $row['target_type'] ?? 'all';
                                 $tv = $row['target_value'] ?? '';
                                 if ($tt === 'all') {
@@ -163,12 +156,68 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                 echo '<td><span class="text-secondary fw-bold">ĐÃ GỬI</span></td>';
                             }
 
-                            // Actions: include data attributes for view/edit (include numeric id and target metadata)
+                            $receiverLabel = '';
+                            $tt = $row['target_type'] ?? 'all';
+                            $tv = $row['target_value'] ?? '';
+                            if ($isScheduled) {
+                                if ($tt === 'all') {
+                                    $receiverLabel = 'Toàn hệ thống';
+                                    $receiverRoles = ['all'];
+                                } elseif ($tt === 'role') {
+                                    $map = ['GiaoVien' => 'Giáo viên', 'HocSinh' => 'Học sinh', 'Admin' => 'Admin'];
+                                    $receiverLabel = $map[$tv] ?? $tv;
+                                    $receiverRoles = [$tv];
+                                } elseif ($tt === 'class') {
+                                    $maLop = (int)$tv;
+                                    $r2 = $conn->query("SELECT tenLop FROM lophoc WHERE maLop = " . $maLop . " LIMIT 1");
+                                    if ($r2 && $r2->num_rows > 0) {
+                                        $receiverLabel = $r2->fetch_assoc()['tenLop'];
+                                    } else {
+                                        $receiverLabel = 'Lớp #' . $maLop;
+                                    }
+                                    $receiverRoles = ['HocSinh'];
+                                } elseif ($tt === 'users') {
+                                    $arr = json_decode($tv, true);
+                                    if (is_array($arr) && count($arr) > 0) {
+                                        
+                                        $ids = array_map('intval', $arr);
+                                        $in = implode(',', $ids);
+                                        $rsn = $conn->query("SELECT hoVaTen, vaiTro FROM `user` WHERE userId IN (" . $in . ") LIMIT 10");
+                                        $names = [];
+                                        $rolesTmp = [];
+                                        if ($rsn) while ($rrr = $rsn->fetch_assoc()) { $names[] = $rrr['hoVaTen']; if (!empty($rrr['vaiTro'])) $rolesTmp[] = $rrr['vaiTro']; }
+                                        $receiverLabel = implode(', ', $names);
+                                        $receiverRoles = array_values(array_unique($rolesTmp));
+                                    } else {
+                                        $receiverLabel = 'Chọn người nhận cụ thể';
+                                        $receiverRoles = [];
+                                    }
+                                }
+                            } else {
+                                $rsr = $conn->query("SELECT u.hoVaTen, u.vaiTro FROM thongbaouser tbu JOIN `user` u ON tbu.userId = u.userId WHERE tbu.maTB = " . $id . " LIMIT 50");
+                                $names = [];
+                                $roles = [];
+                                if ($rsr) {
+                                    while ($rr = $rsr->fetch_assoc()) { $names[] = $rr['hoVaTen']; if (!empty($rr['vaiTro'])) $roles[] = $rr['vaiTro']; }
+                                }
+                                if (!empty($names)) {
+                                    $receiverLabel = implode(', ', $names);
+                                    $receiverRoles = array_values(array_unique($roles));
+                                } else {
+                                    if ($tt === 'all') { $receiverLabel = 'Toàn hệ thống'; $receiverRoles = ['all']; }
+                                    elseif ($tt === 'role') { $map = ['GiaoVien' => 'Giáo viên', 'HocSinh' => 'Học sinh', 'Admin' => 'Admin']; $receiverLabel = $map[$tv] ?? $tv; $receiverRoles = [$tv]; }
+                                    elseif ($tt === 'class') { $receiverLabel = 'Lớp #' . (int)$tv; $receiverRoles = ['HocSinh']; }
+                                    else { $receiverLabel = 'Chưa phân phối'; $receiverRoles = []; }
+                                }
+                            }
+
                             $dataAttrs = 'data-ma="' . $id . '" data-id="' . $code . '" data-title="' . $title . '" data-content="' . $content . '" data-date="' . $date . '" data-receiver="' . $cnt . '"';
                             $dataAttrs .= ' data-target_type="' . htmlspecialchars($row['target_type'] ?? 'all') . '"';
                             $dataAttrs .= ' data-target_value="' . htmlspecialchars($row['target_value'] ?? '') . '"';
                             $dataAttrs .= ' data-send_at="' . htmlspecialchars($row['send_at'] ?? '') . '"';
                             $dataAttrs .= ' data-attachment="' . htmlspecialchars($row['attachment'] ?? '') . '"';
+                            $dataAttrs .= ' data-recipients="' . htmlspecialchars($receiverLabel) . '"';
+                            $dataAttrs .= ' data-rec-roles="' . htmlspecialchars(json_encode($receiverRoles), ENT_QUOTES) . '"';
                             echo '<td class="action-icons">';
                             echo '<a href="#" class="btn-view" ' . $dataAttrs . ' data-bs-toggle="modal" data-bs-target="#viewNotifyModal"><i class="bi bi-box-arrow-up-right"></i></a> ';
                             echo '<a href="#" class="btn-edit" ' . $dataAttrs . ' data-bs-toggle="modal" data-bs-target="#editNotifyModal"><i class="bi bi-pencil-square"></i></a> ';
@@ -189,7 +238,6 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
             $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
             $endShow = min($offset + $limit, $totalRecords);
 
-            // Hàm tạo link giữ nguyên status
             function createPageLink($p, $s)
             {
                 return "?status=" . htmlspecialchars($s) . "&page=" . $p;
@@ -387,8 +435,6 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
         </div>
     </div>
 
-    <!-- Add file input to edit modal (inside form above, we will insert before action buttons) -->
-
     <div class="modal fade" id="viewNotifyModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content p-4 bg-light">
@@ -407,7 +453,7 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                         <div class="col-md-9"><textarea class="form-control bg-white" rows="4" id="v_content" readonly></textarea></div>
                     </div>
                     <div class="row mb-3 align-items-center">
-                        <label class="col-md-3 text-secondary">Thời gian gửi thông báo:</label>
+                        <label class="col-md-3 text-secondary">Thời gian tạo thông báo:</label>
                         <div class="col-md-9">
                             <div class="input-group">
                                 <input type="text" class="form-control bg-white" id="v_date" readonly>
@@ -436,6 +482,7 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                 <input class="form-check-input" type="radio" name="receiverView" id="vrx3" value="student" disabled>
                                 <label class="form-check-label">Học sinh</label>
                             </div>
+                            <!-- <div id="v_recipients" class="mt-2"></div> -->
                         </div>
                     </div>
                     <div class="d-flex justify-content-end">

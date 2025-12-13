@@ -6,9 +6,6 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../../config.php';
 require_once '../../CSDL/db.php';
 
-// This script distributes scheduled notifications whose send_at <= NOW()
-// and which have not yet been distributed (no rows in thongbaouser).
-
 $processed = [];
 
 $sql = "SELECT tb.maThongBao, tb.target_type, tb.target_value FROM thongbao tb
@@ -58,7 +55,6 @@ if ($rs) {
             $conn->commit();
         }
 
-        // Optionally update ngayGui to now if empty
         $conn->query("UPDATE thongbao SET ngayGui = NOW() WHERE maThongBao = " . $ma . " AND (ngayGui IS NULL OR ngayGui = '')");
 
         $processed[] = ['maThongBao' => $ma, 'inserted' => $inserted, 'errors' => $errors];

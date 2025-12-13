@@ -10,7 +10,6 @@ if (!isset($_SESSION['userID'])) {
 }
 $userId = (int)$_SESSION['userID'];
 
-// Fetch latest 20 notifications for user, include read status
 $sql = "SELECT tbu.id AS tbuId, tbu.maTB, tbu.trangThai, tb.tieuDe, tb.noiDung, tb.send_at, tb.ngayGui, u.hoVaTen AS nguoiGui
         FROM thongbaouser tbu
         JOIN thongbao tb ON tbu.maTB = tb.maThongBao
@@ -27,7 +26,6 @@ if ($rs) {
     }
 }
 
-// Count unread
 $cntRs = $conn->query("SELECT COUNT(*) AS cnt FROM thongbaouser WHERE userId = " . $userId . " AND trangThai = 0");
 $unread = 0;
 if ($cntRs) { $c = $cntRs->fetch_assoc(); $unread = (int)($c['cnt'] ?? 0); }
