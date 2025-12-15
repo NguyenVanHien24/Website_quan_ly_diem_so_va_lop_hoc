@@ -103,3 +103,106 @@ document.addEventListener("DOMContentLoaded", function () {
     // Vì bạn đã chọn phương án form submit ở bước trước, không cần thêm code ở đây.
 
 });
+
+// ==============================
+// IMPORT / EXPORT XLSX
+// ==============================
+document.addEventListener("DOMContentLoaded", function () {
+    const btnExport = document.getElementById('btnExport');
+    const btnImport = document.getElementById('btnImport');
+    const importModalEl = document.getElementById('importModal');
+    const importModalFile = document.getElementById('importModalFile');
+    const importUploadBtn = document.getElementById('importUploadBtn');
+
+    // EXPORT: only export checked rows
+    if (btnExport) {
+        btnExport.addEventListener('click', function (e) {
+            // collect checked checkboxes in table body
+            const checked = Array.from(document.querySelectorAll('table tbody input[type="checkbox"]'))
+                .filter(ch => ch.checked);
+            if (checked.length === 0) {
+                alert('Vui lòng chọn các hàng cần xuất (tích checkbox).');
+                return;
+            }
+
+            const selected = [];
+            checked.forEach(ch => {
+                const tr = ch.closest('tr');
+                if (!tr) return;
+                const mahs = tr.getAttribute('data-mahs') || '';
+                const mamon = tr.getAttribute('data-mamon') || '';
+                const malop = tr.getAttribute('data-malop') || '';
+                const namhoc = tr.getAttribute('data-namhoc') || this.getAttribute('data-namhoc') || '';
+                const hocky = tr.getAttribute('data-hocky') || this.getAttribute('data-hocky') || '';
+                // encode as pipe separated
+                selected.push([mahs, mamon, malop, namhoc, hocky].join('|'));
+            });
+
+            // create a form and POST selected[] to export_scores.php to trigger download
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'export_scores.php';
+            form.style.display = 'none';
+            selected.forEach(s => {
+                const inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'selected[]';
+                inp.value = s;
+                form.appendChild(inp);
+            });
+            document.body.appendChild(form);
+            form.submit();
+            form.remove();
+        });
+    }
+
+    // SELECT ALL checkbox behavior
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            const checks = document.querySelectorAll('table tbody input.row-check');
+            checks.forEach(ch => ch.checked = selectAll.checked);
+        });
+    }
+
+    // IMPORT: show modal with guidance
+    let importModal = null;
+    if (importModalEl) importModal = new bootstrap.Modal(importModalEl);
+    if (btnImport && importModal) {
+        btnImport.addEventListener('click', function () {
+            importModal.show();
+        });
+    }
+
+    if (importUploadBtn && importModalFile) {
+        importUploadBtn.addEventListener('click', function () {
+            const f = importModalFile.files[0];
+            if (!f) { alert('Vui lòng chọn file trước khi tải lên.'); return; }
+
+            const fd = new FormData();
+            fd.append('file', f);
+            const params = new URLSearchParams(window.location.search);
+            fd.append('maLop', params.get('class') || '');
+            fd.append('maMon', params.get('subject') || '');
+
+            importUploadBtn.disabled = true;
+            importUploadBtn.innerText = 'Đang nhập...';
+
+            fetch('import_scores.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(resp => {
+                alert('Kết quả: ' + JSON.stringify(resp));
+                if (resp && (resp.inserted || resp.updated)) {
+                    importModal.hide();
+                    location.reload();
+                }
+            }).catch(err => {
+                console.error(err);
+                alert('Lỗi khi nhập file. Kiểm tra console.');
+            }).finally(() => {
+                importUploadBtn.disabled = false;
+                importUploadBtn.innerText = 'Tải lên và nhập';
+            });
+        });
+    }
+});

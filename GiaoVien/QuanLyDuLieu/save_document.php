@@ -132,7 +132,56 @@ if (!$stmt->execute()) {
     exit();
 }
 
+$isInsert = ($maTaiLieu <= 0);
+$newId = $isInsert ? $conn->insert_id : $maTaiLieu;
+
 $stmt->close();
-echo json_encode(['success' => true, 'message' => $maTaiLieu > 0 ? 'Cập nhật thành công' : 'Thêm tài liệu thành công']);
+
+// Nếu là thêm mới tài liệu cho lớp thì tạo thông báo gửi tới tất cả học sinh của lớp
+if ($isInsert && $newId > 0) {
+    // Build title/content
+    $title = 'Tài liệu mới: ' . $tieuDe;
+    $content = 'Có tài liệu mới được thêm cho lớp. Tiêu đề: ' . $tieuDe . '. Mô tả: ' . $moTa . '.';
+
+    // Người gửi (giáo viên)
+    $nguoiGui = isset($_SESSION['userID']) ? (int)$_SESSION['userID'] : null;
+
+    // Lấy danh sách userId của học sinh trong lớp (maLop)
+    $userIds = [];
+    $r = $conn->prepare("SELECT u.userId FROM `user` u JOIN hocsinh hs ON u.userId = hs.userId WHERE hs.maLopHienTai = ?");
+    if ($r) {
+        $r->bind_param('i', $maLop);
+        if ($r->execute()) {
+            $res = $r->get_result();
+            while ($rr = $res->fetch_assoc()) {
+                $userIds[] = (int)$rr['userId'];
+            }
+        }
+        $r->close();
+    }
+
+    if (!empty($userIds)) {
+        $conn->begin_transaction();
+        $sIns = $conn->prepare("INSERT INTO thongbao (tieuDe, noiDung, nguoiGui) VALUES (?, ?, ?)");
+        if ($sIns) {
+            $sIns->bind_param('ssi', $title, $content, $nguoiGui);
+            if ($sIns->execute()) {
+                $maTB = $conn->insert_id;
+                $sRel = $conn->prepare("INSERT INTO thongbaouser (maTB, userId, trangThai) VALUES (?, ?, 0)");
+                if ($sRel) {
+                    foreach ($userIds as $uid) {
+                        $sRel->bind_param('ii', $maTB, $uid);
+                        $sRel->execute();
+                    }
+                    $sRel->close();
+                }
+            }
+            $sIns->close();
+        }
+        $conn->commit();
+    }
+}
+
+echo json_encode(['success' => true, 'message' => $isInsert ? 'Thêm tài liệu thành công' : 'Cập nhật thành công']);
 exit();
 ?>

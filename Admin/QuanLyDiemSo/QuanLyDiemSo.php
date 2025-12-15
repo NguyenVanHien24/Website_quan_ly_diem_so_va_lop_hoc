@@ -192,7 +192,7 @@ $pageJS = ['QuanLyDiemSo.js'];
             <table class="table">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <th><input class="form-check-input" type="checkbox" id="selectAll"></th>
                         <th>STT</th>
                         <th>Mã HS</th>
                         <th>Họ Tên</th>
@@ -236,8 +236,12 @@ $pageJS = ['QuanLyDiemSo.js'];
 
                         // KẾT THÚC KHỐI TÍNH TOÁN ĐIỂM
                     ?>
-                        <tr>
-                            <td><input class="form-check-input" type="checkbox"></td>
+                        <tr data-mahs="<?= htmlspecialchars($sc['maHS']) ?>"
+                            data-mamon="<?= htmlspecialchars($sc['maMon']) ?>"
+                            data-malop="<?= htmlspecialchars($sc['maLop']) ?>"
+                            data-namhoc="<?= htmlspecialchars($currentYear) ?>"
+                            data-hocky="<?= htmlspecialchars($currentSemester) ?>">
+                            <td><input class="form-check-input row-check" type="checkbox"></td>
                             <td><?= $i++ ?></td>
                             <td><?= $sc['maHS'] ?></td>
                             <td><?= $sc['hoVaTen'] ?></td>
@@ -354,8 +358,39 @@ $pageJS = ['QuanLyDiemSo.js'];
     </div>
 
     <div class="d-flex justify-content-end gap-3 mt-4">
-        <button class="btn btn-import">Import bảng điểm</button>
-        <button class="btn btn-export">Xuất bảng điểm</button>
+        <button class="btn btn-import" id="btnImport"
+                data-namhoc="<?php echo htmlspecialchars($currentYear); ?>"
+                data-hocky="<?php echo htmlspecialchars($currentSemester); ?>">Import bảng điểm</button>
+        <button class="btn btn-export" id="btnExport"
+                data-namhoc="<?php echo htmlspecialchars($currentYear); ?>"
+                data-hocky="<?php echo htmlspecialchars($currentSemester); ?>">Xuất bảng điểm</button>
+        <input type="file" id="importFileInput" accept=".xlsx,.xls" style="display:none">
+    </div>
+
+    <!-- Import modal -->
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Hướng dẫn Import bảng điểm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Chọn file Excel (.xlsx) có cấu trúc: <strong>maHS, maMon, loaiDiem, giaTriDiem, namHoc, hocKy</strong>.
+                    Nếu không có trường <strong>namHoc</strong> hoặc <strong>hocKy</strong>, hệ thống sẽ dùng năm/học kỳ hiện tại.</p>
+                    <p>Nếu bạn muốn, tải file mẫu trước khi sửa: <a href="download_template_xlsx.php">XLSX</a></p>
+
+                    <div class="mb-3">
+                        <label for="importModalFile" class="form-label">Chọn file Excel</label>
+                        <input class="form-control" type="file" id="importModalFile" accept=".xlsx,.xls">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="importUploadBtn">Tải lên và nhập</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="gradeEntryModal" tabindex="-1" aria-hidden="true">

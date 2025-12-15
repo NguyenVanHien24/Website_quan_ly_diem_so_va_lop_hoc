@@ -138,15 +138,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
                         $userId = $conn->insert_id;
                         $stmt->close();
 
-                        // 4. Insert HocSinh
-                        // Lưu ý: maLopHienTai có thể là NULL nếu không tìm thấy lớp hoặc không nhập
+                        // 4. CẬP NHẬT HocSinh 
                         $statusDb = 'Hoạt động';
-                        $insHS = $conn->prepare("INSERT INTO hocsinh (userId, maLopHienTai, chucVu, trangThaiHoatDong, namHoc, kyHoc) VALUES (?, ?, ?, ?, ?, ?)");
-                        $insHS->bind_param("iisssi", $userId, $maLop, $chucVu, $statusDb, $currentYear, $currentSemester);
+                        $insHS = $conn->prepare("UPDATE hocsinh SET maLopHienTai = ?, chucVu = ?, trangThaiHoatDong = ?, namHoc = ?, kyHoc = ? WHERE userId = ?");
+                        $insHS->bind_param("isssii", $maLop, $chucVu, $statusDb, $currentYear, $currentSemester, $userId);
 
                         if ($insHS->execute()) {
-                            $newMaHS = $conn->insert_id; // Lấy maHS vừa tạo (Auto Increment)
                             $insHS->close();
+
+                            $getMaHS = $conn->query("SELECT maHS FROM hocsinh WHERE userId = $userId");
+                            $rowHS = $getMaHS->fetch_assoc();
+                            $newMaHS = $rowHS['maHS'];
 
                             // 5. Nếu có lớp, tạo điểm số và tăng sĩ số
                             if ($maLop) {
@@ -155,7 +157,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
                             }
                             $countSuccess++;
                         } else {
-                            $countFail++; // Lỗi insert hocsinh
+                            $countFail++; // Lỗi update hocsinh
                         }
                     } else {
                         $countFail++; // Lỗi insert user
@@ -186,7 +188,7 @@ $resCount = $conn->query($sqlCount);
 $totalRecords = $resCount->fetch_assoc()['total'];
 $totalPages = ceil($totalRecords / $limit);
 
-// 2. Lấy danh sách học sinh theo trang (Thêm LIMIT và OFFSET)
+// 2. Lấy danh sách học sinh theo trang
 $sql = "
     SELECT 
         hs.maHS,
@@ -254,7 +256,7 @@ function createDiemsoForStudent($conn, $maHS, $maLop, $namHoc, $kyHoc)
     }
 }
 
-// ------------------ XỬ LÝ AJAX THÊM/SỬA/XÓA ------------------
+//  XỬ LÝ AJAX THÊM/SỬA/XÓA 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $response = ['success' => false, 'error' => ''];
@@ -268,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $status = $_POST['status'] ?? 'active';
 
     if (!$name) {
-        // Xử lý xóa trước (không cần validation)
+        // Xử lý xóa trước 
         if ($action === 'delete') {
             $maHS = $_POST['id'] ?? 0;
             $conn->begin_transaction();
@@ -280,12 +282,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
                 $userId = $rs->fetch_assoc()['userId'];
 
-                // Xóa chuyên cần liên quan (nếu FK chưa có CASCADE)
+                // Xóa chuyên cần liên quan
                 if (!$conn->query("DELETE FROM chuyencan WHERE maHS=$maHS")) {
                     throw new Exception('Lỗi xóa chuyên cần: ' . $conn->error);
                 }
 
-                // Xóa hocsinh (cascade sẽ xóa các bản ghi liên quan: diemso, bainop)
+                // Xóa hocsinh 
                 if (!$conn->query("DELETE FROM hocsinh WHERE maHS=$maHS")) {
                     throw new Exception('Lỗi xóa hocsinh: ' . $conn->error);
                 }
@@ -306,7 +308,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    // Validation cho add/update (không cần cho delete)
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');

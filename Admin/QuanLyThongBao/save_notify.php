@@ -29,13 +29,11 @@ if ($title === '') {
     echo json_encode(['success' => false, 'message' => 'Tiêu đề không được để trống']);
     exit();
 }
-// Normalize send_at to MySQL DATETIME or NULL
 $send_at_db = null;
 if ($send_at !== null && $send_at !== '') {
     $send_at_db = date('Y-m-d H:i:s', strtotime($send_at));
 }
 
-// Insert thongbao (include send_at if provided)
 $t = $conn->real_escape_string($title);
 $d = $conn->real_escape_string($content);
 $sa = $send_at_db !== null ? ("'" . $conn->real_escape_string($send_at_db) . "'") : 'NULL';
@@ -58,14 +56,12 @@ if ($hasTargetType) {
     $conn->query("UPDATE thongbao SET target_type = '" . $tt . "', target_value = '" . $tv . "' WHERE maThongBao = " . (int)$maTB);
 }
 
-// Handle file upload if provided
 $attachmentName = null;
 if (!empty($_FILES['attachment']) && $_FILES['attachment']['error'] !== UPLOAD_ERR_NO_FILE) {
-    // Ensure attachment column exists (try to add if missing)
+    
     $colRs = $conn->query("SHOW COLUMNS FROM `thongbao` LIKE 'attachment'");
     if (!$colRs || $colRs->num_rows === 0) {
         if (!$conn->query("ALTER TABLE thongbao ADD COLUMN attachment VARCHAR(255) DEFAULT NULL")) {
-            // Could not add column; record error and skip updating attachment
             $alterError = $conn->error;
             $colAdded = false;
         } else {
@@ -84,7 +80,6 @@ if (!empty($_FILES['attachment']) && $_FILES['attachment']['error'] !== UPLOAD_E
         $dest = $uploadDir . $base;
         if (move_uploaded_file($f['tmp_name'], $dest)) {
             $attachmentName = $base;
-            // Only update DB if column exists
             if (!empty($colAdded)) {
                 $conn->query("UPDATE thongbao SET attachment = '" . $conn->real_escape_string($attachmentName) . "' WHERE maThongBao = " . (int)$maTB);
             }
@@ -92,7 +87,6 @@ if (!empty($_FILES['attachment']) && $_FILES['attachment']['error'] !== UPLOAD_E
     }
 }
 
-// Determine recipients
 $userIds = [];
 
 if ($target_type === 'all') {
@@ -104,7 +98,6 @@ if ($target_type === 'all') {
     while ($r = $rs->fetch_assoc()) $userIds[] = (int)$r['userId'];
 } elseif ($target_type === 'class') {
     $maLop = (int)$target_value;
-    // hocsinh.maLopHienTai points to lophoc.maLop
     $sql = "SELECT u.userId FROM `user` u JOIN hocsinh hs ON u.userId = hs.userId WHERE hs.maLopHienTai = '" . $maLop . "'";
     $rs = $conn->query($sql);
     while ($r = $rs->fetch_assoc()) $userIds[] = (int)$r['userId'];
@@ -115,16 +108,13 @@ if ($target_type === 'all') {
     }
 }
 
-// Decide whether to distribute now or schedule
 $shouldDistribute = true;
 if ($send_at_db !== null && strtotime($send_at_db) > time()) {
     $shouldDistribute = false;
 }
 
-// Insert into thongbaouser for each recipient (only if distributing now)
 $inserted = 0;
 if ($shouldDistribute && !empty($userIds)) {
-    // Sử dụng transaction để đảm bảo atomic
     $conn->begin_transaction();
     $stmt = $conn->prepare("INSERT INTO thongbaouser (maTB, userId, trangThai) VALUES (?, ?, 0)");
     $errors = [];
@@ -171,7 +161,6 @@ if ($shouldDistribute) {
     exit();
 
 } else {
-    // Scheduled for future
     echo json_encode([
         'success' => true,
         'message' => 'Thông báo đã được lưu và lên lịch',

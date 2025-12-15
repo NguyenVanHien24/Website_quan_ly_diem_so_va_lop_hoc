@@ -55,6 +55,62 @@ if ($maGV > 0) {
     }
     $stmt->close();
 }
+// ==== XỬ LÝ PHÂN TRANG & LỌC DỮ LIỆU ====
+
+// 1. Lấy tham số từ URL
+$filterLop = isset($_GET['maLop']) && $_GET['maLop'] != '' ? (int)$_GET['maLop'] : null;
+$filterMon = isset($_GET['maMon']) && $_GET['maMon'] != '' ? (int)$_GET['maMon'] : null;
+$page      = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit     = 10; // Giới hạn 10 mục
+$offset    = ($page - 1) * $limit;
+
+// 2. Chuẩn bị câu lệnh WHERE cơ bản (chỉ lấy tài liệu của GV này)
+$whereClause = "WHERE t.maGV = ?";
+$params = [$maGV];
+$types  = "i";
+
+// 3. Thêm điều kiện lọc nếu có chọn Lớp hoặc Môn
+if ($filterLop) {
+    $whereClause .= " AND t.maLop = ?";
+    $params[] = $filterLop;
+    $types .= "i";
+}
+if ($filterMon) {
+    $whereClause .= " AND t.maMon = ?";
+    $params[] = $filterMon;
+    $types .= "i";
+}
+
+// 4. Đếm tổng số bản ghi (để tính số trang)
+$sqlCount = "SELECT COUNT(*) as total FROM tailieu t $whereClause";
+$stmtCount = $conn->prepare($sqlCount);
+$stmtCount->bind_param($types, ...$params);
+$stmtCount->execute();
+$totalRecords = $stmtCount->get_result()->fetch_assoc()['total'];
+$stmtCount->close();
+
+$totalPages = ceil($totalRecords / $limit);
+
+// 5. Lấy dữ liệu chi tiết cho trang hiện tại
+$sqlData = "SELECT t.*, m.tenMon, l.tenLop, u.hoVaTen as nguoiTao
+            FROM tailieu t
+            LEFT JOIN monhoc m ON t.maMon = m.maMon
+            LEFT JOIN lophoc l ON t.maLop = l.maLop
+            LEFT JOIN user u ON u.userId = (SELECT userId FROM giaovien WHERE maGV = t.maGV LIMIT 1)
+            $whereClause
+            ORDER BY t.ngayTao DESC
+            LIMIT ? OFFSET ?";
+
+// Thêm tham số limit và offset vào mảng params
+$params[] = $limit;
+$params[] = $offset;
+$types .= "ii";
+
+$stmtData = $conn->prepare($sqlData);
+$stmtData->bind_param($types, ...$params);
+$stmtData->execute();
+$documents = $stmtData->get_result();
+$stmtData->close();
 
 ?>
 
@@ -110,54 +166,87 @@ if ($maGV > 0) {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><input class="form-check-input rounded-circle" type="checkbox"></td>
-                        <td>1</td>
-                        <td class="text-secondary">Giáo án Bài 5: Quang hợp</td>
-                        <td class="text-secondary">Mô tả ngắn gọn nội dung bài giảng</td>
-                        <td class="text-secondary">Nguyễn Văn A</td>
-                        <td class="text-secondary">Quang hợp</td>
-                        <td class="action-icons">
-                            <a href="#" class="btn-edit"
-                                data-id="DOC001"
-                                data-title="Giáo án Bài 5: Quang hợp"
-                                data-desc="Mô tả ngắn gọn nội dung bài giảng"
-                                data-subject="Sinh học"
-                                data-status="public"
-                                data-bs-toggle="modal" data-bs-target="#docFormModal">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="#" class="btn-delete"
-                                data-id="ABCDEF"
-                                data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                                <i class="bi bi-trash-fill"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <?php for ($i = 2; $i <= 7; $i++): ?>
+                    <?php if ($documents->num_rows > 0): ?>
+                        <?php
+                        $stt = $offset + 1;
+                        while ($doc = $documents->fetch_assoc()):
+                            // Xác định trạng thái hiển thị (ví dụ logic)
+                            $statusText = isset($doc['trangThai']) && $doc['trangThai'] == 'private' ? 'Riêng tư' : 'Công khai';
+                        ?>
+                            <tr>
+                                <td><input class="form-check-input rounded-circle doc-checkbox" type="checkbox" value="<?php echo $doc['maTaiLieu']; ?>"></td>
+                                <td><?php echo $stt++; ?></td>
+                                <td class="fw-bold text-primary"><?php echo htmlspecialchars($doc['tieuDe']); ?></td>
+                                <td class="text-secondary text-truncate" style="max-width: 250px;">
+                                    <?php echo htmlspecialchars($doc['moTa']); ?>
+                                    <br>
+                                    <small class="text-muted fst-italic">
+                                        (Lớp: <?php echo htmlspecialchars($doc['tenLop']); ?> - GV: <?php echo htmlspecialchars($doc['nguoiTao']); ?>)
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge <?php echo $statusText == 'Công khai' ? 'bg-success' : 'bg-warning text-dark'; ?>">
+                                        <?php echo $statusText; ?>
+                                    </span>
+                                </td>
+                                <td class="action-icons">
+                                    <a href="#" class="btn-edit"
+                                        data-id="<?php echo $doc['maTaiLieu']; ?>"
+                                        data-title="<?php echo htmlspecialchars($doc['tieuDe']); ?>"
+                                        data-desc="<?php echo htmlspecialchars($doc['moTa']); ?>"
+                                        data-class="<?php echo $doc['maLop']; ?>"
+                                        data-subject="<?php echo $doc['maMon']; ?>"
+                                        data-status="<?php echo isset($doc['trangThai']) ? $doc['trangThai'] : 'public'; ?>"
+                                        data-bs-toggle="modal" data-bs-target="#docFormModal">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <a href="#" class="btn-delete"
+                                        data-id="<?php echo $doc['maTaiLieu']; ?>"
+                                        data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
                         <tr>
-                            <td><input class="form-check-input rounded-circle" type="checkbox"></td>
-                            <td><?php echo $i; ?></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Chưa có tài liệu nào.
+                            </td>
                         </tr>
-                    <?php endfor; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <div class="table-footer d-flex justify-content-between align-items-center mt-3 px-2">
-            <div class="text-secondary fw-bold bg-light py-1 px-3 rounded">1-4/18 mục</div>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1/5</a></li>
-                    <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-                </ul>
-            </nav>
+            <div class="text-secondary fw-bold bg-light py-1 px-3 rounded">
+                Hiển thị <?php echo ($totalRecords > 0) ? $offset + 1 : 0; ?>-<?php echo min($offset + $limit, $totalRecords); ?>/<?php echo $totalRecords; ?> mục
+            </div>
+
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?page=<?php echo $page - 1; ?>&maLop=<?php echo $filterLop; ?>&maMon=<?php echo $filterMon; ?>">&lt;</a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?>&maLop=<?php echo $filterLop; ?>&maMon=<?php echo $filterMon; ?>">
+                                    <?php echo $i; ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?page=<?php echo $page + 1; ?>&maLop=<?php echo $filterLop; ?>&maMon=<?php echo $filterMon; ?>">&gt;</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -267,4 +356,40 @@ if ($maGV > 0) {
     </div>
 
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const classFilter = document.getElementById('class-filter');
+        const subjectFilter = document.getElementById('subject-filter');
+
+        // Hàm xử lý reload trang với tham số
+        function applyFilters() {
+            const maLop = classFilter.value;
+            const maMon = subjectFilter.value;
+            // Reset về trang 1 khi lọc
+            let url = '?page=1';
+
+            if (maLop && maLop !== 'Không có lớp được phân công') {
+                url += '&maLop=' + maLop;
+            }
+            if (maMon && maMon !== 'Không có môn được phân công') {
+                url += '&maMon=' + maMon;
+            }
+
+            window.location.href = url;
+        }
+
+        // Gán giá trị hiện tại từ PHP vào Select box (để giữ trạng thái sau khi reload)
+        <?php if ($filterLop): ?>
+            classFilter.value = "<?php echo $filterLop; ?>";
+        <?php endif; ?>
+
+        <?php if ($filterMon): ?>
+            subjectFilter.value = "<?php echo $filterMon; ?>";
+        <?php endif; ?>
+
+        // Bắt sự kiện change
+        classFilter.addEventListener('change', applyFilters);
+        subjectFilter.addEventListener('change', applyFilters);
+    });
+</script>
 <?php require_once '../../footer.php'; ?>

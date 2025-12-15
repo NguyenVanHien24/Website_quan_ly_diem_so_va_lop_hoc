@@ -58,6 +58,8 @@ $query = "INSERT INTO diemso (maHS, maMonHoc, namHoc, hocKy, loaiDiem, giaTriDie
 // 6. Thực hiện lặp qua các điểm đã gửi và lưu vào CSDL
 $success = true;
 $types_to_process = ['mouth', '45m', 'gk', 'ck']; // Các loại điểm cần xử lý
+// Collect updated entries to notify student later
+$updatedEntries = [];
 
 foreach ([1, 2] as $hk) { // Lặp qua Học kỳ 1 và Học kỳ 2
     foreach ($types_to_process as $type_key) {
@@ -78,6 +80,14 @@ foreach ([1, 2] as $hk) { // Lặp qua Học kỳ 1 và Học kỳ 2
                 error_log("Lỗi khi cập nhật điểm: " . $stmt->error);
             }
             $stmt->close();
+            // Nếu thành công, ghi lại mục đã cập nhật
+            if ($success) {
+                $updatedEntries[] = [
+                    'hocKy' => $hk,
+                    'loaiDiem' => $loaiDiem,
+                    'giaTri' => $score
+                ];
+            }
         }
     }
 }
@@ -85,6 +95,65 @@ foreach ([1, 2] as $hk) { // Lặp qua Học kỳ 1 và Học kỳ 2
 // 7. Kết thúc và chuyển hướng
 if ($success) {
     $_SESSION['message'] = "Cập nhật điểm thành công!";
+
+    // Nếu có mục điểm đã cập nhật thì tạo thông báo cho học sinh
+    if (!empty($updatedEntries)) {
+        // Lấy userId của học sinh
+        $userId = null;
+        $stmtU = $conn->prepare("SELECT userId FROM hocsinh WHERE maHS = ? LIMIT 1");
+        if ($stmtU) {
+            $stmtU->bind_param('i', $maHS);
+            if ($stmtU->execute()) {
+                $res = $stmtU->get_result();
+                if ($row = $res->fetch_assoc()) {
+                    $userId = (int)$row['userId'];
+                }
+            }
+            $stmtU->close();
+        }
+
+        // Lấy tên môn
+        $tenMon = '';
+        $stmtM = $conn->prepare("SELECT tenMon FROM monhoc WHERE maMon = ? LIMIT 1");
+        if ($stmtM) {
+            $stmtM->bind_param('i', $maMon);
+            if ($stmtM->execute()) {
+                $resM = $stmtM->get_result();
+                if ($r = $resM->fetch_assoc()) $tenMon = $r['tenMon'];
+            }
+            $stmtM->close();
+        }
+
+        if ($userId !== null) {
+            // Build title and content
+            $title = 'Cập nhật điểm: ' . ($tenMon !== '' ? $tenMon : 'Môn học');
+            $parts = [];
+            foreach ($updatedEntries as $e) {
+                $parts[] = 'Học kỳ ' . $e['hocKy'] . ' - ' . $e['loaiDiem'] . ': ' . $e['giaTri'];
+            }
+            $content = 'Điểm của bạn đã được cập nhật. ' . implode('; ', $parts);
+
+            // Insert into thongbao and thongbaouser
+            $conn->begin_transaction();
+            $stmtIns = $conn->prepare("INSERT INTO thongbao (tieuDe, noiDung, nguoiGui) VALUES (?, ?, ?)");
+            if ($stmtIns) {
+                $nguoiGui = isset($_SESSION['userID']) ? (int)$_SESSION['userID'] : null;
+                $stmtIns->bind_param('ssi', $title, $content, $nguoiGui);
+                if ($stmtIns->execute()) {
+                    $maTB = $conn->insert_id;
+                    $stmtRel = $conn->prepare("INSERT INTO thongbaouser (maTB, userId, trangThai) VALUES (?, ?, 0)");
+                    if ($stmtRel) {
+                        $stmtRel->bind_param('ii', $maTB, $userId);
+                        $stmtRel->execute();
+                        $stmtRel->close();
+                    }
+                }
+                $stmtIns->close();
+            }
+            $conn->commit();
+        }
+    }
+
 } else {
     $_SESSION['error'] = "Đã xảy ra lỗi khi cập nhật điểm.";
 }

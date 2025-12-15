@@ -178,8 +178,6 @@
 
             <form class="search-form ms-3" method="GET" action="">
                 <?php
-                // Giữ lại các tham số filter khác nếu có (ví dụ: status, class, subject)
-                // Loại bỏ 'search' và 'page' để tránh trùng lặp hoặc lỗi phân trang khi search mới
                 $queryParams = $_GET;
                 unset($queryParams['search']);
                 unset($queryParams['page']);
@@ -224,7 +222,6 @@
         </header>
         <!-- ========= KẾT THÚC HEADER ========= -->
 
-        <!-- Notification modal -->
         <div class="modal fade" id="notifyModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content p-3">
@@ -251,7 +248,6 @@
                 const notifyBadge = document.getElementById('notifyBadge');
                 const notifyToggle = document.getElementById('notifyToggle');
 
-                // Modal elements
                 const notifyModalElem = document.getElementById('notifyModal');
                 const notifyModal = new bootstrap.Modal(notifyModalElem);
                 const modalTitle = document.getElementById('notifyModalTitle');
@@ -411,5 +407,4 @@
             });
         </script>
 
-        <!-- Global search enhancement (client-side table filtering) -->
         <script src="<?php echo BASE_URL; ?>Admin/global-search.js"></script>
