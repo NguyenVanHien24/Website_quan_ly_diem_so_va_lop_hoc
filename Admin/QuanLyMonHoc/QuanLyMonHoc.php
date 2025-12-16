@@ -15,7 +15,17 @@ $totalPages = ceil($totalRecords / $limit);
 $sqlSubjects = "SELECT * FROM monhoc ORDER BY maMon ASC LIMIT $limit OFFSET $offset";
 $resultSubjects = $conn->query($sqlSubjects);
 
+
 $pageTitle = "Quản lý môn học";
+
+// Lấy mã môn tiếp theo tự động
+$nextMaMon = 1;
+$resNext = $conn->query("SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'monhoc'");
+if ($resNext && $rowNext = $resNext->fetch_assoc()) {
+    $nextMaMon = $rowNext['AUTO_INCREMENT'];
+}
+
+
 $currentPage = 'mon-hoc';
 $pageCSS = ['QuanLyMonHoc.css'];
 require_once '../SidebarAndHeader.php';
