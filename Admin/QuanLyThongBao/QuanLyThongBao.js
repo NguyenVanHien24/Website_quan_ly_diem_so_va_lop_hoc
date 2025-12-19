@@ -22,6 +22,29 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Master checkbox: select/deselect all row checkboxes
+    const masterChk = document.getElementById('chkAll');
+    function getRowChecks() { return Array.from(document.querySelectorAll('tbody input.row-chk[type="checkbox"]')); }
+    if (masterChk) {
+        masterChk.addEventListener('change', function() {
+            const checked = !!this.checked;
+            getRowChecks().forEach(c => {
+                c.checked = checked;
+                const tr = c.closest('tr'); if (tr) { if (checked) tr.classList.add('table-active'); else tr.classList.remove('table-active'); }
+            });
+        });
+    }
+
+    // Keep master checkbox state in sync when individual rows change
+    getRowChecks().forEach(c => {
+        c.addEventListener('change', function() {
+            const all = getRowChecks();
+            const allChecked = all.length > 0 && all.every(x => x.checked);
+            if (masterChk) masterChk.checked = allChecked;
+            const tr = this.closest('tr'); if (tr) { if (this.checked) tr.classList.add('table-active'); else tr.classList.remove('table-active'); }
+        });
+    });
+
     // 2. XỬ LÝ NÚT "SỬA" (Icon bút chì)
     const editButtons = document.querySelectorAll('.btn-edit');
     editButtons.forEach(btn => {
@@ -31,10 +54,19 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('e_id').value = d.id || '';
             document.getElementById('e_title').value = d.title || '';
             document.getElementById('e_content').value = d.content || '';
+            // Helper: parse server datetime string ("YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DDTHH:MM")
+            function serverDateToLocalInput(val) {
+                if (!val) return '';
+                const m = val.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+                if (!m) return '';
+                const y = parseInt(m[1],10), mo = parseInt(m[2],10)-1, da = parseInt(m[3],10);
+                const hh = parseInt(m[4],10), mi = parseInt(m[5],10), ss = parseInt(m[6]||'0',10);
+                const dtLocal = new Date(y, mo, da, hh, mi, ss);
+                const pad = (n) => n.toString().padStart(2,'0');
+                return `${dtLocal.getFullYear()}-${pad(dtLocal.getMonth()+1)}-${pad(dtLocal.getDate())}T${pad(dtLocal.getHours())}:${pad(dtLocal.getMinutes())}`;
+            }
             if (d.send_at) {
-                const dt = new Date(d.send_at);
-                const local = dt.toISOString().slice(0,16);
-                document.getElementById('e_date').value = local;
+                document.getElementById('e_date').value = serverDateToLocalInput(d.send_at);
             } else {
                 document.getElementById('e_date').value = '';
             }
@@ -150,6 +182,23 @@ document.addEventListener("DOMContentLoaded", function() {
             const id = this.dataset.id;
             // Cập nhật thông báo xóa đơn
             document.getElementById('deleteMsg').innerText = `Bạn chắc chắn muốn xóa thông báo ${id}?`;
+        });
+    });
+
+    // Send now handler for scheduled notifications
+    const sendNowButtons = document.querySelectorAll('.btn-send-now');
+    sendNowButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const ma = this.dataset.ma;
+            if (!confirm('Gửi thông báo này ngay bây giờ?')) return;
+            const fd = new FormData(); fd.append('maThongBao', ma);
+            fetch('send_now.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.success) location.reload();
+                    else alert(resp.message || 'Lỗi khi gửi');
+                }).catch(err => { alert('Lỗi mạng'); });
         });
     });
 

@@ -50,6 +50,14 @@ if (!empty($_FILES['attachment']) && $_FILES['attachment']['error'] !== UPLOAD_E
     }
 }
 
+// normalize incoming datetime-local so it's stored as 'Y-m-d H:i:s' (preserve local time)
+if ($send_at !== null && $send_at !== '') {
+    if (strpos($send_at, 'T') !== false) {
+        $send_at = str_replace('T', ' ', $send_at);
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $send_at)) $send_at .= ':00';
+    }
+}
+
 if ($ma <= 0) {
     echo json_encode(['success' => false, 'message' => 'Invalid maThongBao']);
     exit();
@@ -135,6 +143,11 @@ if ($shouldDistribute && !empty($userIds)) {
     } else {
         $errors[] = ['prepare_error' => $conn->error];
     }
+}
+
+// If we inserted recipients immediately, clear send_at so UI marks as sent
+if ($inserted > 0) {
+    $conn->query("UPDATE thongbao SET send_at = NULL, ngayGui = NOW() WHERE maThongBao = " . (int)$ma);
 }
 
 $conn->commit();

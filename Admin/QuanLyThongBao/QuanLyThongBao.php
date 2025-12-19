@@ -53,7 +53,7 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <th><input id="chkAll" class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th>MÃ TB</th>
                         <th>TIÊU ĐỀ</th>
@@ -103,56 +103,62 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                             $sender = htmlspecialchars($row['nguoiGui'] ?? '---');
 
                             $sendAtRaw = $row['send_at'] ?? null;
-                            $isScheduled = false;
-                            if ($sendAtRaw !== null && $sendAtRaw !== '' && strtotime($sendAtRaw) > time()) $isScheduled = true;
 
-                            $cnt = 0;
-                            if (!$isScheduled) {
-                                $countRs = $conn->query("SELECT COUNT(*) AS cnt FROM thongbaouser WHERE maTB = " . $id);
-                                if ($countRs) {
-                                    $c = $countRs->fetch_assoc();
-                                    $cnt = (int)($c['cnt'] ?? 0);
-                                }
-                            } else {
+                            // real distribution count (rows in thongbaouser)
+                            $realCnt = 0;
+                            $countRs = $conn->query("SELECT COUNT(*) AS cnt FROM thongbaouser WHERE maTB = " . $id);
+                            if ($countRs) {
+                                $c = $countRs->fetch_assoc();
+                                $realCnt = (int)($c['cnt'] ?? 0);
+                            }
+
+                            // predicted recipients when not yet distributed
+                            $predictedCnt = 0;
+                            if ($realCnt === 0) {
                                 $tt = $row['target_type'] ?? 'all';
                                 $tv = $row['target_value'] ?? '';
                                 if ($tt === 'all') {
                                     $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user`");
                                     if ($r2) {
                                         $c2 = $r2->fetch_assoc();
-                                        $cnt = (int)($c2['cnt'] ?? 0);
+                                        $predictedCnt = (int)($c2['cnt'] ?? 0);
                                     }
                                 } elseif ($tt === 'role') {
                                     $role = $conn->real_escape_string($tv);
                                     $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` WHERE vaiTro = '" . $role . "'");
                                     if ($r2) {
                                         $c2 = $r2->fetch_assoc();
-                                        $cnt = (int)($c2['cnt'] ?? 0);
+                                        $predictedCnt = (int)($c2['cnt'] ?? 0);
                                     }
                                 } elseif ($tt === 'class') {
                                     $maLop = (int)$tv;
                                     $r2 = $conn->query("SELECT COUNT(*) AS cnt FROM `user` u JOIN hocsinh hs ON u.userId = hs.userId WHERE hs.maLopHienTai = '" . $maLop . "'");
                                     if ($r2) {
                                         $c2 = $r2->fetch_assoc();
-                                        $cnt = (int)($c2['cnt'] ?? 0);
+                                        $predictedCnt = (int)($c2['cnt'] ?? 0);
                                     }
                                 } elseif ($tt === 'users') {
                                     $arr = json_decode($tv, true);
-                                    if (is_array($arr)) $cnt = count($arr);
+                                    if (is_array($arr)) $predictedCnt = count($arr);
                                 }
                             }
+                            
+                                // Determine scheduled state: only consider as scheduled when send_at is in the future
+                                // and there are no actual distribution records yet.
+                                $isScheduled = false;
+                                if ($sendAtRaw !== null && $sendAtRaw !== '' && strtotime($sendAtRaw) > time() && $realCnt === 0) $isScheduled = true;
 
-                            echo '<tr>';
-                            echo '<td><input class="form-check-input" type="checkbox" value="' . $id . '"></td>';
+                                echo '<tr>';
+                            echo '<td><input class="form-check-input row-chk" type="checkbox" value="' . $id . '"></td>';
                             echo '<td>' . $i++ . '</td>';
                             echo '<td>' . $code . '</td>';
                             echo '<td>' . $title . '</td>';
                             echo '<td>' . $sender . '</td>';
                             if ($isScheduled) {
-                                echo '<td>' . ($cnt > 0 ? ($cnt . ' người dự kiến') : 'Chưa phân phối') . '</td>';
+                                echo '<td>' . ($predictedCnt > 0 ? ($predictedCnt . ' người dự kiến') : 'Chưa phân phối') . '</td>';
                                 echo '<td><span class="text-warning fw-bold">ĐÃ LÊN LỊCH</span></td>';
                             } else {
-                                echo '<td>' . ($cnt > 0 ? ($cnt . ' người') : 'Chưa phân phối') . '</td>';
+                                echo '<td>' . ($realCnt > 0 ? ($realCnt . ' người') : ($predictedCnt > 0 ? ($predictedCnt . " người") : 'Chưa phân phối')) . '</td>';
                                 echo '<td><span class="text-secondary fw-bold">ĐÃ GỬI</span></td>';
                             }
 
@@ -211,7 +217,8 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                 }
                             }
 
-                            $dataAttrs = 'data-ma="' . $id . '" data-id="' . $code . '" data-title="' . $title . '" data-content="' . $content . '" data-date="' . $date . '" data-receiver="' . $cnt . '"';
+                            $dataReceiver = ($realCnt > 0) ? $realCnt : $predictedCnt;
+                            $dataAttrs = 'data-ma="' . $id . '" data-id="' . $code . '" data-title="' . $title . '" data-content="' . $content . '" data-date="' . $date . '" data-receiver="' . $dataReceiver . '"';
                             $dataAttrs .= ' data-target_type="' . htmlspecialchars($row['target_type'] ?? 'all') . '"';
                             $dataAttrs .= ' data-target_value="' . htmlspecialchars($row['target_value'] ?? '') . '"';
                             $dataAttrs .= ' data-send_at="' . htmlspecialchars($row['send_at'] ?? '') . '"';
@@ -219,6 +226,10 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                             $dataAttrs .= ' data-recipients="' . htmlspecialchars($receiverLabel) . '"';
                             $dataAttrs .= ' data-rec-roles="' . htmlspecialchars(json_encode($receiverRoles), ENT_QUOTES) . '"';
                             echo '<td class="action-icons">';
+                            // If scheduled show a quick "Gửi ngay" action
+                            if ($isScheduled) {
+                                echo '<a href="#" class="btn-send-now" data-ma="' . $id . '" title="Gửi ngay"><i class="bi bi-send-fill"></i></a> ';
+                            }
                             echo '<a href="#" class="btn-view" ' . $dataAttrs . ' data-bs-toggle="modal" data-bs-target="#viewNotifyModal"><i class="bi bi-box-arrow-up-right"></i></a> ';
                             echo '<a href="#" class="btn-edit" ' . $dataAttrs . ' data-bs-toggle="modal" data-bs-target="#editNotifyModal"><i class="bi bi-pencil-square"></i></a> ';
                             echo '<a href="#" class="btn-delete" data-id="' . $id . '" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"><i class="bi bi-trash-fill"></i></a>';
