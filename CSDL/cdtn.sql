@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 12, 2025 at 04:08 PM
+-- Generation Time: Dec 20, 2025 at 06:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -275,7 +275,18 @@ INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTri
 (218, 6, 1, 12, 'Điểm giữa kỳ', 7, '2025-12-08 14:45:38', '2025-2026', 1),
 (221, 10, 1, 12, 'Điểm miệng', 8, '2025-12-08 14:49:51', '2025-2026', 2),
 (222, 1, 1, 12, 'Điểm miệng', 7, '2025-12-08 14:50:02', '2025-2026', 2),
-(223, 6, 1, 12, 'Điểm miệng', 5, '2025-12-08 14:55:48', '2025-2026', 2);
+(223, 6, 1, 12, 'Điểm miệng', 5, '2025-12-08 14:55:48', '2025-2026', 2),
+(224, 1, 4, 12, 'Điểm miệng', 7, '2025-12-13 23:05:19', '2025-2026', 1),
+(225, 1, 4, 12, 'Điểm 1 tiết', 8, '2025-12-13 23:05:19', '2025-2026', 1),
+(226, 1, 4, 12, 'Điểm miệng', 8, '2025-12-13 23:05:19', '2025-2026', 2),
+(243, 47, 1, 12, 'Điểm miệng', 8.5, '2025-12-14 00:18:58', '2025-2026', 1),
+(244, 47, 1, 12, 'Điểm 1 tiết', 7, '2025-12-14 00:18:58', '2025-2026', 1),
+(245, 47, 1, 12, 'Điểm giữa kỳ', 8, '2025-12-14 00:18:58', '2025-2026', 1),
+(246, 47, 1, 12, 'Điểm cuối kỳ', 8.5, '2025-12-14 00:18:58', '2025-2026', 1),
+(255, 46, 1, 12, 'Điểm miệng', 8.5, '2025-12-14 00:31:11', '2025-2026', 1),
+(256, 46, 1, 12, 'Điểm 1 tiết', 7, '2025-12-14 00:31:11', '2025-2026', 1),
+(257, 46, 1, 12, 'Điểm giữa kỳ', 8, '2025-12-14 00:31:11', '2025-2026', 1),
+(258, 46, 1, 12, 'Điểm cuối kỳ', 8.5, '2025-12-14 00:31:11', '2025-2026', 1);
 
 --
 -- Triggers `diemso`
@@ -1265,7 +1276,199 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (1069, 52, 'Xóa học sinh', 'HocSinh', 33, NULL, '2025-12-12 02:14:18'),
 (1070, 2, 'Điểm danh', 'ChuyenCan', 15, 'SYSTEM', '2025-12-12 21:34:46'),
 (1071, 2, 'Điểm danh', 'ChuyenCan', 16, 'SYSTEM', '2025-12-12 21:34:48'),
-(1072, 2, 'Điểm danh', 'ChuyenCan', 17, 'SYSTEM', '2025-12-12 21:34:50');
+(1072, 2, 'Điểm danh', 'ChuyenCan', 17, 'SYSTEM', '2025-12-12 21:34:50'),
+(1073, NULL, 'Tạo tài khoản', 'User', 63, 'SYSTEM', '2025-12-13 00:23:25'),
+(1074, NULL, 'Thêm giáo viên', 'GiaoVien', 43, 'SYSTEM', '2025-12-13 00:23:25'),
+(1075, NULL, 'Cập nhật giáo viên', 'GiaoVien', 43, 'SYSTEM', '2025-12-13 00:23:25'),
+(1076, NULL, 'Xóa giáo viên', 'GiaoVien', 43, 'SYSTEM', '2025-12-13 00:25:53'),
+(1077, NULL, 'Xóa toàn bộ phân công môn của giáo viên 43', NULL, NULL, NULL, '2025-12-13 00:25:53'),
+(1078, NULL, 'Xóa tài khoản', 'User', 63, 'SYSTEM', '2025-12-13 00:25:53'),
+(1079, NULL, 'Tạo tài khoản', 'User', 64, 'SYSTEM', '2025-12-13 00:39:55'),
+(1080, NULL, 'Thêm học sinh', 'HocSinh', 34, NULL, '2025-12-13 00:39:55'),
+(1081, NULL, 'Xóa học sinh', 'HocSinh', 34, NULL, '2025-12-13 00:46:17'),
+(1082, NULL, 'Xóa tài khoản', 'User', 64, 'SYSTEM', '2025-12-13 00:46:18'),
+(1083, NULL, 'Tạo tài khoản', 'User', 65, 'SYSTEM', '2025-12-13 00:46:33'),
+(1084, NULL, 'Thêm học sinh', 'HocSinh', 36, NULL, '2025-12-13 00:46:33'),
+(1085, NULL, 'Xóa học sinh', 'HocSinh', 36, NULL, '2025-12-13 00:46:47'),
+(1086, NULL, 'Xóa tài khoản', 'User', 65, 'SYSTEM', '2025-12-13 00:46:47'),
+(1087, NULL, 'Tạo tài khoản', 'User', 66, 'SYSTEM', '2025-12-13 00:47:28'),
+(1088, NULL, 'Thêm học sinh', 'HocSinh', 38, NULL, '2025-12-13 00:47:28'),
+(1089, NULL, 'Xóa học sinh', 'HocSinh', 38, NULL, '2025-12-13 00:53:52'),
+(1090, NULL, 'Xóa tài khoản', 'User', 66, 'SYSTEM', '2025-12-13 00:53:52'),
+(1091, NULL, 'Tạo tài khoản', 'User', 67, 'SYSTEM', '2025-12-13 00:54:05'),
+(1092, NULL, 'Thêm học sinh', 'HocSinh', 40, NULL, '2025-12-13 00:54:05'),
+(1093, NULL, 'Xóa học sinh', 'HocSinh', 40, NULL, '2025-12-13 00:54:47'),
+(1094, NULL, 'Xóa tài khoản', 'User', 67, 'SYSTEM', '2025-12-13 00:54:48'),
+(1095, NULL, 'Tạo tài khoản', 'User', 68, 'SYSTEM', '2025-12-13 00:58:55'),
+(1096, NULL, 'Thêm học sinh', 'HocSinh', 42, NULL, '2025-12-13 00:58:55'),
+(1097, NULL, 'Xóa học sinh', 'HocSinh', 42, NULL, '2025-12-13 00:59:08'),
+(1098, NULL, 'Xóa tài khoản', 'User', 68, 'SYSTEM', '2025-12-13 00:59:08'),
+(1099, NULL, 'Tạo tài khoản', 'User', 69, 'SYSTEM', '2025-12-13 00:59:24'),
+(1100, NULL, 'Thêm học sinh', 'HocSinh', 44, NULL, '2025-12-13 00:59:24'),
+(1101, NULL, 'Xóa học sinh', 'HocSinh', 44, NULL, '2025-12-13 01:01:27'),
+(1102, NULL, 'Xóa tài khoản', 'User', 69, 'SYSTEM', '2025-12-13 01:01:28'),
+(1103, 70, 'Tạo tài khoản', 'User', 70, 'SYSTEM', '2025-12-13 22:48:16'),
+(1104, 70, 'Thêm học sinh', 'HocSinh', 46, NULL, '2025-12-13 22:48:16'),
+(1105, 70, 'Cập nhật học sinh', 'HocSinh', 46, NULL, '2025-12-13 22:48:16'),
+(1106, NULL, 'Cập nhật lớp học', 'LopHoc', 12, NULL, '2025-12-13 22:48:16'),
+(1107, 71, 'Tạo tài khoản', 'User', 71, 'SYSTEM', '2025-12-13 22:52:17'),
+(1108, 71, 'Thêm học sinh', 'HocSinh', 47, NULL, '2025-12-13 22:52:17'),
+(1109, 71, 'Cập nhật học sinh', 'HocSinh', 47, NULL, '2025-12-13 22:52:17'),
+(1110, NULL, 'Cập nhật lớp học', 'LopHoc', 12, NULL, '2025-12-13 22:52:17'),
+(1111, NULL, 'Ghi điểm', 'DiemSo', 224, 'SYSTEM', '2025-12-13 23:05:19'),
+(1112, NULL, 'Ghi điểm', 'DiemSo', 225, 'SYSTEM', '2025-12-13 23:05:19'),
+(1113, NULL, 'Ghi điểm', 'DiemSo', 226, 'SYSTEM', '2025-12-13 23:05:19'),
+(1114, NULL, 'Gửi thông báo ID 8 cho user 3', NULL, NULL, NULL, '2025-12-13 23:05:19'),
+(1115, NULL, 'Thêm tài liệu', 'TaiLieu', 7, NULL, '2025-12-13 23:10:01'),
+(1116, NULL, 'Gửi thông báo ID 9 cho user 3', NULL, NULL, NULL, '2025-12-13 23:10:01'),
+(1117, NULL, 'Gửi thông báo ID 9 cho user 21', NULL, NULL, NULL, '2025-12-13 23:10:01'),
+(1118, NULL, 'Gửi thông báo ID 9 cho user 24', NULL, NULL, NULL, '2025-12-13 23:10:01'),
+(1119, NULL, 'Gửi thông báo ID 9 cho user 70', NULL, NULL, NULL, '2025-12-13 23:10:01'),
+(1120, NULL, 'Gửi thông báo ID 9 cho user 71', NULL, NULL, NULL, '2025-12-13 23:10:01'),
+(1121, NULL, 'Ghi điểm', 'DiemSo', 243, 'SYSTEM', '2025-12-14 00:18:58'),
+(1122, NULL, 'Ghi điểm', 'DiemSo', 244, 'SYSTEM', '2025-12-14 00:18:58'),
+(1123, NULL, 'Ghi điểm', 'DiemSo', 245, 'SYSTEM', '2025-12-14 00:18:58'),
+(1124, NULL, 'Ghi điểm', 'DiemSo', 246, 'SYSTEM', '2025-12-14 00:18:58'),
+(1125, NULL, 'Cập nhật điểm', 'DiemSo', 245, 'SYSTEM', '2025-12-14 00:20:54'),
+(1126, NULL, 'Gửi thông báo ID 10 cho user 71', NULL, NULL, NULL, '2025-12-14 00:20:56'),
+(1127, NULL, 'Cập nhật điểm', 'DiemSo', 243, 'SYSTEM', '2025-12-14 00:22:42'),
+(1128, NULL, 'Cập nhật điểm', 'DiemSo', 245, 'SYSTEM', '2025-12-14 00:22:42'),
+(1129, NULL, 'Cập nhật điểm', 'DiemSo', 246, 'SYSTEM', '2025-12-14 00:22:42'),
+(1130, NULL, 'Ghi điểm', 'DiemSo', 255, 'SYSTEM', '2025-12-14 00:31:11'),
+(1131, NULL, 'Ghi điểm', 'DiemSo', 256, 'SYSTEM', '2025-12-14 00:31:11'),
+(1132, NULL, 'Ghi điểm', 'DiemSo', 257, 'SYSTEM', '2025-12-14 00:31:11'),
+(1133, NULL, 'Ghi điểm', 'DiemSo', 258, 'SYSTEM', '2025-12-14 00:31:11'),
+(1134, NULL, 'Thêm môn học', 'MonHoc', 8, NULL, '2025-12-16 19:33:42'),
+(1135, NULL, 'Gửi thông báo ID 11 cho user 1', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1136, NULL, 'Gửi thông báo ID 11 cho user 2', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1137, NULL, 'Gửi thông báo ID 11 cho user 35', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1138, NULL, 'Gửi thông báo ID 11 cho user 18', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1139, NULL, 'Gửi thông báo ID 11 cho user 28', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1140, NULL, 'Gửi thông báo ID 11 cho user 29', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1141, NULL, 'Gửi thông báo ID 11 cho user 30', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1142, NULL, 'Gửi thông báo ID 11 cho user 31', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1143, NULL, 'Gửi thông báo ID 11 cho user 36', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1144, NULL, 'Gửi thông báo ID 11 cho user 37', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1145, NULL, 'Gửi thông báo ID 11 cho user 52', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1146, NULL, 'Gửi thông báo ID 11 cho user 46', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1147, NULL, 'Gửi thông báo ID 11 cho user 3', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1148, NULL, 'Gửi thông báo ID 11 cho user 20', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1149, NULL, 'Gửi thông báo ID 11 cho user 21', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1150, NULL, 'Gửi thông báo ID 11 cho user 22', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1151, NULL, 'Gửi thông báo ID 11 cho user 23', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1152, NULL, 'Gửi thông báo ID 11 cho user 24', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1153, NULL, 'Gửi thông báo ID 11 cho user 26', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1154, NULL, 'Gửi thông báo ID 11 cho user 27', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1155, NULL, 'Gửi thông báo ID 11 cho user 51', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1156, NULL, 'Gửi thông báo ID 11 cho user 71', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1157, NULL, 'Gửi thông báo ID 11 cho user 70', NULL, NULL, NULL, '2025-12-19 21:49:54'),
+(1158, NULL, 'Xóa thông báo ID 11 của user 1', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1159, NULL, 'Xóa thông báo ID 11 của user 2', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1160, NULL, 'Xóa thông báo ID 11 của user 35', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1161, NULL, 'Xóa thông báo ID 11 của user 18', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1162, NULL, 'Xóa thông báo ID 11 của user 28', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1163, NULL, 'Xóa thông báo ID 11 của user 29', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1164, NULL, 'Xóa thông báo ID 11 của user 30', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1165, NULL, 'Xóa thông báo ID 11 của user 31', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1166, NULL, 'Xóa thông báo ID 11 của user 36', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1167, NULL, 'Xóa thông báo ID 11 của user 37', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1168, NULL, 'Xóa thông báo ID 11 của user 52', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1169, NULL, 'Xóa thông báo ID 11 của user 46', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1170, NULL, 'Xóa thông báo ID 11 của user 3', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1171, NULL, 'Xóa thông báo ID 11 của user 20', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1172, NULL, 'Xóa thông báo ID 11 của user 21', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1173, NULL, 'Xóa thông báo ID 11 của user 22', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1174, NULL, 'Xóa thông báo ID 11 của user 23', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1175, NULL, 'Xóa thông báo ID 11 của user 24', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1176, NULL, 'Xóa thông báo ID 11 của user 26', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1177, NULL, 'Xóa thông báo ID 11 của user 27', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1178, NULL, 'Xóa thông báo ID 11 của user 51', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1179, NULL, 'Xóa thông báo ID 11 của user 71', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1180, NULL, 'Xóa thông báo ID 11 của user 70', NULL, NULL, NULL, '2025-12-19 21:50:13'),
+(1181, NULL, 'Gửi thông báo ID 7 cho user 2', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1182, NULL, 'Gửi thông báo ID 7 cho user 18', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1183, NULL, 'Gửi thông báo ID 7 cho user 28', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1184, NULL, 'Gửi thông báo ID 7 cho user 29', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1185, NULL, 'Gửi thông báo ID 7 cho user 30', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1186, NULL, 'Gửi thông báo ID 7 cho user 31', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1187, NULL, 'Gửi thông báo ID 7 cho user 35', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1188, NULL, 'Gửi thông báo ID 7 cho user 36', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1189, NULL, 'Gửi thông báo ID 7 cho user 37', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1190, NULL, 'Gửi thông báo ID 7 cho user 46', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1191, NULL, 'Gửi thông báo ID 7 cho user 52', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1192, NULL, 'Gửi thông báo ID 11 cho user 1', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1193, NULL, 'Gửi thông báo ID 11 cho user 2', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1194, NULL, 'Gửi thông báo ID 11 cho user 35', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1195, NULL, 'Gửi thông báo ID 11 cho user 18', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1196, NULL, 'Gửi thông báo ID 11 cho user 28', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1197, NULL, 'Gửi thông báo ID 11 cho user 29', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1198, NULL, 'Gửi thông báo ID 11 cho user 30', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1199, NULL, 'Gửi thông báo ID 11 cho user 31', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1200, NULL, 'Gửi thông báo ID 11 cho user 36', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1201, NULL, 'Gửi thông báo ID 11 cho user 37', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1202, NULL, 'Gửi thông báo ID 11 cho user 52', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1203, NULL, 'Gửi thông báo ID 11 cho user 46', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1204, NULL, 'Gửi thông báo ID 11 cho user 3', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1205, NULL, 'Gửi thông báo ID 11 cho user 20', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1206, NULL, 'Gửi thông báo ID 11 cho user 21', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1207, NULL, 'Gửi thông báo ID 11 cho user 22', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1208, NULL, 'Gửi thông báo ID 11 cho user 23', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1209, NULL, 'Gửi thông báo ID 11 cho user 24', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1210, NULL, 'Gửi thông báo ID 11 cho user 26', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1211, NULL, 'Gửi thông báo ID 11 cho user 27', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1212, NULL, 'Gửi thông báo ID 11 cho user 51', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1213, NULL, 'Gửi thông báo ID 11 cho user 71', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1214, NULL, 'Gửi thông báo ID 11 cho user 70', NULL, NULL, NULL, '2025-12-19 21:52:50'),
+(1215, NULL, 'Xóa thông báo ID 5 của user 1', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1216, NULL, 'Xóa thông báo ID 5 của user 2', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1217, NULL, 'Xóa thông báo ID 5 của user 35', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1218, NULL, 'Xóa thông báo ID 5 của user 18', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1219, NULL, 'Xóa thông báo ID 5 của user 28', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1220, NULL, 'Xóa thông báo ID 5 của user 29', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1221, NULL, 'Xóa thông báo ID 5 của user 30', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1222, NULL, 'Xóa thông báo ID 5 của user 31', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1223, NULL, 'Xóa thông báo ID 5 của user 36', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1224, NULL, 'Xóa thông báo ID 5 của user 37', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1225, NULL, 'Xóa thông báo ID 5 của user 52', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1226, NULL, 'Xóa thông báo ID 5 của user 46', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1227, NULL, 'Xóa thông báo ID 5 của user 3', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1228, NULL, 'Xóa thông báo ID 5 của user 20', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1229, NULL, 'Xóa thông báo ID 5 của user 21', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1230, NULL, 'Xóa thông báo ID 5 của user 22', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1231, NULL, 'Xóa thông báo ID 5 của user 23', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1232, NULL, 'Xóa thông báo ID 5 của user 24', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1233, NULL, 'Xóa thông báo ID 5 của user 26', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1234, NULL, 'Xóa thông báo ID 5 của user 27', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1235, NULL, 'Xóa thông báo ID 5 của user 51', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1236, NULL, 'Xóa thông báo ID 4 của user 2', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1237, NULL, 'Xóa thông báo ID 4 của user 18', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1238, NULL, 'Xóa thông báo ID 4 của user 28', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1239, NULL, 'Xóa thông báo ID 4 của user 29', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1240, NULL, 'Xóa thông báo ID 4 của user 30', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1241, NULL, 'Xóa thông báo ID 4 của user 31', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1242, NULL, 'Xóa thông báo ID 4 của user 35', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1243, NULL, 'Xóa thông báo ID 4 của user 36', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1244, NULL, 'Xóa thông báo ID 4 của user 37', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1245, NULL, 'Xóa thông báo ID 4 của user 46', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1246, NULL, 'Xóa thông báo ID 4 của user 52', NULL, NULL, NULL, '2025-12-19 22:00:18'),
+(1247, NULL, 'Thêm tài liệu', 'TaiLieu', 8, NULL, '2025-12-20 22:57:56'),
+(1248, NULL, 'Gửi thông báo ID 12 cho user 3', NULL, NULL, NULL, '2025-12-20 22:57:56'),
+(1249, NULL, 'Gửi thông báo ID 12 cho user 21', NULL, NULL, NULL, '2025-12-20 22:57:56'),
+(1250, NULL, 'Gửi thông báo ID 12 cho user 24', NULL, NULL, NULL, '2025-12-20 22:57:56'),
+(1251, NULL, 'Gửi thông báo ID 12 cho user 70', NULL, NULL, NULL, '2025-12-20 22:57:56'),
+(1252, NULL, 'Gửi thông báo ID 12 cho user 71', NULL, NULL, NULL, '2025-12-20 22:57:56'),
+(1253, NULL, 'Thêm tài liệu', 'TaiLieu', 9, NULL, '2025-12-20 22:58:05'),
+(1254, NULL, 'Gửi thông báo ID 13 cho user 3', NULL, NULL, NULL, '2025-12-20 22:58:05'),
+(1255, NULL, 'Gửi thông báo ID 13 cho user 21', NULL, NULL, NULL, '2025-12-20 22:58:05'),
+(1256, NULL, 'Gửi thông báo ID 13 cho user 24', NULL, NULL, NULL, '2025-12-20 22:58:05'),
+(1257, NULL, 'Gửi thông báo ID 13 cho user 70', NULL, NULL, NULL, '2025-12-20 22:58:05'),
+(1258, NULL, 'Gửi thông báo ID 13 cho user 71', NULL, NULL, NULL, '2025-12-20 22:58:05'),
+(1259, NULL, 'Thêm tài liệu', 'TaiLieu', 10, NULL, '2025-12-20 22:58:13'),
+(1260, NULL, 'Gửi thông báo ID 14 cho user 3', NULL, NULL, NULL, '2025-12-20 22:58:13'),
+(1261, NULL, 'Gửi thông báo ID 14 cho user 21', NULL, NULL, NULL, '2025-12-20 22:58:13'),
+(1262, NULL, 'Gửi thông báo ID 14 cho user 24', NULL, NULL, NULL, '2025-12-20 22:58:13'),
+(1263, NULL, 'Gửi thông báo ID 14 cho user 70', NULL, NULL, NULL, '2025-12-20 22:58:13'),
+(1264, NULL, 'Gửi thông báo ID 14 cho user 71', NULL, NULL, NULL, '2025-12-20 22:58:13');
 
 -- --------------------------------------------------------
 
@@ -1439,7 +1642,9 @@ INSERT INTO `hocsinh` (`maHS`, `userId`, `maLopHienTai`, `trangThaiHoatDong`, `n
 (10, 24, 12, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
 (11, 26, 11, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
 (12, 27, 14, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
-(17, 51, 8, 'Hoạt động', '2025-2026', 1, 'Thành viên');
+(17, 51, 8, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
+(46, 70, 12, 'Hoạt động', '2025-2026', 1, 'Thành viên'),
+(47, 71, 12, 'Hoạt động', '2025-2026', 1, 'Thành viên');
 
 --
 -- Triggers `hocsinh`
@@ -1835,7 +2040,7 @@ CREATE TABLE `lophoc` (
 INSERT INTO `lophoc` (`maLop`, `tenLop`, `khoiLop`, `giaoVienPhuTrach`, `siSo`, `trangThai`, `namHoc`, `kyHoc`) VALUES
 (8, '10A5', '10', 9, 1, 'active', '2024-2025', 1),
 (11, '10A6', '10', 19, 2, 'active', '2024-2025', 1),
-(12, '10A1', '10', 1, 3, 'active', '2024-2025', 1),
+(12, '10A1', '10', 1, 5, 'active', '2024-2025', 1),
 (13, '10A2', '10', 3, 1, 'active', '2024-2025', 1),
 (14, '10A3', '10', 5, 1, 'active', '2024-2025', 1),
 (15, '10A4', '10', 7, 1, 'active', '2024-2025', 1);
@@ -2008,7 +2213,8 @@ INSERT INTO `monhoc` (`maMon`, `tenMon`, `moTa`, `namHoc`, `hocKy`, `truongBoMon
 (3, 'Hóa học', '', '2024-2025', 1, '', 'active'),
 (4, 'Sinh học', '', '2024-2025', 1, '', 'active'),
 (5, 'Ngữ Văn', '', '2024-2025', 1, '', 'active'),
-(6, 'Tiếng Anh', '', '2024-2025', 1, 'gvtest', 'active');
+(6, 'Tiếng Anh', '', '2024-2025', 1, 'gvtest', 'active'),
+(8, 'Lịch sử', '', '2024-2025', 1, '', 'active');
 
 --
 -- Triggers `monhoc`
@@ -2099,7 +2305,11 @@ CREATE TABLE `tailieu` (
 
 INSERT INTO `tailieu` (`maTaiLieu`, `maMon`, `maGV`, `maLop`, `tieuDe`, `moTa`, `fileTL`, `ngayTao`, `hanNop`) VALUES
 (3, 1, 1, 12, 'Hàm số', 'các dạng về hàm số', 'Template_Report_1765303104.docx', '2025-12-08 23:14:18', NULL),
-(6, 1, 1, 13, 'Hàm số', 'các dạng về hàm số test', 'Template_testcase.xlsx', '2025-12-09 00:42:48', NULL);
+(6, 1, 1, 13, 'Hàm số', 'các dạng về hàm số test', 'Template_testcase.xlsx', '2025-12-09 00:42:48', NULL),
+(7, 1, 1, 12, 'thử', 'các dạng về hàm số test', 'Mau_Nhap_Hoc_Sinh_1765642201.xlsx', '2025-12-13 23:10:01', NULL),
+(8, 1, 1, 12, '1', '1', '', '2025-12-20 22:57:56', NULL),
+(9, 1, 1, 12, '2', '2', '', '2025-12-20 22:58:05', NULL),
+(10, 1, 1, 12, '3', '3', '', '2025-12-20 22:58:13', NULL);
 
 --
 -- Triggers `tailieu`
@@ -2149,10 +2359,15 @@ CREATE TABLE `thongbao` (
 --
 
 INSERT INTO `thongbao` (`maThongBao`, `tieuDe`, `noiDung`, `ngayGui`, `nguoiGui`, `target_type`, `target_value`, `send_at`, `attachment`) VALUES
-(4, 'thử 1', 'thử nha', '2025-12-11 17:26:23', 1, 'role', 'GiaoVien', '2025-12-10 09:24:00', 'tb_693acb61db7f0.docx'),
-(5, 'thu', 'thử test', '2025-12-11 20:15:40', 1, 'all', '', NULL, NULL),
 (6, 'thuhs', 'thử gửi cho hs', '2025-12-11 20:17:11', 1, 'role', 'HocSinh', NULL, NULL),
-(7, 'thongbao', 'lên lịch', '2025-12-11 20:56:15', 1, 'role', 'GiaoVien', '2025-12-19 16:00:00', 'tb_693acd7fe3b86.docx');
+(7, 'thongbao', 'lên lịch', '2025-12-19 21:52:50', 1, 'role', 'GiaoVien', NULL, 'tb_693acd7fe3b86.docx'),
+(8, 'Cập nhật điểm: Sinh học', 'Điểm của bạn đã được cập nhật. Học kỳ 1 - Điểm miệng: 7; Học kỳ 1 - Điểm 1 tiết: 8; Học kỳ 2 - Điểm miệng: 8', '2025-12-13 23:05:19', 1, 'all', NULL, NULL, NULL),
+(9, 'Tài liệu mới: thử', 'Có tài liệu mới được thêm cho lớp. Tiêu đề: thử. Mô tả: các dạng về hàm số test.', '2025-12-13 23:10:01', 2, 'all', NULL, NULL, NULL),
+(10, 'Cập nhật điểm: Toán học', 'Điểm của bạn đã được cập nhật. Học kỳ 1 - Điểm miệng: 8; Học kỳ 1 - Điểm 1 tiết: 7; Học kỳ 1 - Điểm giữa kỳ: 8.5; Học kỳ 1 - Điểm cuối kỳ: 8', '2025-12-14 00:20:56', 1, 'all', NULL, NULL, NULL),
+(11, 'lên lịch', 'test lên lịch', '2025-12-19 21:52:50', 1, 'all', '', NULL, 'tb_69455dc5ee881.png'),
+(12, 'Tài liệu mới: 1', 'Có tài liệu mới được thêm cho lớp. Tiêu đề: 1. Mô tả: 1.', '2025-12-20 22:57:56', 2, 'all', NULL, NULL, NULL),
+(13, 'Tài liệu mới: 2', 'Có tài liệu mới được thêm cho lớp. Tiêu đề: 2. Mô tả: 2.', '2025-12-20 22:58:05', 2, 'all', NULL, NULL, NULL),
+(14, 'Tài liệu mới: 3', 'Có tài liệu mới được thêm cho lớp. Tiêu đề: 3. Mô tả: 3.', '2025-12-20 22:58:13', 2, 'all', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2173,27 +2388,6 @@ CREATE TABLE `thongbaouser` (
 --
 
 INSERT INTO `thongbaouser` (`id`, `maTB`, `userId`, `ngayNhan`, `trangThai`) VALUES
-(55, 5, 1, '2025-12-11 20:15:40', 1),
-(56, 5, 2, '2025-12-11 20:15:40', 1),
-(57, 5, 35, '2025-12-11 20:15:40', 0),
-(58, 5, 18, '2025-12-11 20:15:40', 0),
-(59, 5, 28, '2025-12-11 20:15:40', 0),
-(60, 5, 29, '2025-12-11 20:15:40', 0),
-(61, 5, 30, '2025-12-11 20:15:40', 0),
-(62, 5, 31, '2025-12-11 20:15:40', 0),
-(63, 5, 36, '2025-12-11 20:15:40', 0),
-(64, 5, 37, '2025-12-11 20:15:40', 0),
-(65, 5, 52, '2025-12-11 20:15:40', 0),
-(66, 5, 46, '2025-12-11 20:15:40', 0),
-(67, 5, 3, '2025-12-11 20:15:40', 1),
-(68, 5, 20, '2025-12-11 20:15:40', 0),
-(69, 5, 21, '2025-12-11 20:15:40', 0),
-(70, 5, 22, '2025-12-11 20:15:40', 0),
-(71, 5, 23, '2025-12-11 20:15:40', 0),
-(72, 5, 24, '2025-12-11 20:15:40', 0),
-(73, 5, 26, '2025-12-11 20:15:40', 0),
-(74, 5, 27, '2025-12-11 20:15:40', 0),
-(75, 5, 51, '2025-12-11 20:15:40', 0),
 (76, 6, 3, '2025-12-11 20:17:11', 1),
 (77, 6, 20, '2025-12-11 20:17:11', 0),
 (78, 6, 21, '2025-12-11 20:17:11', 0),
@@ -2203,17 +2397,62 @@ INSERT INTO `thongbaouser` (`id`, `maTB`, `userId`, `ngayNhan`, `trangThai`) VAL
 (82, 6, 26, '2025-12-11 20:17:11', 0),
 (83, 6, 27, '2025-12-11 20:17:11', 0),
 (84, 6, 51, '2025-12-11 20:17:11', 0),
-(96, 4, 2, '2025-12-11 20:47:45', 1),
-(97, 4, 18, '2025-12-11 20:47:45', 0),
-(98, 4, 28, '2025-12-11 20:47:45', 0),
-(99, 4, 29, '2025-12-11 20:47:45', 0),
-(100, 4, 30, '2025-12-11 20:47:45', 0),
-(101, 4, 31, '2025-12-11 20:47:45', 0),
-(102, 4, 35, '2025-12-11 20:47:45', 0),
-(103, 4, 36, '2025-12-11 20:47:45', 0),
-(104, 4, 37, '2025-12-11 20:47:45', 0),
-(105, 4, 46, '2025-12-11 20:47:45', 0),
-(106, 4, 52, '2025-12-11 20:47:45', 0);
+(160, 8, 3, '2025-12-13 23:05:19', 0),
+(161, 9, 3, '2025-12-13 23:10:01', 0),
+(162, 9, 21, '2025-12-13 23:10:01', 0),
+(163, 9, 24, '2025-12-13 23:10:01', 0),
+(164, 9, 70, '2025-12-13 23:10:01', 0),
+(165, 9, 71, '2025-12-13 23:10:01', 0),
+(166, 10, 71, '2025-12-14 00:20:56', 0),
+(190, 7, 2, '2025-12-19 21:52:50', 0),
+(191, 7, 18, '2025-12-19 21:52:50', 0),
+(192, 7, 28, '2025-12-19 21:52:50', 0),
+(193, 7, 29, '2025-12-19 21:52:50', 0),
+(194, 7, 30, '2025-12-19 21:52:50', 0),
+(195, 7, 31, '2025-12-19 21:52:50', 0),
+(196, 7, 35, '2025-12-19 21:52:50', 0),
+(197, 7, 36, '2025-12-19 21:52:50', 0),
+(198, 7, 37, '2025-12-19 21:52:50', 0),
+(199, 7, 46, '2025-12-19 21:52:50', 0),
+(200, 7, 52, '2025-12-19 21:52:50', 0),
+(201, 11, 1, '2025-12-19 21:52:50', 0),
+(202, 11, 2, '2025-12-19 21:52:50', 0),
+(203, 11, 35, '2025-12-19 21:52:50', 0),
+(204, 11, 18, '2025-12-19 21:52:50', 0),
+(205, 11, 28, '2025-12-19 21:52:50', 0),
+(206, 11, 29, '2025-12-19 21:52:50', 0),
+(207, 11, 30, '2025-12-19 21:52:50', 0),
+(208, 11, 31, '2025-12-19 21:52:50', 0),
+(209, 11, 36, '2025-12-19 21:52:50', 0),
+(210, 11, 37, '2025-12-19 21:52:50', 0),
+(211, 11, 52, '2025-12-19 21:52:50', 0),
+(212, 11, 46, '2025-12-19 21:52:50', 0),
+(213, 11, 3, '2025-12-19 21:52:50', 0),
+(214, 11, 20, '2025-12-19 21:52:50', 0),
+(215, 11, 21, '2025-12-19 21:52:50', 0),
+(216, 11, 22, '2025-12-19 21:52:50', 0),
+(217, 11, 23, '2025-12-19 21:52:50', 0),
+(218, 11, 24, '2025-12-19 21:52:50', 0),
+(219, 11, 26, '2025-12-19 21:52:50', 0),
+(220, 11, 27, '2025-12-19 21:52:50', 0),
+(221, 11, 51, '2025-12-19 21:52:50', 0),
+(222, 11, 71, '2025-12-19 21:52:50', 0),
+(223, 11, 70, '2025-12-19 21:52:50', 0),
+(224, 12, 3, '2025-12-20 22:57:56', 0),
+(225, 12, 21, '2025-12-20 22:57:56', 0),
+(226, 12, 24, '2025-12-20 22:57:56', 0),
+(227, 12, 70, '2025-12-20 22:57:56', 0),
+(228, 12, 71, '2025-12-20 22:57:56', 0),
+(229, 13, 3, '2025-12-20 22:58:05', 0),
+(230, 13, 21, '2025-12-20 22:58:05', 0),
+(231, 13, 24, '2025-12-20 22:58:05', 0),
+(232, 13, 70, '2025-12-20 22:58:05', 0),
+(233, 13, 71, '2025-12-20 22:58:05', 0),
+(234, 14, 3, '2025-12-20 22:58:13', 0),
+(235, 14, 21, '2025-12-20 22:58:13', 0),
+(236, 14, 24, '2025-12-20 22:58:13', 0),
+(237, 14, 70, '2025-12-20 22:58:13', 0),
+(238, 14, 71, '2025-12-20 22:58:13', 0);
 
 --
 -- Triggers `thongbaouser`
@@ -2292,7 +2531,9 @@ INSERT INTO `user` (`userId`, `matKhau`, `hoVaTen`, `email`, `sdt`, `gioiTinh`, 
 (37, '12345678', 'gv8', 'gv8@gmail.com', '0987654318', 'Nam', 'GiaoVien'),
 (46, '12345678', 'gvtest', 'gvtest@gmail.com', '0988888889', 'Nam', 'GiaoVien'),
 (51, '12345678', 'hs9', 'hs9@gmail.com', '0978888819', 'Nam', 'HocSinh'),
-(52, '12345678', 'gv9', 'gv9@gmail.com', '0987654319', 'Nam', 'GiaoVien');
+(52, '12345678', 'gv9', 'gv9@gmail.com', '0987654319', 'Nam', 'GiaoVien'),
+(70, '12345678', 'thu', 'thu@gmail.com', '0900000000', 'Nam', 'HocSinh'),
+(71, '12345678', 'Nguyễn Văn tét', 'hsAttt@gmail.com', '0987600021', 'Nam', 'HocSinh');
 
 --
 -- Triggers `user`
@@ -2544,19 +2785,19 @@ ALTER TABLE `chuyencan`
 -- AUTO_INCREMENT for table `diemso`
 --
 ALTER TABLE `diemso`
-  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=224;
+  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=259;
 
 --
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1073;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1265;
 
 --
 -- AUTO_INCREMENT for table `giaovien`
 --
 ALTER TABLE `giaovien`
-  MODIFY `maGV` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `maGV` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `giaovien_monhoc`
@@ -2568,7 +2809,7 @@ ALTER TABLE `giaovien_monhoc`
 -- AUTO_INCREMENT for table `hocsinh`
 --
 ALTER TABLE `hocsinh`
-  MODIFY `maHS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `maHS` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `lophoc`
@@ -2586,7 +2827,7 @@ ALTER TABLE `lop_monhoc`
 -- AUTO_INCREMENT for table `monhoc`
 --
 ALTER TABLE `monhoc`
-  MODIFY `maMon` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `maMon` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `phan_cong`
@@ -2598,25 +2839,25 @@ ALTER TABLE `phan_cong`
 -- AUTO_INCREMENT for table `tailieu`
 --
 ALTER TABLE `tailieu`
-  MODIFY `maTaiLieu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `maTaiLieu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `thongbao`
 --
 ALTER TABLE `thongbao`
-  MODIFY `maThongBao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `maThongBao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `thongbaouser`
 --
 ALTER TABLE `thongbaouser`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=160;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=239;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- Constraints for dumped tables
