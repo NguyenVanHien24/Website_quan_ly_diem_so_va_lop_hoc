@@ -52,6 +52,10 @@ if ($rs) {
             } else {
                 $errors[] = ['prepare_error' => $conn->error];
             }
+            // If we successfully inserted recipients, mark the notification as sent
+            if ($inserted > 0) {
+                $conn->query("UPDATE thongbao SET send_at = NULL, ngayGui = NOW() WHERE maThongBao = " . $ma);
+            }
             $conn->commit();
         }
 
