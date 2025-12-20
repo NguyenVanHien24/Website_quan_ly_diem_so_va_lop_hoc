@@ -33,7 +33,6 @@ if ($maHS <= 0 || $maMon <= 0) {
     exit();
 }
 
-// Validate teacher assignment
 $stmt = $conn->prepare("SELECT g.maGV FROM giaovien g JOIN phan_cong p ON p.maGV = g.maGV WHERE g.userId = ? AND p.maMon = ? LIMIT 1");
 $stmt->bind_param('ii', $userID, $maMon);
 $stmt->execute();
@@ -46,7 +45,6 @@ if (!$ok) {
     exit();
 }
 
-// Reverse mapping function
 function reverseMapLoaiDiem($key) {
     switch($key) {
         case 'mouth': return 'Điểm miệng';
@@ -57,7 +55,6 @@ function reverseMapLoaiDiem($key) {
     }
 }
 
-// Save/update scores using INSERT ... ON DUPLICATE KEY UPDATE
 $scoreData = ['mouth' => $mouth, '45m' => $m45, 'gk' => $gk, 'ck' => $ck];
 
 foreach ($scoreData as $key => $value) {
@@ -65,7 +62,6 @@ foreach ($scoreData as $key => $value) {
     
     $loaiDiem = reverseMapLoaiDiem($key);
     
-    // Use UPSERT pattern
     $sql = "INSERT INTO diemso (maHS, maMonHoc, maLop, loaiDiem, giaTriDiem, namHoc, hocKy, ngayGhiNhan) 
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
             ON DUPLICATE KEY UPDATE

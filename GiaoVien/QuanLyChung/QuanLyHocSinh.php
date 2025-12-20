@@ -110,7 +110,7 @@ if ($studentRs) {
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <!-- <th><input class="form-check-input" type="checkbox"></th> -->
                         <th>STT</th>
                         <th>Mã Học Sinh</th>
                         <th>Họ Tên</th>
@@ -128,7 +128,7 @@ if ($studentRs) {
                             $statusBadge = ($student['trangThaiHoatDong'] === 'Hoạt động') ? '<span class="badge-active">● Active</span>' : '<span class="badge-inactive">● Inactive</span>';
                     ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($student['maHS']) ?>"></td>
+                                <!-- <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($student['maHS']) ?>"></td> -->
                                 <td><?= $i++ ?></td>
                                 <td><?= htmlspecialchars($student['maHS']) ?></td>
                                 <td><?= htmlspecialchars($student['hoVaTen']) ?></td>

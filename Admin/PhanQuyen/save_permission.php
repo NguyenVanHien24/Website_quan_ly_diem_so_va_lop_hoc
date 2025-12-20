@@ -18,16 +18,13 @@ if ($userId <= 0 || !in_array($role, $allowed)) {
     echo json_encode($resp); exit;
 }
 
-// Perform role change inside transaction and avoid trigger duplicate-key errors
 $conn->begin_transaction();
 try {
-    // If assigning HocSinh, remove any existing hocsinh row to avoid unique-userId conflict from trigger
     if ($role === 'HocSinh') {
         $del = $conn->prepare("DELETE FROM hocsinh WHERE userId = ?");
         if ($del) { $del->bind_param('i', $userId); $del->execute(); $del->close(); }
     }
 
-    // If assigning GiaoVien, remove any existing giaovien row to keep triggers consistent
     if ($role === 'GiaoVien') {
         $del2 = $conn->prepare("DELETE FROM giaovien WHERE userId = ?");
         if ($del2) { $del2->bind_param('i', $userId); $del2->execute(); $del2->close(); }

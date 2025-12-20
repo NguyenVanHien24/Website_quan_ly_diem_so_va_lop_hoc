@@ -23,17 +23,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const d = this.dataset;
 
-            // SET MODE = EDIT
             document.getElementById("mode").value = "edit";
 
-            // SET maGV
             document.getElementById("maGV").value = d.id;
 
-            // UI
             document.getElementById('modalTitle').innerText = "CHỈNH SỬA GIÁO VIÊN";
             document.getElementById('btnSaveTeacher').innerText = "Cập nhật";
 
-            // Fill data
             document.getElementById('t_name').value = d.name;
             document.getElementById('t_email').value = d.email;
             document.getElementById('t_phone').value = d.phone;
@@ -71,9 +67,35 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnDeleteAll = document.querySelector('.btn-danger');
     if (btnDeleteAll && !btnDeleteAll.closest('.modal')) {
         btnDeleteAll.addEventListener('click', function () {
+            const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+            if (selected.length === 0) {
+                alert('Vui lòng chọn ít nhất một giáo viên để xóa.');
+                return;
+            }
+
+            document.getElementById('delete_id').value = selected.join(',');
             const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
             document.getElementById('deleteMsg').innerText = "Bạn chắc chắn muốn xóa các giáo viên này?";
             modal.show();
         });
     }
+
+    // 5. CHECKBOXES
+    const checkAll = document.getElementById('checkAll');
+    const rowCheckboxes = Array.from(document.querySelectorAll('.row-checkbox'));
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            rowCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+        });
+    }
+
+    rowCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+            if (!this.checked && checkAll && checkAll.checked) checkAll.checked = false;
+            if (checkAll) {
+                const allChecked = rowCheckboxes.every(r => r.checked);
+                checkAll.checked = allChecked;
+            }
+        });
+    });
 });

@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const selectedClass = filterClass ? filterClass.value : '';
         const selectedSubject = filterSubject ? filterSubject.value : '';
 
-        // Build query params and reload page to apply server-side filter
         const params = new URLSearchParams();
         if (selectedClass) params.set('maLop', selectedClass);
         if (selectedSubject) params.set('maMon', selectedSubject);

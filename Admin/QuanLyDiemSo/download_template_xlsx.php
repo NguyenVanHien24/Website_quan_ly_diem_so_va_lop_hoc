@@ -21,7 +21,6 @@ foreach ($headers as $h) {
     $sheet->setCellValueByColumnAndRow($col++, 1, $h);
 }
 
-// sample rows
 $sample = [
     ['1','1','Điểm miệng',8.5,'2025-2026',1],
     ['2','1','Điểm 1 tiết',7.0,'2025-2026',1],

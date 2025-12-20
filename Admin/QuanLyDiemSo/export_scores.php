@@ -14,9 +14,6 @@ if (!isset($_SESSION['userID'])) {
     exit();
 }
 
-// Support two modes:
-// - POST with 'selected[]' entries (format: maHS|maMon|maLop|namHoc|hocKy)
-// - GET filters maLop, maMon, namHoc, hocKy
 $maLop = isset($_GET['maLop']) ? (int)$_GET['maLop'] : 0;
 $maMon = isset($_GET['maMon']) ? (int)$_GET['maMon'] : 0;
 $namHoc = isset($_GET['namHoc']) ? trim($_GET['namHoc']) : '';
@@ -27,15 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['selected'])) {
     $selectedPost = $_POST['selected'];
 }
 
-// Basic query: export rows of diemso joined with student name
-// Build base SQL
 $sql = "SELECT d.maDiem, d.maHS, hs.userId, u.hoVaTen, d.maMonHoc, d.loaiDiem, d.giaTriDiem, d.namHoc, d.hocKy, d.maLop
         FROM diemso d
         LEFT JOIN hocsinh hs ON d.maHS = hs.maHS
         LEFT JOIN `user` u ON hs.userId = u.userId
         WHERE 1=1";
 
-// If selected rows are posted, build OR conditions for them
 if (!empty($selectedPost)) {
     $conds = [];
     foreach ($selectedPost as $sel) {
@@ -57,7 +51,6 @@ if (!empty($selectedPost)) {
         $sql .= " AND (" . implode(' OR ', $conds) . ")";
     }
 } else {
-    // fallback to GET filters
     if ($maLop > 0) { $sql .= " AND d.maLop = " . intval($maLop); }
     if ($maMon > 0) { $sql .= " AND d.maMonHoc = " . intval($maMon); }
     if ($namHoc !== '') { $sql .= " AND d.namHoc = '" . $conn->real_escape_string($namHoc) . "'"; }
@@ -70,16 +63,12 @@ $stmt = $conn->prepare($sql);
 if ($stmt) {
     if (!empty($params)) {
         $types = str_repeat('i', count(array_filter($params, 'is_int')));
-        // mix types possible; bind dynamically
         $bind_names[] = '';
         $i = 0; foreach ($params as $p) { $bind_names[] = $p; }
-        // simpler: use call_user_func_array with refs
         $refs = [];
         foreach ($params as $k => $v) { $refs[$k] = &$params[$k]; }
-        // but need types string: build as all 'i' except namHoc string
     }
 }
-// Simpler approach: execute without prepared when params are few and sanitized
 $sqlExec = $sql;
 if ($maLop > 0) $sqlExec = str_replace('d.maLop = ?', 'd.maLop = ' . intval($maLop), $sqlExec);
 if ($maMon > 0) $sqlExec = str_replace('d.maMonHoc = ?', 'd.maMonHoc = ' . intval($maMon), $sqlExec);

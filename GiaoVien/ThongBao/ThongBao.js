@@ -1,14 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
     
-    // Lấy tất cả các dòng thông báo có class 'notify-row'
     function bindNotifyRows() {
         const notifyRows = document.querySelectorAll('.notify-row');
         notifyRows.forEach(row => {
-            // avoid duplicate handlers
             row.removeEventListener('click', row._notifyHandler);
             row._notifyHandler = async function() {
                 const d = this.dataset;
-                // mark as read on server
                 if (d.tbuid) {
                     try {
                         const r = await fetch(window.BASE_URL + 'Admin/QuanLyThongBao/mark_read.php', {method:'POST', credentials:'same-origin', body: new URLSearchParams({tbuId: d.tbuid})});
@@ -24,11 +21,9 @@ document.addEventListener("DOMContentLoaded", function() {
                         console.error('mark read failed', err);
                     }
                 }
-                // fill modal
                 document.getElementById('v_title').value = d.title || '';
                 document.getElementById('v_content').value = d.content || '';
                 document.getElementById('v_date').value = d.date || '';
-                // attachment
                 const attachDiv = document.getElementById('v_attachment');
                 attachDiv.innerHTML = '';
                 if (d.attachment) {
@@ -45,9 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // initial bind
     bindNotifyRows();
 
-    // In case rows are loaded later, rebind when modal opens
     document.getElementById('viewDetailModal').addEventListener('show.bs.modal', bindNotifyRows);
 });

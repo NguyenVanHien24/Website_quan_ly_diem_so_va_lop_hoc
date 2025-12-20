@@ -28,7 +28,6 @@ if ($maHS <= 0 || $maMon <= 0) {
     exit();
 }
 
-// Validate teacher assignment
 $stmt = $conn->prepare("SELECT g.maGV FROM giaovien g JOIN phan_cong p ON p.maGV = g.maGV WHERE g.userId = ? AND p.maMon = ? LIMIT 1");
 $stmt->bind_param('ii', $userID, $maMon);
 $stmt->execute();
@@ -40,7 +39,6 @@ if (!$ok) {
     exit();
 }
 
-// Function to map Vietnamese score names to keys
 function mapLoaiDiem($loai) {
     $loai = mb_strtolower(trim($loai), 'UTF-8');
     if (mb_strpos($loai, 'miệng') !== false) return 'mouth';
@@ -50,7 +48,6 @@ function mapLoaiDiem($loai) {
     return $loai;
 }
 
-// Fetch scores for this student and subject
 $scores = ['mouth' => '', '45m' => '', 'gk' => '', 'ck' => ''];
 $sql = "SELECT loaiDiem, giaTriDiem FROM diemso WHERE maHS = '" . $conn->real_escape_string($maHS) . "' AND maMonHoc = '" . $conn->real_escape_string($maMon) . "'";
 if (!empty($namHoc)) {

@@ -57,6 +57,51 @@ if ($maLop > 0) {
     }
     $stmt->close();
 }
+$subjectMap = [];
+foreach ($subjects as $s) {
+    $subjectMap[(int)$s['maMon']] = $s['tenMon'];
+}
+// ==== XỬ LÝ PHÂN TRANG & LỌC TÀI LIỆU ====
+$filterMon = isset($_GET['maMon']) && $_GET['maMon'] != '' ? (int)$_GET['maMon'] : 0;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 10; // giới hạn 10 mục
+$offset = ($page - 1) * $limit;
+
+$documents = [];
+$totalRecords = 0;
+$totalPages = 0;
+
+if ($filterMon && $maLop > 0) {
+    // đếm tổng số
+    $countSql = "SELECT COUNT(*) as total FROM tailieu t WHERE t.maMon = ? AND t.maLop = ?";
+    $cstmt = $conn->prepare($countSql);
+    if ($cstmt) {
+        $cstmt->bind_param('ii', $filterMon, $maLop);
+        $cstmt->execute();
+        $totalRecords = (int)$cstmt->get_result()->fetch_assoc()['total'];
+        $cstmt->close();
+    }
+
+    $totalPages = ($limit > 0) ? (int)ceil($totalRecords / $limit) : 1;
+
+    // lấy dữ liệu trang hiện tại
+    $sqlData = "SELECT t.*, (SELECT u.hoVaTen FROM giaovien g JOIN user u ON g.userId = u.userId WHERE g.maGV = t.maGV LIMIT 1) as nguoiTao
+                FROM tailieu t
+                WHERE t.maMon = ? AND t.maLop = ?
+                ORDER BY t.ngayTao DESC
+                LIMIT ? OFFSET ?";
+
+    $dstmt = $conn->prepare($sqlData);
+    if ($dstmt) {
+        $dstmt->bind_param('iiii', $filterMon, $maLop, $limit, $offset);
+        $dstmt->execute();
+        $res = $dstmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $documents[] = $row;
+        }
+        $dstmt->close();
+    }
+}
 ?>
 
 <main>
@@ -87,12 +132,62 @@ if ($maLop > 0) {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="6" class="text-center text-secondary">Chọn môn học để xem tài liệu</td>
-                    </tr>
+                    <?php if (!$filterMon): ?>
+                        <tr>
+                            <td colspan="6" class="text-center text-secondary">Chọn môn học để xem tài liệu</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php if (count($documents) > 0): ?>
+                            <?php $stt = $offset + 1;
+                            foreach ($documents as $doc): ?>
+                                <tr>
+                                    <td><?php echo $stt++; ?></td>
+                                    <td class="fw-bold text-primary"><?php echo htmlspecialchars($doc['tieuDe']); ?></td>
+                                    <td class="text-secondary text-truncate" style="max-width: 250px;">
+                                        <?php echo htmlspecialchars($doc['moTa']); ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($subjectMap[(int)$doc['maMon']] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($doc['nguoiTao'] ?? ''); ?></td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn-view" data-id="<?php echo $doc['maTaiLieu']; ?>" data-title="<?php echo htmlspecialchars($doc['tieuDe']); ?>" data-desc="<?php echo htmlspecialchars($doc['moTa']); ?>" data-bs-toggle="modal" data-bs-target="#viewDocModal"><i class="bi bi-eye"></i></a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="text-center text-secondary py-4">Chưa có tài liệu cho môn này.</td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <?php
+    $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+    $endShow = min($offset + $limit, $totalRecords);
+    ?>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="text-secondary">Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục</div>
+
+        <?php if ($totalPages > 1): ?>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="?maMon=<?php echo $filterMon; ?>&page=<?php echo max(1, $page - 1); ?>">&lt;</a>
+                    </li>
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                            <a class="page-link" href="?maMon=<?php echo $filterMon; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                        </li>
+                    <?php endfor; ?>
+                    <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="?maMon=<?php echo $filterMon; ?>&page=<?php echo min($totalPages, $page + 1); ?>">&gt;</a>
+                    </li>
+                </ul>
+            </nav>
+        <?php endif; ?>
     </div>
 
     <div class="d-flex justify-content-end mt-4">
@@ -131,4 +226,25 @@ if ($maLop > 0) {
     </div>
 
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const subjectFilter = document.getElementById('subjectFilter');
+        if (!subjectFilter) return;
+
+        function applyFilters() {
+            const maMon = subjectFilter.value;
+            let url = '?page=1';
+            if (maMon) {
+                url += '&maMon=' + encodeURIComponent(maMon);
+            }
+            window.location.href = url;
+        }
+
+        <?php if ($filterMon): ?>
+            subjectFilter.value = "<?= $filterMon ?>";
+        <?php endif; ?>
+
+        subjectFilter.addEventListener('change', applyFilters);
+    });
+</script>
 <?php require_once '../../footer.php'; ?>

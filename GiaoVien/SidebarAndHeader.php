@@ -73,7 +73,6 @@ $stmt->close();
                 <div class="collapse show" id="quanlychungCollapse">
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
-                            <!-- SỬA LINK: Bỏ "Admin/" khỏi link Dashboard -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'thong-tin') {
                                                     echo 'active';
                                                 } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/ThongTinCaNhan.php">
@@ -81,7 +80,6 @@ $stmt->close();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <!-- SỬA LINK: Bỏ "Admin/" (Giả sử file HocSinh.php cũng ở gốc) -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'hoc-sinh') {
                                                     echo 'active';
                                                 } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyHocSinh.php">
@@ -89,7 +87,6 @@ $stmt->close();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <!-- SỬA LINK: Bỏ "Admin/" (Giả sử file LopHoc.php cũng ở gốc) -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'lop-hoc') {
                                                     echo 'active';
                                                 } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyChung/QuanLyLopHoc.php">
@@ -125,7 +122,6 @@ $stmt->close();
                 <div class="collapse show" id="danhgiaCollapse">
                     <ul class="nav flex-column sidebar-submenu">
                         <li class="nav-item">
-                            <!-- KHÔNG ĐỔI: Link này vẫn trỏ vào Admin/QuanLyChuyenCan/ -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'chuyen-can') {
                                                     echo 'active';
                                                 } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyChuyenCan.php">
@@ -133,7 +129,6 @@ $stmt->close();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <!-- KHÔNG ĐỔI: Giả sử DiemSo.php cũng nằm trong Admin -->
                             <a class="nav-link <?php if (isset($currentPage) && $currentPage == 'diem-so') {
                                                     echo 'active';
                                                 } ?>" href="<?php echo BASE_URL; ?>GiaoVien/QuanLyDanhGia/QuanLyDiemSo.php">
@@ -161,8 +156,6 @@ $stmt->close();
     </nav>
     <!-- ========= KẾT THÚC SIDEBAR ========= -->
 
-
-    <!-- Bắt đầu phần nội dung chính (sẽ được đóng trong footer.php) -->
     <div class="main-content">
 
         <!-- ========= PHẦN HEADER ========= -->
@@ -229,7 +222,6 @@ $stmt->close();
                 const notifyBadge = document.getElementById('notifyBadge');
                 const notifyToggle = document.getElementById('notifyToggle');
 
-                // Modal elements
                 const notifyModalElem = document.getElementById('notifyModal');
                 const notifyModal = new bootstrap.Modal(notifyModalElem);
                 const modalTitle = document.getElementById('notifyModalTitle');
@@ -238,7 +230,6 @@ $stmt->close();
 
                 let isDropdownOpen = false;
 
-                // Theo dõi trạng thái dropdown để tránh reload khi đang đọc
                 notifyToggle.addEventListener('show.bs.dropdown', () => {
                     isDropdownOpen = true;
                 });
@@ -248,7 +239,6 @@ $stmt->close();
 
                 async function loadNotifies() {
                     try {
-                        // Không xóa innerHTML ở đây để tránh bị nháy trắng
                         const res = await fetch(window.BASE_URL + 'GiaoVien/ThongBao/get_notifications.php');
                         const data = await res.json();
 
@@ -257,21 +247,16 @@ $stmt->close();
                         // Cập nhật số lượng chưa đọc (Badge)
                         updateBadge(data.unread);
 
-                        // Nếu dropdown đang mở, ta có thể cân nhắc không render lại để tránh trôi bài
-                        // Hoặc vẫn render nhưng khéo léo hơn. Ở đây ta render lại toàn bộ nội dung HTML mới.
-
                         let htmlContent = '';
 
                         if (!data.notifications || data.notifications.length === 0) {
                             htmlContent = '<li class="text-center text-muted small py-2">Không có thông báo mới</li>';
                         } else {
                             data.notifications.forEach(n => {
-                                // Logic style
                                 const isUnread = parseInt(n.trangThai) === 0;
                                 const bgStyle = isUnread ? 'background-color: #eef6ff;' : '';
                                 const fwClass = isUnread ? 'fw-bold' : '';
 
-                                // Lưu ý: Dùng dataset để lưu dữ liệu, tránh hardcode onclick
                                 htmlContent += `
                             <li class="d-flex align-items-start gap-2 p-2 border-bottom notify-item ${fwClass}" 
                                 style="cursor: pointer; ${bgStyle}"
@@ -301,7 +286,6 @@ $stmt->close();
 
                         notifyList.innerHTML = htmlContent;
 
-                        // Gán lại sự kiện click sau khi render HTML mới
                         attachClickEvents();
 
                     } catch (err) {
@@ -326,7 +310,7 @@ $stmt->close();
                             if (status === 0) {
                                 this.style.backgroundColor = 'transparent';
                                 this.classList.remove('fw-bold');
-                                this.dataset.status = 1; // Cập nhật lại data attribute
+                                this.dataset.status = 1; 
 
                                 try {
                                     const formData = new FormData();
@@ -351,7 +335,7 @@ $stmt->close();
                             e.preventDefault();
                             try {
                                 const formData = new FormData();
-                                formData.append('all', '1'); // PHP nhận qua $_POST['all']
+                                formData.append('all', '1'); 
 
                                 const r = await fetch(window.BASE_URL + 'GiaoVien/ThongBao/mark_read.php', {
                                     method: 'POST',
@@ -389,12 +373,10 @@ $stmt->close();
                 notifyToggle.addEventListener('click', loadNotifies);
                 loadNotifies(); // Tải lần đầu
                 setInterval(() => {
-                    // Chỉ tải lại ngầm nếu dropdown KHÔNG mở để tránh làm phiền người dùng
                     if (!isDropdownOpen) {
                         loadNotifies();
                     }
                 }, 60000);
             });
         </script>
-        <!-- Global search enhancement (client-side table filtering) -->
         <script src="<?php echo BASE_URL; ?>GiaoVien/global-search.js"></script>

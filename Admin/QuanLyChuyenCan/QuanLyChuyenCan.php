@@ -117,7 +117,7 @@ $pageJS = ['QuanLyChuyenCan.js'];
                     <table class="table">
                         <thead>
                             <tr>
-                                <th><input class="form-check-input" type="checkbox"></th>
+                                <!-- <th><input class="form-check-input" type="checkbox"></th> -->
                                 <th>STT</th>
                                 <th>Lớp</th>
                                 <th>Họ và tên</th>
@@ -129,7 +129,7 @@ $pageJS = ['QuanLyChuyenCan.js'];
                                 $status = $attendanceData[$student['maHS']] ?? null;
                             ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
+                                <!-- <td><input class="form-check-input" type="checkbox"></td> -->
                                 <td><?= $i++ ?></td>
                                 <td><?= htmlspecialchars($student['tenLop']) ?></td>
                                 <td><?= htmlspecialchars($student['hoVaTen']) ?></td>

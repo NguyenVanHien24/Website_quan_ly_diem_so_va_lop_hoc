@@ -156,7 +156,7 @@ $stmtData->close();
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th style="width: 40px;"><i class="bi bi-dash-circle text-primary fs-5"></i></th>
+                        <th style="width: 40px;"><input id="checkAll" class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th style="width: 30%;">TIÊU ĐỀ</th>
                         <th style="width: 35%;">MÔ TẢ</th>
@@ -173,7 +173,7 @@ $stmtData->close();
                             $statusText = isset($doc['trangThai']) && $doc['trangThai'] == 'private' ? 'Riêng tư' : 'Công khai';
                         ?>
                             <tr>
-                                <td><input class="form-check-input rounded-circle doc-checkbox" type="checkbox" value="<?php echo $doc['maTaiLieu']; ?>"></td>
+                                <td><input class="form-check-input rounded-circle row-checkbox doc-checkbox" type="checkbox" value="<?php echo $doc['maTaiLieu']; ?>"></td>
                                 <td><?php echo $stt++; ?></td>
                                 <td class="fw-bold text-primary"><?php echo htmlspecialchars($doc['tieuDe']); ?></td>
                                 <td class="text-secondary text-truncate" style="max-width: 250px;">
@@ -221,31 +221,15 @@ $stmtData->close();
         </div>
 
         <div class="table-footer d-flex justify-content-between align-items-center mt-3 px-2">
-            <div class="text-secondary fw-bold bg-light py-1 px-3 rounded">
-                Hiển thị <?php echo ($totalRecords > 0) ? $offset + 1 : 0; ?>-<?php echo min($offset + $limit, $totalRecords); ?>/<?php echo $totalRecords; ?> mục
+            <?php
+            $startShow = ($totalRecords > 0) ? $offset + 1 : 0;
+            $endShow = min($offset + $limit, $totalRecords);
+            ?>
+            <div id="docCount" class="text-secondary fw-bold bg-light py-1 px-3 rounded">
+                Hiển thị <?= $startShow ?>-<?= $endShow ?>/<?= $totalRecords ?> mục
             </div>
 
-            <?php if ($totalPages > 1): ?>
-                <nav>
-                    <ul class="pagination mb-0">
-                        <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="?page=<?php echo $page - 1; ?>&maLop=<?php echo $filterLop; ?>&maMon=<?php echo $filterMon; ?>">&lt;</a>
-                        </li>
-
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                            <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
-                                <a class="page-link" href="?page=<?php echo $i; ?>&maLop=<?php echo $filterLop; ?>&maMon=<?php echo $filterMon; ?>">
-                                    <?php echo $i; ?>
-                                </a>
-                            </li>
-                        <?php endfor; ?>
-
-                        <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
-                            <a class="page-link" href="?page=<?php echo $page + 1; ?>&maLop=<?php echo $filterLop; ?>&maMon=<?php echo $filterMon; ?>">&gt;</a>
-                        </li>
-                    </ul>
-                </nav>
-            <?php endif; ?>
+            <nav id="docPagination"></nav>
         </div>
     </div>
 

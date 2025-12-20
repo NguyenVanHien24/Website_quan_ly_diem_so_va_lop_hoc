@@ -224,7 +224,6 @@ if ($monthNow >= 1 && $monthNow <= 6) {
 $maHSResult = $conn->query("SELECT IFNULL(MAX(maHS),0)+1 AS nextMaHS FROM hocsinh");
 $nextMaHS = $maHSResult->fetch_assoc()['nextMaHS'];
 
-// Function tạo diemso cho học sinh trong lớp
 function createDiemsoForStudent($conn, $maHS, $maLop, $namHoc, $kyHoc)
 {
     if (!$maLop) return; // Không tạo nếu không có lớp
@@ -557,7 +556,7 @@ $pageJS = ['QuanLyHocSinh.js'];
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <th><input id="checkAll" class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th>Mã Học Sinh</th>
                         <th>Họ Tên</th>
@@ -579,7 +578,7 @@ $pageJS = ['QuanLyHocSinh.js'];
                             $status = $row['trangThaiHoatDong'] ?: 'Inactive';
                     ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
+                                <td><input class="form-check-input row-checkbox" type="checkbox" value="<?= $row['maHS'] ?>"></td>
                                 <td><?= $stt++ ?></td>
                                 <td><?= $row['maHS'] ?></td>
                                 <td><?= $row['hoVaTen'] ?></td>

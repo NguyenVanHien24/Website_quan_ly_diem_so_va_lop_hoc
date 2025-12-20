@@ -123,7 +123,6 @@ function mapLoaiDiem($loai)
     ) {
         return 'ck';
     }
-    // Return empty string for unmapped types
     return '';
 }
 
@@ -143,7 +142,6 @@ if ($scoreRs) {
             ];
         }
 
-        // nếu không có bản ghi diemso (d.loaiDiem là null) thì chỉ giữ cấu trúc rỗng
         if ($row['loaiDiem'] === null) {
             continue;
         }
@@ -205,8 +203,6 @@ $pageJS = ['QuanLyDiemSo.js'];
                 <tbody>
                     <?php $i = $offset + 1;
                     foreach ($scores as $sc):
-                        // BẮT ĐẦU KHỐI TÍNH TOÁN ĐIỂM (ĐƯỢC ĐƯA LÊN TRƯỚC để các cột có thể sử dụng)
-
                         // Tính TB HK1 (Hệ số: Miệng x1, 45m x2, GK x2, CK x3. Tổng hệ số: 1+2+2+3 = 8)
                         $hk1_total =
                             floatval($sc['HK1']['mouth'] ?? 0) * 1 +
@@ -233,7 +229,6 @@ $pageJS = ['QuanLyDiemSo.js'];
                             $avg = $hk2_avg;
                         }
 
-                        // KẾT THÚC KHỐI TÍNH TOÁN ĐIỂM
                     ?>
                         <tr data-mahs="<?= htmlspecialchars($sc['maHS']) ?>"
                             data-mamon="<?= htmlspecialchars($sc['maMon']) ?>"

@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const mamon = btn.dataset.mamon;
         const date = btn.dataset.date;
 
-        // send to server
         saveAttendance(mahs, malop, mamon, date, newStatus).then(resp => {
             if (!resp.success) {
                 alert(resp.message || 'Lỗi lưu điểm danh');

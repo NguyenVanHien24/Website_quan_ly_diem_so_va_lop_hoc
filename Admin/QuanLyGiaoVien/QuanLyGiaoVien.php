@@ -104,9 +104,7 @@ if (!$result) {
 }
 
 $errors = [];
-// =================================================================
-// [NEW] XỬ LÝ IMPORT EXCEL
-// =================================================================
+// XỬ LÝ IMPORT EXCEL
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
     if (isset($_FILES['file_excel']['name']) && $_FILES['file_excel']['name'] != "") {
         $allowedExtensions = ['xls', 'xlsx'];
@@ -159,7 +157,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
                     }
                     $check->close();
 
-                    // Thêm vào bảng User (Mật khẩu mặc định 12345678)
+                    // Thêm vào bảng User 
                     $stmt = $conn->prepare("INSERT INTO user (hoVaTen, email, sdt, gioiTinh, matKhau, vaiTro) VALUES (?,?,?,?, '12345678','GiaoVien')");
                     $stmt->bind_param("ssss", $hoVaTen, $email, $sdt, $gioiTinh);
 
@@ -168,7 +166,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
                         $stmt->close();
 
                         // Cập nhật/Thêm vào bảng Giaovien
-                        // Logic tương tự phần thêm thủ công: Check update -> Insert nếu chưa có
                         $stmtGV = $conn->prepare("UPDATE giaovien SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?, namHoc=?, kyHoc=? WHERE userId=?");
                         $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $userId);
                         $stmtGV->execute();
@@ -181,7 +178,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["import_action"])) {
                         }
                         $stmtGV->close();
 
-                        // -- XỬ LÝ PHÂN CÔNG MÔN HỌC TỰ ĐỘNG (Nếu có Bộ môn khớp tên môn) --
                         // Lấy maGV vừa tạo
                         $qmgv = $conn->query("SELECT maGV FROM giaovien WHERE userId = $userId LIMIT 1");
                         if ($qmgv && $r = $qmgv->fetch_assoc()) {
@@ -243,12 +239,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
     if (!$sdt) $errors[] = "Số điện thoại không được để trống.";
 
     if ($mode === "add") {
-        // Validate email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Email không hợp lệ.";
         }
 
-        // Validate phone format: Vietnamese numbers like 0xxxxxxxxx or +84xxxxxxxxx
         if (!preg_match('/^(\+84|0)\d{9}$/', $sdt)) {
             $errors[] = "Số điện thoại không hợp lệ. (Ví dụ: 0987654321 hoặc +84987654321)";
         }
@@ -281,7 +275,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
         $userId = $conn->insert_id;
 
         // Cập nhật thông tin giaovien đã sinh bởi trigger (nếu trigger tồn tại),
-        // nếu không có bản ghi (trigger bị tắt) sẽ chèn mới.
         $stmtGV = $conn->prepare("UPDATE giaovien SET boMon=?, trinhDo=?, phongBan=?, trangThaiHoatDong=?, namHoc=?, kyHoc=? WHERE userId=?");
         if ($stmtGV) {
             $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $userId);
@@ -366,12 +359,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
         $res = $conn->query("SELECT userId FROM giaovien WHERE maGV=$maGV");
         $userId = $res->fetch_assoc()['userId'] ?? 0;
 
-        // Validate email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Email không hợp lệ.";
         }
 
-        // Validate phone format
         if (!preg_match('/^(\+84|0)\d{9}$/', $sdt)) {
             $errors[] = "Số điện thoại không hợp lệ. (Ví dụ: 0987654321 hoặc +84987654321)";
         }
@@ -405,7 +396,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
         $stmtGV->bind_param("sssssii", $boMon, $trinhDo, $phongBan, $trangThai, $namHoc, $kyHoc, $maGV);
         $stmtGV->execute();
 
-        // Đồng bộ lại phân công môn trong giaovien_monhoc: xóa cũ -> thêm mới
         $del = $conn->prepare("DELETE FROM giaovien_monhoc WHERE idGV = ?");
         if ($del) {
             $del->bind_param("i", $maGV);
@@ -459,18 +449,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mode"])) {
 // XỬ LÝ XÓA GIÁO VIÊN 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["delete_id"])) {
 
-    $maGV = intval($_POST["delete_id"]);
+    $raw = trim($_POST["delete_id"]);
+    $ids = array_filter(array_map('intval', explode(',', $raw)));
 
-    // Lấy userID theo maGV
-    $q = $conn->query("SELECT userID FROM giaovien WHERE maGV=$maGV");
-    if ($q && $q->num_rows > 0) {
-        $userID = $q->fetch_assoc()["userID"];
+    foreach ($ids as $maGV) {
+        // Lấy userID theo maGV
+        $q = $conn->query("SELECT userID FROM giaovien WHERE maGV=" . intval($maGV));
+        if ($q && $q->num_rows > 0) {
+            $userID = $q->fetch_assoc()["userID"];
 
-        // Xóa bản ghi giáo viên
-        $conn->query("DELETE FROM giaovien WHERE maGV=$maGV");
+            // Xóa bản ghi giáo viên
+            $conn->query("DELETE FROM giaovien WHERE maGV=" . intval($maGV));
 
-        // Xóa user liên quan
-        $conn->query("DELETE FROM user WHERE userID=$userID");
+            // Xóa user liên quan
+            $conn->query("DELETE FROM user WHERE userID=" . intval($userID));
+        }
     }
 
     echo "<script>location.href='QuanLyGiaoVien.php'</script>";
@@ -495,7 +488,7 @@ $pageJS = ['QuanLyGiaoVien.js'];
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <th><input id="checkAll" class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th>Mã Giáo viên</th>
                         <th>Họ Tên</th>
@@ -513,7 +506,7 @@ $pageJS = ['QuanLyGiaoVien.js'];
                         while ($row = $result->fetch_assoc()):
                     ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
+                                <td><input class="form-check-input row-checkbox" type="checkbox" value="<?= $row['maGV'] ?>"></td>
                                 <td><?= $stt++ ?></td>
                                 <td><?= $row['maGV'] ?></td>
                                 <td><?= $row['hoVaTen'] ?></td>

@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const tbody = document.querySelector('#score-tbody');
     const tableRange = document.getElementById('table-range');
     
-    // Store class metadata for use in save
     let currentClassInfo = { namHoc: '', hocKy: 1 };
 
     classSelect.addEventListener('change', loadScores);
@@ -32,14 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         tbody.innerHTML = '<tr><td colspan="9">' + (resp.message||'Lỗi') + '</td></tr>';
                         return;
                     }
-                    // Store class metadata (but allow UI override)
                     if (resp.classInfo) {
                         currentClassInfo = resp.classInfo;
-                        // If UI year/semester were not set, reflect class info
                         if (yearInput && (!yearInput.value || yearInput.value.trim() === '')) yearInput.value = currentClassInfo.namHoc || '2025-2026';
                         if (semesterSelect && (!semesterSelect.value || semesterSelect.value === '')) semesterSelect.value = currentClassInfo.hocKy || 1;
                     }
-                        // setup pagination data
                         fullData = resp.data || [];
                         currentPage = 1;
                         pageSize = parseInt(pageSizeSelect ? pageSizeSelect.value : 10) || 10;
@@ -54,7 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-        // Pagination state
         let fullData = [];
         let currentPage = 1;
         let pageSize = 10;
@@ -111,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
             currentPage = page || 1;
             const start = (currentPage - 1) * pageSize;
             const pageRows = fullData.slice(start, start + pageSize);
-            // adjust stt numbering
             pageRows.forEach((r, idx) => r.stt = start + idx + 1);
             renderTableRows(pageRows);
             updatePaginationControls();
@@ -149,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
         tableRange.textContent = data.length + ' mục';
     }
 
-    // Modal handlers
     tbody.addEventListener('click', function(e) {
         const btnView = e.target.closest('.btn-view');
         const btnEdit = e.target.closest('.btn-edit');
@@ -163,7 +156,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-        // Pagination controls
         if (prevBtn) prevBtn.addEventListener('click', function(e) { e.preventDefault(); if (currentPage>1) renderPage(currentPage-1); });
         if (nextBtn) nextBtn.addEventListener('click', function(e) { e.preventDefault(); const totalPages = Math.max(1, Math.ceil(fullData.length / pageSize)); if (currentPage<totalPages) renderPage(currentPage+1); });
         if (pageSizeSelect) pageSizeSelect.addEventListener('change', function() { pageSize = parseInt(this.value)||10; currentPage = 1; renderPage(currentPage); });
@@ -175,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const maLop = classSelect.value;
         const selectedNamHoc = (yearInput && yearInput.value) ? yearInput.value : (currentClassInfo.namHoc || '2025-2026');
         
-        // Set student info in modal
         if (mode === 'view') {
             document.getElementById('view_student_name').textContent = 'HỌ TÊN HỌC SINH: ' + hoVaTen.toUpperCase();
             document.getElementById('view_student_id').textContent = 'MÃ HỌC SINH: ' + maHS;
@@ -184,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('edit_student_id').textContent = 'MÃ HỌC SINH: ' + maHS;
         }
         
-        // Fetch both HK1 and HK2 scores
         Promise.all([
             fetch('get_student_scores.php', { 
                 method: 'POST', 
@@ -213,7 +203,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Populate HK1 inputs
             const prefixView1 = 'view_s1_';
             const prefixEdit1 = 'edit_s1_';
             if (mode === 'view') {
@@ -228,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById(prefixEdit1 + 'ck').value = data1.scores.ck || '';
             }
             
-            // Populate HK2 inputs
             const prefixView2 = 'view_s2_';
             const prefixEdit2 = 'edit_s2_';
             if (mode === 'view') {
@@ -242,7 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById(prefixEdit2 + 'gk').value = data2.scores.gk || '';
                 document.getElementById(prefixEdit2 + 'ck').value = data2.scores.ck || '';
                 
-                // Store student info for save
                 const saveElem1 = document.getElementById(prefixEdit1 + 'mouth');
                 const saveElem2 = document.getElementById(prefixEdit2 + 'mouth');
                 if (saveElem1) {
@@ -261,14 +248,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Auto-detect semester from filled inputs
     function inferHocKy() {
         const s2m = document.getElementById('edit_s2_mouth');
         const s2_45 = document.getElementById('edit_s2_45m');
         const s2gk = document.getElementById('edit_s2_gk');
         const s2ck = document.getElementById('edit_s2_ck');
         
-        // If any HK II input has value, return 2, else 1
         if ((s2m && s2m.value && s2m.value.trim() !== '') ||
             (s2_45 && s2_45.value && s2_45.value.trim() !== '') ||
             (s2gk && s2gk.value && s2gk.value.trim() !== '') ||
@@ -278,17 +263,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return 1;
     }
 
-    // Save button handler
     const saveBtn = document.querySelector('.btn-custom-save');
     if (saveBtn) {
         saveBtn.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Auto-detect semester from filled inputs
             const detectedHocKy = inferHocKy();
             const selectedNamHoc = (yearInput && yearInput.value) ? yearInput.value : '2025-2026';
 
-            // Find the element that stores dataset.mahs (it was set when modal was populated)
             const s1Elem = document.getElementById('edit_s1_mouth');
             const s2Elem = document.getElementById('edit_s2_mouth');
             const maHS = (s1Elem && s1Elem.dataset.mahs) ? s1Elem.dataset.mahs : (s2Elem && s2Elem.dataset.mahs ? s2Elem.dataset.mahs : null);
@@ -306,7 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('namHoc', selectedNamHoc);
             formData.append('hocKy', detectedHocKy);
 
-            // Read inputs for the detected semester
             const prefix = (detectedHocKy === 2) ? 'edit_s2_' : 'edit_s1_';
             formData.append('mouth', document.getElementById(prefix + 'mouth').value);
             formData.append('45m', document.getElementById(prefix + '45m').value);
@@ -318,11 +299,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.success) {
                         alert('Lưu điểm thành công');
-                        // Close modal
                         const modalEl = document.getElementById('gradeEntryModal');
                         const modal = bootstrap.Modal.getInstance(modalEl);
                         if (modal) modal.hide();
-                        // Reload scores
                         loadScores();
                     } else {
                         alert('Lỗi: ' + (data.message || 'Không thể lưu điểm'));
@@ -334,10 +313,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initial load
     if (classSelect && subjectSelect) loadScores();
 
-    // ===== Import / Export =====
+    // Import / Export 
     const btnExport = document.getElementById('btnExport');
     const btnImport = document.getElementById('btnImport');
     const importModalEl = document.getElementById('importModal');
@@ -354,7 +332,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (btnExport) {
         btnExport.addEventListener('click', function () {
-            // collect checked rows
             const checked = Array.from(document.querySelectorAll('#score-tbody input.row-check'))
                 .filter(ch => ch.checked);
             if (checked.length === 0) { alert('Vui lòng chọn hàng để xuất'); return; }

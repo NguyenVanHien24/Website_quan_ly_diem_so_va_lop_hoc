@@ -20,7 +20,6 @@ if ($maMon <= 0) {
     exit();
 }
 
-// Get student's class
 $stmt = $conn->prepare("SELECT maLopHienTai as maLop FROM hocsinh WHERE userId = ?");
 if (!$stmt) {
     echo json_encode(['success' => false, 'message' => 'SQL Error: ' . $conn->error]);

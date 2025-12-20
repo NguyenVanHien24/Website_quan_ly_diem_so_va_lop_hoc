@@ -5,7 +5,6 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../../config.php';
 require_once '../../CSDL/db.php';
 
-// --- HÀM GHI LOG (Để debug lỗi) ---
 function writeLog($message) {
     file_put_contents('debug_log.txt', date('H:i:s') . " - " . $message . PHP_EOL, FILE_APPEND);
 }
@@ -44,13 +43,11 @@ try {
     writeLog("Trạng thái isAll: " . ($isAll ? "TRUE" : "FALSE"));
 
     if ($tbuId > 0) {
-        // ... Logic update 1 tin ...
         $stmt = $conn->prepare("UPDATE thongbaouser SET trangThai = 1 WHERE id = ? AND userId = ?");
         $stmt->bind_param('ii', $tbuId, $userId);
         $stmt->execute();
     } 
     elseif ($isAll) { 
-        // === SỬA ĐOẠN NÀY ĐỂ BẮT LỖI CỤ THỂ ===
         
         $sql = "UPDATE thongbaouser SET trangThai = 1 WHERE userId = ? AND trangThai = 0";
         $stmt = $conn->prepare($sql);
@@ -61,16 +58,13 @@ try {
             $stmt->bind_param('i', $userId);
             
             if (!$stmt->execute()) {
-                // NẾU CÓ LỖI, NÓ SẼ HIỆN RA Ở ĐÂY
                 writeLog("Lỗi EXECUTE SQL: " . $stmt->error); 
             } else {
                 $affected = $stmt->affected_rows;
                 writeLog("Thực thi thành công. Số dòng update: " . $affected);
                 
-                // Logic Insert bổ sung (như cũ)
                 if ($affected == 0) {
                      writeLog("Không có dòng update. Đang thử Insert...");
-                     // ... (giữ nguyên đoạn code Insert ở dưới) ...
                      $sqlInsert = "INSERT INTO thongbaouser (maTB, userId, trangThai, ngayNhan)
                                    SELECT t.maThongBao, ?, 1, NOW()
                                    FROM thongbao t
