@@ -32,15 +32,12 @@ try {
         echo json_encode(['success' => false, 'message' => 'File không có dữ liệu']);
         exit();
     }
-    // header mapping: find necessary columns
-    $header = array_shift($rows); // first row
+    $header = array_shift($rows); 
     $map = [];
     foreach ($header as $col => $val) {
         $k = trim(mb_strtolower((string)$val));
         $map[$k] = $col;
     }
-    // required: maHS, maMon (can be provided via POST), loaiDiem, giaTriDiem; namHoc/hocKy/maLop optional
-    // We'll attempt to find columns by a set of possible names
     $find = function($candidates) use ($map) {
         foreach ($candidates as $cand) {
             $cand = trim(mb_strtolower($cand));
@@ -57,7 +54,6 @@ try {
     $col_hk = $find(['hocky','hoc ky','hk']);
     $col_maLop = $find(['malop','ma_lop','ma lop']);
 
-    // allow maMon to be provided via POST (from current filters)
     $postedMaMon = isset($_POST['maMon']) ? trim($_POST['maMon']) : '';
     $postedMaLop = isset($_POST['maLop']) ? trim($_POST['maLop']) : '';
 
@@ -66,7 +62,6 @@ try {
         exit();
     }
 
-    // default current school year
     $yearNow = date('Y');
     $monthNow = date('n');
     if ($monthNow >= 1 && $monthNow <= 6) {
@@ -77,18 +72,15 @@ try {
 
     $inserted = 0; $updated = 0; $errors = [];
 
-    // Prepare statements: one that includes maLop, and one that doesn't (maLop NULL)
     $sql_with_lop = "INSERT INTO diemso (maHS, maMonHoc, namHoc, hocKy, loaiDiem, giaTriDiem, maLop) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE giaTriDiem = VALUES(giaTriDiem), maLop = VALUES(maLop)";
     $stmt_with = $conn->prepare($sql_with_lop);
     $sql_no_lop = "INSERT INTO diemso (maHS, maMonHoc, namHoc, hocKy, loaiDiem, giaTriDiem) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE giaTriDiem = VALUES(giaTriDiem)";
     $stmt_no = $conn->prepare($sql_no_lop);
 
-    // lookup helpers
     $lookup_class_stmt = $conn->prepare("SELECT maLop FROM lophoc WHERE tenLop = ? LIMIT 1");
     $lookup_student_class_stmt = $conn->prepare("SELECT maLopHienTai FROM hocsinh WHERE maHS = ? LIMIT 1");
 
     foreach ($rows as $rnum => $row) {
-        // maHS and maMon are expected to be numeric IDs in the DB (maMon may be provided via POST)
         $maHS = isset($col_maHS) ? intval($row[$col_maHS]) : 0;
         if ($col_maMon) {
             $maMon = intval($row[$col_maMon]);
@@ -100,7 +92,6 @@ try {
         $nam = $col_nam ? trim($row[$col_nam]) : $defaultYear;
         $hk = $col_hk ? intval($row[$col_hk]) : 1;
 
-        // raw class value (could be numeric id or textual class name like '10A1')
         if ($col_maLop) {
             $maLopRaw = trim($row[$col_maLop]);
         } else {
@@ -114,13 +105,11 @@ try {
         $giaVal = is_numeric($gia) ? floatval($gia) : null;
         if ($giaVal === null) { $errors[] = ['row' => $rnum+1, 'message' => 'Giá trị điểm không hợp lệ']; continue; }
 
-        // Resolve maLop to numeric id if possible
         $resolvedMaLop = null;
         if ($maLopRaw !== '') {
             if (is_numeric($maLopRaw)) {
                 $resolvedMaLop = intval($maLopRaw);
             } else {
-                // try find by tenLop
                 if ($lookup_class_stmt) {
                     $lookup_class_stmt->bind_param('s', $maLopRaw);
                     $lookup_class_stmt->execute();
@@ -133,7 +122,6 @@ try {
             }
         }
 
-        // fallback: use student's current class
         if ($resolvedMaLop === null && $lookup_student_class_stmt && $maHS > 0) {
             $lookup_student_class_stmt->bind_param('i', $maHS);
             $lookup_student_class_stmt->execute();

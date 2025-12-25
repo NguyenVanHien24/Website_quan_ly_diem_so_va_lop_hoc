@@ -139,7 +139,6 @@ $stmt->close();
 
 // Nếu là thêm mới tài liệu cho lớp thì tạo thông báo gửi tới tất cả học sinh của lớp
 if ($isInsert && $newId > 0) {
-    // Build title/content
     $title = 'Tài liệu mới: ' . $tieuDe;
     $content = 'Có tài liệu mới được thêm cho lớp. Tiêu đề: ' . $tieuDe . '. Mô tả: ' . $moTa . '.';
 

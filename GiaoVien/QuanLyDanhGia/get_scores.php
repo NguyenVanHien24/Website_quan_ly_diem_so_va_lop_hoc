@@ -18,7 +18,6 @@ $maMon = isset($_GET['maMon']) ? (int)$_GET['maMon'] : 0;
 $requestedHocKy = isset($_GET['hocKy']) ? (int)$_GET['hocKy'] : 0;
 $requestedNamHoc = isset($_GET['namHoc']) ? trim($_GET['namHoc']) : '';
 
-// Validate that teacher is assigned to this class+subject
 $stmt = $conn->prepare("SELECT g.maGV FROM giaovien g JOIN phan_cong p ON p.maGV = g.maGV WHERE g.userId = ? AND p.maLop = ? AND p.maMon = ? LIMIT 1");
 $stmt->bind_param('iii', $userID, $maLop, $maMon);
 $stmt->execute();
@@ -30,7 +29,6 @@ if (!$ok) {
     exit();
 }
 
-// Get class info (namHoc, kyHoc)
 $classInfo = ['namHoc' => '', 'hocKy' => 0];
 $stmt = $conn->prepare("SELECT namHoc, kyHoc FROM lophoc WHERE maLop = ?");
 $stmt->bind_param('i', $maLop);
@@ -39,24 +37,20 @@ $res = $stmt->get_result();
 if ($res && $res->num_rows > 0) {
     $raw = $res->fetch_assoc();
     $classInfo['namHoc'] = $raw['namHoc'] ?? '';
-    // normalize kyHoc -> hocKy for frontend
     $classInfo['hocKy'] = isset($raw['kyHoc']) ? (int)$raw['kyHoc'] : 0;
 }
 $stmt->close();
 
-// Override with requested parameters from UI if provided
 if (!empty($requestedNamHoc)) {
     $classInfo['namHoc'] = $requestedNamHoc;
 }
 if (!empty($requestedHocKy)) {
     $classInfo['hocKy'] = $requestedHocKy;
 }
-// Default namHoc to 2025-2026 if still empty
 if (empty($classInfo['namHoc'])) {
     $classInfo['namHoc'] = '2025-2026';
 }
 
-// Function to map Vietnamese score names to keys
 function mapLoaiDiem($loai) {
     $loai = mb_strtolower(trim($loai), 'UTF-8');
     if (mb_strpos($loai, 'miệng') !== false) return 'mouth';
@@ -83,10 +77,9 @@ while ($r = $rs->fetch_assoc()) {
 }
 
 // Lấy điểm của các học sinh cho môn này — thu thập theo học kỳ
-$scoresData = []; // maHS => hocKy => [mouth,45m,gk,ck]
+$scoresData = []; 
     $studentIds = array_map(function($s) { return (int)$s['maHS']; }, $students);
     if (count($studentIds) > 0) {
-        // Fetch scores for the class's school year (all semesters present)
         $extra = '';
         if (!empty($classInfo['namHoc'])) {
             $extra .= " AND namHoc = '" . $conn->real_escape_string($classInfo['namHoc']) . "'";
@@ -105,10 +98,8 @@ $scoresData = []; // maHS => hocKy => [mouth,45m,gk,ck]
             }
         }
     }
-// Build response
 $data = [];
 foreach ($students as $idx => $s) {
-    // Compute semester averages using weighted average
     $weights = ['mouth' => 1, '45m' => 2, 'gk' => 2, 'ck' => 3];
     $computeWeighted = function($arr) use ($weights) {
         $num = 0.0;
@@ -129,7 +120,6 @@ foreach ($students as $idx => $s) {
     $avgHK1 = $computeWeighted($hk1_scores);
     $avgHK2 = $computeWeighted($hk2_scores);
 
-    // Overall average = mean of available semester averages
     $avg = '';
     $avail = [];
     if ($avgHK1 !== '') $avail[] = floatval($avgHK1);
@@ -143,7 +133,7 @@ foreach ($students as $idx => $s) {
         'maHS' => $s['maHS'],
         'hoVaTen' => htmlspecialchars($s['hoVaTen'] ?? ''),
         'tenLop' => htmlspecialchars($s['tenLop'] ?? ''),
-        'tenMon' => '', // Will be added from subject filter
+        'tenMon' => '', 
         'mouth' => $scores['mouth'],
         '45m' => $scores['45m'],
         'gk' => $scores['gk'],

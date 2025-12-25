@@ -9,3 +9,4 @@ echo "maThongBao=$tb\n";
 echo "thongbaouser_count=" . ($r['c'] ?? 0) . "\n";
 echo "send_at=" . ($r2['send_at'] ?? 'NULL') . "\n";
 echo "ngayGui=" . ($r2['ngayGui'] ?? 'NULL') . "\n";
+?>

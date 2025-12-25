@@ -40,13 +40,18 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
     
-    // 4. XỬ LÝ NÚT "XÓA PHÂN CÔNG" (Nút đỏ to ở ngoài)
+    // 4. XỬ LÝ NÚT "XÓA PHÂN CÔNG" 
     const btnDeleteAll = document.querySelector('.btn-danger'); // Nút xóa ngoài bảng
-    if(btnDeleteAll && !btnDeleteAll.closest('.modal')) { // Tránh nhầm với nút trong modal
+    if(btnDeleteAll && !btnDeleteAll.closest('.modal')) { 
          btnDeleteAll.addEventListener('click', function() {
-             // Hiển thị modal xóa với thông báo số nhiều
+             const selected = document.querySelectorAll('.row-checkbox:checked');
+             if (!selected || selected.length === 0) {
+                 alert('Vui lòng chọn ít nhất một phân công để xóa.');
+                 return;
+             }
+
              const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-             document.getElementById('deleteMsg').innerText = "Bạn chắc chắn muốn xóa các phân công này?";
+             document.getElementById('deleteMsg').innerText = `Bạn chắc chắn muốn xóa ${selected.length} phân công đã chọn?`;
              modal.show();
          });
     }
@@ -113,4 +118,23 @@ document.addEventListener("DOMContentLoaded", function() {
             .catch(e => { console.error(e); alert('Lỗi khi lưu phân công'); });
         });
     }
+
+        // 7. CHECKBOXES
+        const checkAll = document.getElementById('checkAll');
+        const rowCheckboxes = Array.from(document.querySelectorAll('.row-checkbox'));
+        if (checkAll) {
+            checkAll.addEventListener('change', function () {
+                rowCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+            });
+        }
+
+        rowCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function () {
+                if (!this.checked && checkAll && checkAll.checked) checkAll.checked = false;
+                if (checkAll) {
+                    const allChecked = rowCheckboxes.every(r => r.checked);
+                    checkAll.checked = allChecked;
+                }
+            });
+        });
 });

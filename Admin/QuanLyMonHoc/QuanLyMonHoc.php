@@ -44,7 +44,7 @@ $pageJS = ['QuanLyMonHoc.js'];
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <th><input id="checkAll" class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th>Mã Môn</th>
                         <th>Tên Môn</th>
@@ -61,7 +61,7 @@ $pageJS = ['QuanLyMonHoc.js'];
                         while ($row = $resultSubjects->fetch_assoc()):
                     ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox" data-id="<?= $row['maMon'] ?>"></td>
+                                <td><input class="form-check-input row-checkbox" type="checkbox" data-id="<?= $row['maMon'] ?>" value="<?= $row['maMon'] ?>"></td>
                                 <td><?= $stt++ ?></td>
                                 <td><?= $row['maMon'] ?></td>
                                 <td><?= $row['tenMon'] ?></td>

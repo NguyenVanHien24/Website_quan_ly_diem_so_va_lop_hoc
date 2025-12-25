@@ -1,31 +1,46 @@
 <?php
-// Returns detailed scores for the logged-in student for a subject/year/semester
 header('Content-Type: application/json; charset=utf-8');
 require_once '../../config.php';
 require_once '../../CSDL/db.php';
 if (session_status() == PHP_SESSION_NONE) session_start();
 
-$resp = ['success'=>false,'scores'=>[]];
-if (!isset($_SESSION['userID'])) { echo json_encode($resp); exit; }
+$resp = ['success' => false, 'scores' => []];
+if (!isset($_SESSION['userID'])) {
+    echo json_encode($resp);
+    exit;
+}
 $userId = (int)$_SESSION['userID'];
 
 $maMon = isset($_POST['maMon']) ? (int)$_POST['maMon'] : 0;
 $namHoc = isset($_POST['namHoc']) ? trim($_POST['namHoc']) : '';
 $hocKy = isset($_POST['hocKy']) ? (int)$_POST['hocKy'] : 0;
 
-if ($maMon <= 0) { echo json_encode($resp); exit; }
+if ($maMon <= 0) {
+    echo json_encode($resp);
+    exit;
+}
 
-// resolve maHS
 $rs = $conn->query("SELECT maHS FROM hocsinh WHERE userId = " . $userId . " LIMIT 1");
-if (!$rs || $rs->num_rows === 0) { echo json_encode($resp); exit; }
+if (!$rs || $rs->num_rows === 0) {
+    echo json_encode($resp);
+    exit;
+}
 $row = $rs->fetch_assoc();
 $maHS = (int)$row['maHS'];
 
-// Fetch loaiDiem/giaTriDiem rows
 $sql = "SELECT loaiDiem, giaTriDiem, ngayGhiNhan FROM diemso WHERE maHS = ? AND maMonHoc = ?";
-$types = 'ii'; $params = [$maHS, $maMon];
-if ($namHoc !== '') { $sql .= " AND namHoc = ?"; $types .= 's'; $params[] = $namHoc; }
-if (!empty($hocKy)) { $sql .= " AND hocKy = ?"; $types .= 'i'; $params[] = $hocKy; }
+$types = 'ii';
+$params = [$maHS, $maMon];
+if ($namHoc !== '') {
+    $sql .= " AND namHoc = ?";
+    $types .= 's';
+    $params[] = $namHoc;
+}
+if (!empty($hocKy)) {
+    $sql .= " AND hocKy = ?";
+    $types .= 'i';
+    $params[] = $hocKy;
+}
 $sql .= " ORDER BY ngayGhiNhan ASC";
 
 $stmt = $conn->prepare($sql);
@@ -46,5 +61,3 @@ if ($stmt) {
 $resp['success'] = true;
 echo json_encode($resp);
 exit;
-
-?>

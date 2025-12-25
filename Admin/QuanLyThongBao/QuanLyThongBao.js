@@ -15,14 +15,12 @@ document.addEventListener("DOMContentLoaded", function() {
     if (btnAdd) {
         btnAdd.addEventListener('click', function() {
             document.getElementById('addForm').reset();
-            // ẩn các control target
             const role = document.getElementById('a_role_select'); if (role) role.style.display = 'none';
             const cls = document.getElementById('a_class_select'); if (cls) cls.style.display = 'none';
             const users = document.getElementById('a_users_select'); if (users) users.style.display = 'none';
         });
     }
 
-    // Master checkbox: select/deselect all row checkboxes
     const masterChk = document.getElementById('chkAll');
     function getRowChecks() { return Array.from(document.querySelectorAll('tbody input.row-chk[type="checkbox"]')); }
     if (masterChk) {
@@ -35,7 +33,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Keep master checkbox state in sync when individual rows change
     getRowChecks().forEach(c => {
         c.addEventListener('change', function() {
             const all = getRowChecks();
@@ -54,7 +51,6 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('e_id').value = d.id || '';
             document.getElementById('e_title').value = d.title || '';
             document.getElementById('e_content').value = d.content || '';
-            // Helper: parse server datetime string ("YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DDTHH:MM")
             function serverDateToLocalInput(val) {
                 if (!val) return '';
                 const m = val.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
@@ -115,7 +111,6 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('v_content').value = d.content;
             document.getElementById('v_date').value = d.date;
             
-            // Chọn radio button (readonly) dựa trên target_type và vai trò người nhận thực tế nếu có
             const ttype = d.target_type || 'all';
             let recRoles = [];
             if (d.recRoles) {
@@ -185,7 +180,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Send now handler for scheduled notifications
     const sendNowButtons = document.querySelectorAll('.btn-send-now');
     sendNowButtons.forEach(btn => {
         btn.addEventListener('click', function(e) {

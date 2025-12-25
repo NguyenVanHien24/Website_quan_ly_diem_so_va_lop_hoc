@@ -128,5 +128,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 })();
             };
         });
+
+    // 6. CHECKBOXES
+    const checkAll = document.getElementById('checkAll');
+    const rowCheckboxes = Array.from(document.querySelectorAll('.row-checkbox'));
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            rowCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+        });
+    }
+
+    rowCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+            if (!this.checked && checkAll && checkAll.checked) checkAll.checked = false;
+            if (checkAll) {
+                const allChecked = rowCheckboxes.every(r => r.checked);
+                checkAll.checked = allChecked;
+            }
+        });
+    });
     }
 });

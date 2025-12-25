@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
         data.forEach((doc) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><input class="form-check-input rounded-circle" type="checkbox" data-id="${doc.id}"></td>
+                <td><input class="form-check-input rounded-circle row-checkbox" type="checkbox" data-id="${doc.id}" value="${doc.id}"></td>
                 <td>${doc.stt}</td>
                 <td class="text-secondary">${doc.tieuDe || ''}</td>
                 <td class="text-secondary">${doc.moTa || ''}</td>
@@ -55,9 +55,30 @@ document.addEventListener("DOMContentLoaded", function() {
             tbody.appendChild(tr);
         });
         
-        // Rebind event listeners
         bindEditButtons();
         bindDeleteButtons();
+        bindRowCheckboxes();
+    }
+
+    function bindRowCheckboxes() {
+        const checkAll = document.getElementById('checkAll');
+        const rowCheckboxes = Array.from(document.querySelectorAll('.row-checkbox'));
+
+        if (checkAll) {
+            checkAll.addEventListener('change', function () {
+                rowCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+            });
+        }
+
+        rowCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function () {
+                if (!this.checked && checkAll && checkAll.checked) checkAll.checked = false;
+                if (checkAll) {
+                    const allChecked = rowCheckboxes.every(r => r.checked);
+                    checkAll.checked = allChecked;
+                }
+            });
+        });
     }
     
     function bindEditButtons() {
@@ -177,8 +198,86 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    if (subjectFilter) subjectFilter.addEventListener('change', loadDocuments);
-    if (classFilter) classFilter.addEventListener('change', loadDocuments);
-    
-    loadDocuments();
+    if (subjectFilter) subjectFilter.addEventListener('change', function(){ loadDocuments(1); });
+    if (classFilter) classFilter.addEventListener('change', function(){ loadDocuments(1); });
+
+    const btnDeleteMulti = document.getElementById('btnDeleteMulti');
+    if (btnDeleteMulti) {
+        btnDeleteMulti.addEventListener('click', function () {
+            const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value || cb.dataset.id);
+            if (!selected || selected.length === 0) {
+                alert('Vui lòng chọn ít nhất một tài liệu để xóa.');
+                return;
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            document.getElementById('deleteMsg').innerText = `Bạn chắc chắn muốn xóa ${selected.length} tài liệu đã chọn?`;
+            modal.show();
+
+            const confirmBtn = document.querySelector('#deleteConfirmModal .btn-danger');
+            confirmBtn.onclick = function () {
+                deleteMultipleDocuments(selected);
+            };
+        });
+    }
+
+    loadDocuments(1);
+
+    function deleteMultipleDocuments(ids) {
+        const promises = ids.map(id => {
+            const fd = new FormData();
+            fd.append('id', id);
+            return fetch('delete_document.php', { method: 'POST', body: fd }).then(r => r.json()).catch(e => ({ success: false, error: e }));
+        });
+
+        Promise.all(promises).then(results => {
+            const successCount = results.filter(r => r && r.success).length;
+            alert(`Đã xóa ${successCount} / ${ids.length} tài liệu`);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+            if (modal) modal.hide();
+            loadDocuments(1);
+        }).catch(err => {
+            console.error(err);
+            alert('Lỗi khi xóa tài liệu');
+        });
+    }
+
+    function renderPagination(meta) {
+        const container = document.getElementById('docPagination');
+        const countBox = document.getElementById('docCount');
+        if (!container) return;
+
+        countBox.textContent = `Hiển thị ${meta.start}-${meta.end}/${meta.total} mục`;
+
+        const totalPages = meta.totalPages || 1;
+        const current = meta.page || 1;
+
+        let html = '<ul class="pagination mb-0">';
+        const prevDisabled = current <= 1 ? 'disabled' : '';
+        html += `<li class="page-item ${prevDisabled}"><a class="page-link" href="#" data-page="${Math.max(1, current-1)}">‹</a></li>`;
+
+        const maxLinks = 7;
+        let start = Math.max(1, current - Math.floor(maxLinks/2));
+        let end = Math.min(totalPages, start + maxLinks - 1);
+        if (end - start < maxLinks - 1) start = Math.max(1, end - maxLinks + 1);
+
+        for (let i = start; i <= end; i++) {
+            const active = (i === current) ? 'active' : '';
+            html += `<li class="page-item ${active}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+        }
+
+        const nextDisabled = current >= totalPages ? 'disabled' : '';
+        html += `<li class="page-item ${nextDisabled}"><a class="page-link" href="#" data-page="${Math.min(totalPages, current+1)}">›</a></li>`;
+        html += '</ul>';
+
+        container.innerHTML = html;
+
+        container.querySelectorAll('.page-link').forEach(a => {
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                const p = parseInt(this.dataset.page || '1', 10);
+                loadDocuments(p);
+            });
+        });
+    }
 });

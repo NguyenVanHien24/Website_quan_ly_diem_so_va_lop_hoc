@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const subjectFilter = document.getElementById('subjectFilter');
     const tbody = document.querySelector('table tbody');
     
-    // Load documents when subject changes
     function loadDocuments() {
         const maMon = subjectFilter.value;
         
@@ -50,7 +49,6 @@ document.addEventListener("DOMContentLoaded", function() {
             tbody.appendChild(tr);
         });
         
-        // Rebind event listeners
         bindViewButtons();
     }
     
@@ -60,7 +58,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.preventDefault();
                 const docId = this.dataset.id;
                 
-                // Fetch document details
                 fetch(`get_document_detail.php?id=${encodeURIComponent(docId)}`)
                     .then(r => r.json())
                     .then(resp => {
@@ -86,6 +83,5 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Event listener
     if (subjectFilter) subjectFilter.addEventListener('change', loadDocuments);
 });

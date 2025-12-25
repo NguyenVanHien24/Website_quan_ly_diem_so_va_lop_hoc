@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const d = this.dataset;
 
             document.getElementById('modalTitle').innerText = "XEM LỚP HỌC";
-            // Hide/disable save button
+            
             const btnSave = document.getElementById('btnSaveClass');
             if (btnSave) btnSave.style.display = 'none';
 

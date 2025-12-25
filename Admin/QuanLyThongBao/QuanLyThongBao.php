@@ -70,12 +70,12 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
                     $offset = ($page - 1) * $limit;
 
-                                    $where = '';
-                                    if ($status === 'sent') {
-                                        $where = "WHERE (tb.send_at IS NULL OR tb.send_at <= NOW()) AND EXISTS(SELECT 1 FROM `user` uu WHERE uu.userId = tb.nguoiGui AND uu.vaiTro = 'Admin')";
-                                    } elseif ($status === 'scheduled') {
-                                        $where = "WHERE tb.send_at IS NOT NULL AND tb.send_at > NOW()";
-                                    }
+                    $where = '';
+                    if ($status === 'sent') {
+                        $where = "WHERE (tb.send_at IS NULL OR tb.send_at <= NOW()) AND EXISTS(SELECT 1 FROM `user` uu WHERE uu.userId = tb.nguoiGui AND uu.vaiTro = 'Admin')";
+                    } elseif ($status === 'scheduled') {
+                        $where = "WHERE tb.send_at IS NOT NULL AND tb.send_at > NOW()";
+                    }
 
                     // 1. Đếm tổng số bản ghi theo bộ lọc hiện tại (để tính số trang)
                     $sqlCount = "SELECT COUNT(*) as total FROM thongbao tb " . $where;
@@ -90,7 +90,7 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                             LEFT JOIN `user` u ON tb.nguoiGui = u.userId
                             " . $where . "
                             ORDER BY tb.ngayGui DESC
-                            LIMIT $limit OFFSET $offset"; 
+                            LIMIT $limit OFFSET $offset";
 
                     $rs = $conn->query($sql);
                     if ($rs && $rs->num_rows > 0) {
@@ -105,7 +105,6 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
 
                             $sendAtRaw = $row['send_at'] ?? null;
 
-                            // real distribution count (rows in thongbaouser)
                             $realCnt = 0;
                             $countRs = $conn->query("SELECT COUNT(*) AS cnt FROM thongbaouser WHERE maTB = " . $id);
                             if ($countRs) {
@@ -113,7 +112,6 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                 $realCnt = (int)($c['cnt'] ?? 0);
                             }
 
-                            // predicted recipients when not yet distributed
                             $predictedCnt = 0;
                             if ($realCnt === 0) {
                                 $tt = $row['target_type'] ?? 'all';
@@ -143,13 +141,11 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                     if (is_array($arr)) $predictedCnt = count($arr);
                                 }
                             }
-                            
-                                // Determine scheduled state: only consider as scheduled when send_at is in the future
-                                // and there are no actual distribution records yet.
-                                $isScheduled = false;
-                                if ($sendAtRaw !== null && $sendAtRaw !== '' && strtotime($sendAtRaw) > time() && $realCnt === 0) $isScheduled = true;
 
-                                echo '<tr>';
+                            $isScheduled = false;
+                            if ($sendAtRaw !== null && $sendAtRaw !== '' && strtotime($sendAtRaw) > time() && $realCnt === 0) $isScheduled = true;
+
+                            echo '<tr>';
                             echo '<td><input class="form-check-input row-chk" type="checkbox" value="' . $id . '"></td>';
                             echo '<td>' . $i++ . '</td>';
                             echo '<td>' . $code . '</td>';
@@ -186,13 +182,16 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                 } elseif ($tt === 'users') {
                                     $arr = json_decode($tv, true);
                                     if (is_array($arr) && count($arr) > 0) {
-                                        
+
                                         $ids = array_map('intval', $arr);
                                         $in = implode(',', $ids);
                                         $rsn = $conn->query("SELECT hoVaTen, vaiTro FROM `user` WHERE userId IN (" . $in . ") LIMIT 10");
                                         $names = [];
                                         $rolesTmp = [];
-                                        if ($rsn) while ($rrr = $rsn->fetch_assoc()) { $names[] = $rrr['hoVaTen']; if (!empty($rrr['vaiTro'])) $rolesTmp[] = $rrr['vaiTro']; }
+                                        if ($rsn) while ($rrr = $rsn->fetch_assoc()) {
+                                            $names[] = $rrr['hoVaTen'];
+                                            if (!empty($rrr['vaiTro'])) $rolesTmp[] = $rrr['vaiTro'];
+                                        }
                                         $receiverLabel = implode(', ', $names);
                                         $receiverRoles = array_values(array_unique($rolesTmp));
                                     } else {
@@ -205,16 +204,29 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                                 $names = [];
                                 $roles = [];
                                 if ($rsr) {
-                                    while ($rr = $rsr->fetch_assoc()) { $names[] = $rr['hoVaTen']; if (!empty($rr['vaiTro'])) $roles[] = $rr['vaiTro']; }
+                                    while ($rr = $rsr->fetch_assoc()) {
+                                        $names[] = $rr['hoVaTen'];
+                                        if (!empty($rr['vaiTro'])) $roles[] = $rr['vaiTro'];
+                                    }
                                 }
                                 if (!empty($names)) {
                                     $receiverLabel = implode(', ', $names);
                                     $receiverRoles = array_values(array_unique($roles));
                                 } else {
-                                    if ($tt === 'all') { $receiverLabel = 'Toàn hệ thống'; $receiverRoles = ['all']; }
-                                    elseif ($tt === 'role') { $map = ['GiaoVien' => 'Giáo viên', 'HocSinh' => 'Học sinh', 'Admin' => 'Admin']; $receiverLabel = $map[$tv] ?? $tv; $receiverRoles = [$tv]; }
-                                    elseif ($tt === 'class') { $receiverLabel = 'Lớp #' . (int)$tv; $receiverRoles = ['HocSinh']; }
-                                    else { $receiverLabel = 'Chưa phân phối'; $receiverRoles = []; }
+                                    if ($tt === 'all') {
+                                        $receiverLabel = 'Toàn hệ thống';
+                                        $receiverRoles = ['all'];
+                                    } elseif ($tt === 'role') {
+                                        $map = ['GiaoVien' => 'Giáo viên', 'HocSinh' => 'Học sinh', 'Admin' => 'Admin'];
+                                        $receiverLabel = $map[$tv] ?? $tv;
+                                        $receiverRoles = [$tv];
+                                    } elseif ($tt === 'class') {
+                                        $receiverLabel = 'Lớp #' . (int)$tv;
+                                        $receiverRoles = ['HocSinh'];
+                                    } else {
+                                        $receiverLabel = 'Chưa phân phối';
+                                        $receiverRoles = [];
+                                    }
                                 }
                             }
 
@@ -227,7 +239,6 @@ $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
                             $dataAttrs .= ' data-recipients="' . htmlspecialchars($receiverLabel) . '"';
                             $dataAttrs .= ' data-rec-roles="' . htmlspecialchars(json_encode($receiverRoles), ENT_QUOTES) . '"';
                             echo '<td class="action-icons">';
-                            // If scheduled show a quick "Gửi ngay" action
                             if ($isScheduled) {
                                 echo '<a href="#" class="btn-send-now" data-ma="' . $id . '" title="Gửi ngay"><i class="bi bi-send-fill"></i></a> ';
                             }

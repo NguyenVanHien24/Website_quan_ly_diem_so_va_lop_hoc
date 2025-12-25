@@ -31,7 +31,6 @@ if ($title === '') {
 }
 $send_at_db = null;
 if ($send_at !== null && $send_at !== '') {
-    // normalize datetime-local input (YYYY-MM-DDTHH:MM or YYYY-MM-DD HH:MM) to MySQL DATETIME (YYYY-MM-DD HH:MM:SS)
     $send_at_db = str_replace('T', ' ', $send_at);
     if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $send_at_db)) {
         $send_at_db .= ':00';
@@ -139,7 +138,6 @@ if ($shouldDistribute && !empty($userIds)) {
     } else {
         $errors[] = ['prepare_error' => $conn->error];
     }
-    // If we actually distributed recipients immediately, mark send_at cleared and set ngayGui
     if ($inserted > 0) {
         $conn->query("UPDATE thongbao SET send_at = NULL, ngayGui = NOW() WHERE maThongBao = " . (int)$maTB);
     }

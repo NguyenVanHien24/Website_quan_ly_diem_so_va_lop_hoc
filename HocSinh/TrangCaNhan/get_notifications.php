@@ -1,5 +1,4 @@
 <?php
-// Endpoint: returns notifications for current student as JSON
 ob_start();
 ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');

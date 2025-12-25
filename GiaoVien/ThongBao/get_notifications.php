@@ -1,8 +1,5 @@
 <?php
-// GiaoVien/ThongBao/get_notifications.php
 session_start();
-
-// Suppress direct PHP error output so we always emit valid JSON
 ini_set('display_errors', 0);
 header('Content-Type: application/json; charset=utf-8');
 ob_start();

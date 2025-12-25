@@ -141,6 +141,5 @@ $pageJS = ['KetQuaHocTap.js'];
     </div>
 
 </main>
-    <!-- SheetJS for .xlsx export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <?php require_once '../../footer.php'; ?>

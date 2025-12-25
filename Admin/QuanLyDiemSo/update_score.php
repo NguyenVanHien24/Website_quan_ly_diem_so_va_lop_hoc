@@ -47,8 +47,6 @@ $score_type_map = [
 ];
 
 // 5. Chuẩn bị truy vấn UPSERT (INSERT OR UPDATE)
-// Sử dụng cú pháp ON DUPLICATE KEY UPDATE của MySQL
-// Bạn cần đảm bảo đã tạo UNIQUE KEY (maHS, maMonHoc, namHoc, hocKy, loaiDiem)
 $query = "INSERT INTO diemso (maHS, maMonHoc, namHoc, hocKy, loaiDiem, giaTriDiem, maLop) 
           VALUES (?, ?, ?, ?, ?, ?, ?)
           ON DUPLICATE KEY UPDATE
@@ -57,8 +55,7 @@ $query = "INSERT INTO diemso (maHS, maMonHoc, namHoc, hocKy, loaiDiem, giaTriDie
 
 // 6. Thực hiện lặp qua các điểm đã gửi và lưu vào CSDL
 $success = true;
-$types_to_process = ['mouth', '45m', 'gk', 'ck']; // Các loại điểm cần xử lý
-// Collect updated entries to notify student later
+$types_to_process = ['mouth', '45m', 'gk', 'ck']; 
 $updatedEntries = [];
 
 foreach ([1, 2] as $hk) { // Lặp qua Học kỳ 1 và Học kỳ 2
@@ -125,7 +122,6 @@ if ($success) {
         }
 
         if ($userId !== null) {
-            // Build title and content
             $title = 'Cập nhật điểm: ' . ($tenMon !== '' ? $tenMon : 'Môn học');
             $parts = [];
             foreach ($updatedEntries as $e) {
@@ -133,7 +129,6 @@ if ($success) {
             }
             $content = 'Điểm của bạn đã được cập nhật. ' . implode('; ', $parts);
 
-            // Insert into thongbao and thongbaouser
             $conn->begin_transaction();
             $stmtIns = $conn->prepare("INSERT INTO thongbao (tieuDe, noiDung, nguoiGui) VALUES (?, ?, ?)");
             if ($stmtIns) {

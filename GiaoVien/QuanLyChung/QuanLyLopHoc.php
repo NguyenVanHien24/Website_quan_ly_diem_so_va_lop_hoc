@@ -87,7 +87,7 @@ if (!empty($teacher['maGV'])) {
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <!-- <th><input class="form-check-input" type="checkbox"></th> -->
                         <th>STT</th>
                         <th>Mã Lớp</th>
                         <th>Tên Lớp</th>
@@ -101,7 +101,7 @@ if (!empty($teacher['maGV'])) {
                     <?php if (count($assignedClasses) > 0): $i = $offset + 1; ?>
                         <?php foreach ($assignedClasses as $c): ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($c['maLop']) ?>"></td>
+                                <!-- <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($c['maLop']) ?>"></td> -->
                                 <td><?= $i++ ?></td>
                                 <td><?= htmlspecialchars($c['maLop']) ?></td>
                                 <td><?= htmlspecialchars($c['tenLop']) ?></td>

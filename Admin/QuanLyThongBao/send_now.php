@@ -20,14 +20,12 @@ if (!isset($_SESSION['userID']) || $_SESSION['vaiTro'] !== 'Admin') {
 $ma = isset($_POST['maThongBao']) ? (int)$_POST['maThongBao'] : 0;
 if ($ma <= 0) { echo json_encode(['success'=>false,'message'=>'Invalid id']); exit(); }
 
-// Load target info
 $rs = $conn->query("SELECT target_type, target_value, send_at FROM thongbao WHERE maThongBao = " . (int)$ma . " LIMIT 1");
 if (!$rs || $rs->num_rows === 0) { echo json_encode(['success'=>false,'message'=>'Not found']); exit(); }
 $row = $rs->fetch_assoc();
 $target_type = $row['target_type'] ?? 'all';
 $target_value = $row['target_value'] ?? '';
 
-// Build user list
 $userIds = [];
 if ($target_type === 'all') {
     $r2 = $conn->query("SELECT userId FROM `user`");

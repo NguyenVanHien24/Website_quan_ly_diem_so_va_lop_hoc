@@ -24,7 +24,7 @@ $pageJS = ['QuanLyPhanCong.js'];
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <th><input id="checkAll" class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th>LỚP</th>
                         <th>KHỐI</th>
@@ -35,7 +35,6 @@ $pageJS = ['QuanLyPhanCong.js'];
                 </thead>
                 <tbody>
                     <?php
-                    // --- BẮT ĐẦU LOGIC PHÂN TRANG ---
                     $limit = 10; // Số dòng mỗi trang
                     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
                     $offset = ($page - 1) * $limit;
@@ -70,7 +69,7 @@ $pageJS = ['QuanLyPhanCong.js'];
                         while ($row = $assignmentRs->fetch_assoc()):
                     ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox" value="<?= htmlspecialchars($row['id']) ?>"></td>
+                                <td><input class="form-check-input row-checkbox" type="checkbox" value="<?= htmlspecialchars($row['id']) ?>"></td>
                                 <td><?= $i++ ?></td>
                                 <td><?= htmlspecialchars($row['tenLop']) ?></td>
                                 <td><?= htmlspecialchars($row['khoiLop']) ?></td>

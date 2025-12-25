@@ -48,7 +48,6 @@ if ($maGV > 0) {
     }
 }
 
-// Default date = today
 $today = date('Y-m-d');
 ?>
 <main>

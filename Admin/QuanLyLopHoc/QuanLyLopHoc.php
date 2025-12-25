@@ -70,7 +70,7 @@ $pageJS = ['QuanLyLopHoc.js'];
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th><input class="form-check-input" type="checkbox"></th>
+                        <th><input id="checkAll" class="form-check-input" type="checkbox"></th>
                         <th>STT</th>
                         <th>Mã Lớp</th>
                         <th>Tên Lớp</th>
@@ -87,7 +87,7 @@ $pageJS = ['QuanLyLopHoc.js'];
                         while ($row = $result->fetch_assoc()):
                     ?>
                             <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
+                                <td><input class="form-check-input row-checkbox" type="checkbox" value="<?= $row['maLop'] ?>"></td>
                                 <td><?= $stt++ ?></td>
                                 <td><?= $row['maLop'] ?></td>
                                 <td><?= $row['tenLop'] ?></td>

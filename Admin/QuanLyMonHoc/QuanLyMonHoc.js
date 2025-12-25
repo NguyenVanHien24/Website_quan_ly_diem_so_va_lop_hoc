@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnDeleteAll = document.querySelector('.btn-danger');
     if (btnDeleteAll && !btnDeleteAll.closest('.modal')) {
         btnDeleteAll.addEventListener('click', function () {
-            const checks = document.querySelectorAll('.table tbody input.form-check-input:checked');
+            const checks = document.querySelectorAll('.table tbody .row-checkbox:checked');
 
             if (checks.length === 0) {
                 alert("Vui lòng chọn ít nhất một môn học để xóa.");
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const confirmBtn = document.querySelector('#deleteConfirmModal .btn-danger');
             confirmBtn.onclick = function () {
                 const promises = Array.from(checks).map(cb => {
-                    const maMon = cb.dataset.id;
+                    const maMon = cb.dataset.id || cb.value;
                     return fetch('xoaMonHoc.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -152,6 +152,25 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // 6. CHECKBOXES
+    const checkAll = document.getElementById('checkAll');
+    const rowCheckboxes = Array.from(document.querySelectorAll('.row-checkbox'));
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            rowCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+        });
+    }
+
+    rowCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+            if (!this.checked && checkAll && checkAll.checked) checkAll.checked = false;
+            if (checkAll) {
+                const allChecked = rowCheckboxes.every(r => r.checked);
+                checkAll.checked = allChecked;
+            }
+        });
+    });
 
     // 5. LƯU DỮ LIỆU (THÊM / SỬA)
     const btnSave = document.getElementById('btnSaveSubject');

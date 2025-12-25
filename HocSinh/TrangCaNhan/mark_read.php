@@ -1,5 +1,4 @@
 <?php
-// Mark notification(s) as read for the current student
 ob_start();
 ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
@@ -16,7 +15,6 @@ try {
     }
     $userId = (int)$_SESSION['userID'];
 
-    // Accept JSON body or form data
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
     if (!is_array($data)) $data = $_POST;

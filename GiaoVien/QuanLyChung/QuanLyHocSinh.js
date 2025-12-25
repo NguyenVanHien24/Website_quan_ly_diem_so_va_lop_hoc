@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const editButtons = document.querySelectorAll('.btn-edit');
     editButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            // Lấy dữ liệu từ attributes data-...
             const d = this.dataset;
 
             // Cập nhật giao diện theo mode "Sửa"

@@ -9,10 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnNextPage = document.getElementById('btnNextPage');
     const pageNumber = document.getElementById('pageNumber');
 
-    // pagination state
     let fullData = [];
     let currentPage = 1;
-    const pageSize = 10; // enforced
+    const pageSize = 10; 
 
     async function loadYearsAndDefault() {
         try {
@@ -87,14 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     const r = await fetch(window.BASE_URL + 'HocSinh/TraCuuThongTin/get_student_scores.php', { method: 'POST', body: fd });
                     const data = await r.json();
                     if (!data.success) return;
-                    // Show simple modal with detail (reuse existing viewDetailModal if present)
                     const modalTitle = document.getElementById('v_title_text');
                     const elMieng = document.getElementById('v_diem_mieng');
                     const el1Tiet = document.getElementById('v_diem_1tiet');
                     const elGK = document.getElementById('v_diem_gk');
                     const elCK = document.getElementById('v_diem_ck');
                     if (modalTitle) modalTitle.innerText = this.closest('tr').querySelector('td:nth-child(4)').innerText;
-                    // Normalize and group scores by type
                     const mouth = [], tiet = [], gk = [], ck = [];
                     (data.scores || []).forEach(s => {
                         const t = String(s.loaiDiem || '').toLowerCase();
@@ -104,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         else if (t.includes('gk') || t.includes('giữa') || t.includes('giua') || t.includes('giữa kỳ') || t.includes('giua ky')) gk.push(val);
                         else if (t.includes('ck') || t.includes('cuối') || t.includes('cuoi')) ck.push(val);
                         else {
-                            // fallback: try common keywords
                             if (t.includes('giua') || t.includes('gk')) gk.push(val);
                             else if (t.includes('cuoi') || t.includes('ck')) ck.push(val);
                             else tiet.push(val);
@@ -114,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (el1Tiet) el1Tiet.value = tiet.join(', ');
                     if (elGK) elGK.value = gk.join(', ');
                     if (elCK) elCK.value = ck.join(', ');
-                    // Show modal
                     const modalElem = document.getElementById('viewDetailModal');
                     if (modalElem) new bootstrap.Modal(modalElem).show();
                 } catch (e) { console.error(e); }
@@ -187,15 +182,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     btnExport.addEventListener('click', function() {
         const rows = [];
-        // metadata
         rows.push(['Năm học', selYear.value || '']);
         rows.push(['Học kỳ', selSemester.value || '']);
         rows.push([]);
-        // table header
         document.querySelectorAll('main table.table thead tr').forEach(tr => {
             const cols = Array.from(tr.querySelectorAll('th')).map(th => th.innerText.trim()); rows.push(cols);
         });
-        // table body
         document.querySelectorAll('main table.table tbody tr').forEach(tr => {
             const cols = Array.from(tr.querySelectorAll('td')).map(td => td.innerText.trim()); rows.push(cols);
         });
@@ -210,6 +202,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // init
     loadYearsAndDefault().then(() => loadOverview());
 });

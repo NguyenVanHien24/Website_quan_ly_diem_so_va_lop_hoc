@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Delegate click to tbody for dynamic rows (select the notifications table present on the page)
     const tbody = document.querySelector('main table.table tbody') || document.querySelector('table.table tbody');
     if (!tbody) return;
 
@@ -9,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const d = tr.dataset;
 
-        // Populate modal fields (IDs adapted from PHP template)
         const titleEl = document.getElementById('v_title_text');
         const contentEl = document.getElementById('v_content');
         const senderEl = document.getElementById('v_sender');
@@ -31,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Mark as read by calling API (using tbuId)
         const tbuId = d.tbuid;
         if (tbuId) {
             fetch(window.BASE_URL + 'HocSinh/TrangCaNhan/mark_read.php', {
@@ -45,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const badge = document.getElementById('notifBadge');
                     if (badge) badge.innerText = data.unread || '';
                 }
-            }).catch(() => { /* ignore errors */ });
+            }).catch(() => {  });
         }
     });
 });
