@@ -57,6 +57,7 @@ function reverseMapLoaiDiem($key) {
 
 $scoreData = ['mouth' => $mouth, '45m' => $m45, 'gk' => $gk, 'ck' => $ck];
 
+$results = [];
 foreach ($scoreData as $key => $value) {
     if (empty($value)) continue;
     
@@ -76,17 +77,18 @@ foreach ($scoreData as $key => $value) {
         echo json_encode(['success' => false, 'message' => 'Prepare error: ' . $conn->error]);
         exit();
     }
-    
-    $stmt->bind_param('iiisisi', $maHS, $maMon, $maLop, $loaiDiem, $value, $namHoc, $hocKy);
-    
+    $dValue = is_numeric($value) ? (float)$value : null;
+    $stmt->bind_param('iiisdsi', $maHS, $maMon, $maLop, $loaiDiem, $dValue, $namHoc, $hocKy);
+
     if (!$stmt->execute()) {
-        echo json_encode(['success' => false, 'message' => 'Execute error: ' . $stmt->error]);
+        echo json_encode(['success' => false, 'message' => 'Execute error: ' . $stmt->error, 'loaiDiem'=>$loaiDiem, 'value'=>$value]);
         $stmt->close();
         exit();
     }
-    
-    $stmt->close();
-}
 
-echo json_encode(['success' => true, 'message' => 'Lưu điểm thành công']);
+    $affected = $stmt->affected_rows;
+    $stmt->close();
+    $results[] = ['loaiDiem' => $loaiDiem, 'value' => $value, 'affected' => $affected];
+}
+echo json_encode(['success' => true, 'message' => 'Lưu điểm thành công', 'results'=>$results]);
 exit();

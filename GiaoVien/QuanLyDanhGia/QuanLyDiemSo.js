@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let fullData = [];
         let currentPage = 1;
         let pageSize = 10;
+        // Track which semester inputs the user is actively editing inside the modal
+        let modalEditingHocKy = 1;
 
         const prevBtn = document.getElementById('prev-page');
         const nextBtn = document.getElementById('next-page');
@@ -229,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById(prefixEdit2 + '45m').value = data2.scores['45m'] || '';
                 document.getElementById(prefixEdit2 + 'gk').value = data2.scores.gk || '';
                 document.getElementById(prefixEdit2 + 'ck').value = data2.scores.ck || '';
-                
+
                 const saveElem1 = document.getElementById(prefixEdit1 + 'mouth');
                 const saveElem2 = document.getElementById(prefixEdit2 + 'mouth');
                 if (saveElem1) {
@@ -240,6 +242,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     saveElem2.dataset.mahs = maHS;
                     saveElem2.dataset.mamon = maMon;
                 }
+                // Determine default editing semester: prefer the semester with at least one non-empty score if s1 empty
+                const s1Has = (data1.scores.mouth||data1.scores['45m']||data1.scores.gk||data1.scores.ck) && (data1.scores.mouth!==''||data1.scores['45m']!==''||data1.scores.gk!==''||data1.scores.ck!=='');
+                const s2Has = (data2.scores.mouth||data2.scores['45m']||data2.scores.gk||data2.scores.ck) && (data2.scores.mouth!==''||data2.scores['45m']!==''||data2.scores.gk!==''||data2.scores.ck!=='');
+                modalEditingHocKy = s1Has ? 1 : (s2Has ? 2 : 1);
+
+                // Add focus listeners so when user focuses inputs we know which semester they're editing
+                ['mouth','45m','gk','ck'].forEach(k => {
+                    const e1 = document.getElementById('edit_s1_' + k);
+                    const e2 = document.getElementById('edit_s2_' + k);
+                    if (e1) e1.addEventListener('focus', () => { modalEditingHocKy = 1; });
+                    if (e2) e2.addEventListener('focus', () => { modalEditingHocKy = 2; });
+                });
             }
         })
         .catch(err => {
@@ -268,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         saveBtn.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const detectedHocKy = inferHocKy();
+            const detectedHocKy = modalEditingHocKy || inferHocKy();
             const selectedNamHoc = (yearInput && yearInput.value) ? yearInput.value : '2025-2026';
 
             const s1Elem = document.getElementById('edit_s1_mouth');
@@ -298,13 +312,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Lưu điểm thành công');
+                        alert('Lưu điểm thành công\n' + JSON.stringify(data));
+                        console.info('Save response:', data);
                         const modalEl = document.getElementById('gradeEntryModal');
                         const modal = bootstrap.Modal.getInstance(modalEl);
                         if (modal) modal.hide();
+                        try {
+                            if (semesterSelect) semesterSelect.value = detectedHocKy;
+                            if (yearInput) yearInput.value = selectedNamHoc;
+                        } catch (e) { console.warn('Lỗi', e); }
                         loadScores();
                     } else {
-                        alert('Lỗi: ' + (data.message || 'Không thể lưu điểm'));
+                        alert('Lỗi: ' + (data.message || 'Không thể lưu điểm') + '\n' + JSON.stringify(data));
+                        console.error('Save error response:', data);
                     }
                 }).catch(err => {
                     console.error('Error saving scores:', err);

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 20, 2025 at 06:18 PM
+-- Generation Time: Dec 25, 2025 at 04:05 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -273,7 +273,7 @@ INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTri
 (210, 1, 3, 12, 'Điểm miệng', 5, '2025-12-08 14:38:55', '2025-2026', 2),
 (216, 1, 3, 12, 'Điểm giữa kỳ', 6, '2025-12-08 14:39:04', '2025-2026', 2),
 (218, 6, 1, 12, 'Điểm giữa kỳ', 7, '2025-12-08 14:45:38', '2025-2026', 1),
-(221, 10, 1, 12, 'Điểm miệng', 8, '2025-12-08 14:49:51', '2025-2026', 2),
+(221, 10, 1, 12, 'Điểm miệng', 8, '2025-12-25 22:03:41', '2025-2026', 2),
 (222, 1, 1, 12, 'Điểm miệng', 7, '2025-12-08 14:50:02', '2025-2026', 2),
 (223, 6, 1, 12, 'Điểm miệng', 5, '2025-12-08 14:55:48', '2025-2026', 2),
 (224, 1, 4, 12, 'Điểm miệng', 7, '2025-12-13 23:05:19', '2025-2026', 1),
@@ -286,7 +286,9 @@ INSERT INTO `diemso` (`maDiem`, `maHS`, `maMonHoc`, `maLop`, `loaiDiem`, `giaTri
 (255, 46, 1, 12, 'Điểm miệng', 8.5, '2025-12-14 00:31:11', '2025-2026', 1),
 (256, 46, 1, 12, 'Điểm 1 tiết', 7, '2025-12-14 00:31:11', '2025-2026', 1),
 (257, 46, 1, 12, 'Điểm giữa kỳ', 8, '2025-12-14 00:31:11', '2025-2026', 1),
-(258, 46, 1, 12, 'Điểm cuối kỳ', 8.5, '2025-12-14 00:31:11', '2025-2026', 1);
+(258, 46, 1, 12, 'Điểm cuối kỳ', 8.5, '2025-12-14 00:31:11', '2025-2026', 1),
+(261, 10, 1, 12, 'Điểm giữa kỳ', 8, '2025-12-25 22:03:41', '2025-2026', 2),
+(263, 10, 1, 12, 'Điểm 1 tiết', 7, '2025-12-25 22:03:41', '2025-2026', 2);
 
 --
 -- Triggers `diemso`
@@ -1468,7 +1470,16 @@ INSERT INTO `ghilog` (`maLog`, `userId`, `hanhDong`, `doiTuongTacDong`, `maDoiTu
 (1261, NULL, 'Gửi thông báo ID 14 cho user 21', NULL, NULL, NULL, '2025-12-20 22:58:13'),
 (1262, NULL, 'Gửi thông báo ID 14 cho user 24', NULL, NULL, NULL, '2025-12-20 22:58:13'),
 (1263, NULL, 'Gửi thông báo ID 14 cho user 70', NULL, NULL, NULL, '2025-12-20 22:58:13'),
-(1264, NULL, 'Gửi thông báo ID 14 cho user 71', NULL, NULL, NULL, '2025-12-20 22:58:13');
+(1264, NULL, 'Gửi thông báo ID 14 cho user 71', NULL, NULL, NULL, '2025-12-20 22:58:13'),
+(1265, NULL, 'Cập nhật điểm', 'DiemSo', 221, 'SYSTEM', '2025-12-25 21:58:52'),
+(1266, NULL, 'Cập nhật điểm', 'DiemSo', 221, 'SYSTEM', '2025-12-25 21:59:12'),
+(1267, NULL, 'Ghi điểm', 'DiemSo', 261, 'SYSTEM', '2025-12-25 21:59:12'),
+(1268, NULL, 'Cập nhật điểm', 'DiemSo', 221, 'SYSTEM', '2025-12-25 21:59:29'),
+(1269, NULL, 'Ghi điểm', 'DiemSo', 263, 'SYSTEM', '2025-12-25 21:59:29'),
+(1270, NULL, 'Cập nhật điểm', 'DiemSo', 261, 'SYSTEM', '2025-12-25 21:59:29'),
+(1271, NULL, 'Cập nhật điểm', 'DiemSo', 221, 'SYSTEM', '2025-12-25 22:03:41'),
+(1272, NULL, 'Cập nhật điểm', 'DiemSo', 263, 'SYSTEM', '2025-12-25 22:03:41'),
+(1273, NULL, 'Cập nhật điểm', 'DiemSo', 261, 'SYSTEM', '2025-12-25 22:03:41');
 
 -- --------------------------------------------------------
 
@@ -2785,13 +2796,13 @@ ALTER TABLE `chuyencan`
 -- AUTO_INCREMENT for table `diemso`
 --
 ALTER TABLE `diemso`
-  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=259;
+  MODIFY `maDiem` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=268;
 
 --
 -- AUTO_INCREMENT for table `ghilog`
 --
 ALTER TABLE `ghilog`
-  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1265;
+  MODIFY `maLog` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1274;
 
 --
 -- AUTO_INCREMENT for table `giaovien`

@@ -134,10 +134,11 @@ foreach ($students as $idx => $s) {
         'hoVaTen' => htmlspecialchars($s['hoVaTen'] ?? ''),
         'tenLop' => htmlspecialchars($s['tenLop'] ?? ''),
         'tenMon' => '', 
-        'mouth' => $scores['mouth'],
-        '45m' => $scores['45m'],
-        'gk' => $scores['gk'],
-        'ck' => $scores['ck'],
+        // Trả về các điểm tương ứng với học kỳ hiện tại của lớp/hs
+        'mouth' => ($classInfo['hocKy'] == 2) ? ($hk2_scores['mouth'] ?? '') : ($hk1_scores['mouth'] ?? ''),
+        '45m' => ($classInfo['hocKy'] == 2) ? ($hk2_scores['45m'] ?? '') : ($hk1_scores['45m'] ?? ''),
+        'gk' => ($classInfo['hocKy'] == 2) ? ($hk2_scores['gk'] ?? '') : ($hk1_scores['gk'] ?? ''),
+        'ck' => ($classInfo['hocKy'] == 2) ? ($hk2_scores['ck'] ?? '') : ($hk1_scores['ck'] ?? ''),
         'avgHK1' => $avgHK1,
         'avgHK2' => $avgHK2,
         'avg' => $avg
