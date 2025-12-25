@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Lưu điểm thành công\n' + JSON.stringify(data));
+                        alert('Lưu điểm thành công\n');
                         console.info('Save response:', data);
                         const modalEl = document.getElementById('gradeEntryModal');
                         const modal = bootstrap.Modal.getInstance(modalEl);
