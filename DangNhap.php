@@ -14,7 +14,7 @@ if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
 }
 
-// ====== XỬ LÝ ĐĂNG NHẬP ======
+// XỬ LÝ ĐĂNG NHẬP 
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
